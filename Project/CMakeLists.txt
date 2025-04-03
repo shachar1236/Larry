@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.26) # Set the minimum required CMake version
 project(Larry) # Set the project name
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set (CMAKE_CXX_STANDARD 23)
 
 find_package(OpenGL REQUIRED)
 # Add GLFW as a subdirectory
@@ -17,6 +18,9 @@ set(SOURCE_FILES
     Larry/src/Application.cpp
 
     Larry/src/Renderer/Renderer.cpp
+    Larry/src/Renderer/Shader.cpp
+    Larry/src/Renderer/ShaderProgram.cpp
+    Larry/src/Renderer/VertexArrayObject.cpp
 )
 set(HEADER_DIRECTORIES
     Larry/src

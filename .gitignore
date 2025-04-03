@@ -3,7 +3,9 @@
 
 # my things------
 Project/build
+Project/debug
 Project/.cache
+Project/.vscode
 
 
 ### C++ ###
