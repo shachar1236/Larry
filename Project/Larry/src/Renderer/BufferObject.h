@@ -12,31 +12,17 @@ namespace Larry {
         DYNAMIC_DRAW = GL_DYNAMIC_DRAW,
     };
 
-    struct BufferObjectAtrributes {
-        GLuint index;
-        GLint size;
-        GLenum type;
-        GLboolean normalized;
-        GLsizei stride;
-        const void *pointer;
-    };
-
     template<class T>
     class BufferObject {
         private:
             int buffer_type;
-            std::span<T> vertices;
             enum DrawType draw_type;
             unsigned int vbo;
             bool generated = false;
         public:
-            BufferObjectAtrributes attribute;
-
             BufferObject() {};
-            BufferObject(const int& buffer_type_, std::span<T> vertices_, enum DrawType draw_type_, const BufferObjectAtrributes& attrib_) :
-                vertices(vertices_),
+            BufferObject(const int& buffer_type_, enum DrawType draw_type_) :
                 draw_type(draw_type_),
-                attribute(attrib_),
                 buffer_type(buffer_type_)
             {}
             ~BufferObject() {
@@ -50,8 +36,9 @@ namespace Larry {
             void Bind() {
                 glBindBuffer(buffer_type, vbo);  
             }
+            
             // generates the buffer and returns the VBO
-            unsigned int Generate() {
+            unsigned int Generate(const T* data, const unsigned int& data_size) {
                 if (!generated) {
                     generated = true;
                     // generate the buffer
@@ -59,19 +46,19 @@ namespace Larry {
 
                     this->Bind();
                     // copy the data to the buffer
-                    glBufferData(buffer_type, vertices.size_bytes(), vertices.data(), draw_type);
+                    glBufferData(buffer_type, data_size, data, draw_type);
 
                     LA_CORE_INFO("Created BufferObject {}", vbo);
                 }
                 return vbo;
             }
 
-                // set attribute on GPU, needs to be bind before callind
-                void SetAttributeOnVBO() {
-                    glVertexAttribPointer(attribute.index, attribute.size, attribute.type, attribute.normalized, attribute.stride, attribute.pointer);
-                    glEnableVertexAttribArray(attribute.index);  
-                }
-                //
+            // set attribute on GPU, needs to be bind before callind
+            void SetAttributeOnVBO(const GLuint& index, const GLint& size, const GLenum& type, const GLboolean& normalized, const GLsizei& stride, const void *pointer) {
+                glVertexAttribPointer(index, size, type, normalized, stride, pointer);
+                glEnableVertexAttribArray(index);  
+            }
+            
             // Deletes the vbo
             void Delete() {
                 if (generated) {
@@ -91,6 +78,11 @@ namespace Larry {
 
                 glDeleteBuffers(vec.size(), vec.data());
                 LA_CORE_INFO("Deleted array of BufferObject");
+            }
+
+            void ChangeData(const unsigned int& offset,  const T* data, const unsigned int& data_size) {
+                this->Bind();
+                glBufferSubData(buffer_type, offset, data_size, data);
             }
     };
 

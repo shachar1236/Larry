@@ -5,21 +5,32 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <memory>
+#include <vector>
 #include "RendererConfig.h"
 #include "ShaderProgram.h"
 #include "VertexArrayObject.h"
 
-
 namespace Larry {
+
+    struct Vertex {
+        float vertices[3];
+    };
+
     class Renderer {
         private:
             RendererConfig config;
             GLFWwindow* window;
-            ShaderProgram basic_shader_program;
+            int MAX_TEXURE_UNITS;
 
-            BufferObject<float> vertex_buffer;
-            BufferObject<unsigned int> indices_buffer;
-            std::unique_ptr<VertexArrayObject> vao1;
+            ShaderProgram quad_shader_program;
+
+            std::unique_ptr<VertexArrayObject> quad_vao;
+
+            std::vector<Vertex> quads_vertices;
+            BufferObject<Vertex> quads_vertices_buffer;
+
+            std::vector<unsigned int> quads_indices;
+            BufferObject<unsigned int> quads_indices_buffer;
         public:
             Renderer(RendererConfig config_);
             ~Renderer();
@@ -31,5 +42,6 @@ namespace Larry {
             // void UpdateFrame() - Draw the frame to the screen
             void UpdateFrame();
 
+            void DrawQuad(const float& x, const float& y, const float& width, const float& height);
     };
 }

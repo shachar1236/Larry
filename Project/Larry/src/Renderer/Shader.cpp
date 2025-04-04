@@ -17,7 +17,6 @@ namespace Larry {
     };
 
     Shader::~Shader() {
-        LA_CORE_INFO("Deleting shader {}", shader);
         this->Delete();
     };
 
@@ -47,6 +46,7 @@ namespace Larry {
 
     void Shader::Delete() {
         if (compiled) {
+            LA_CORE_INFO("Deleting shader {}", shader);
             glDeleteShader(shader);
             compiled = false;
         }
