@@ -3,7 +3,6 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <span>
 
 namespace Larry {
     class ShaderProgram {
@@ -14,15 +13,15 @@ namespace Larry {
             bool finished = false;
         public:
             ShaderProgram() {};
-            ShaderProgram(const Shader& vertexShder, const Shader& fragmentShader, const std::span<std::string>& uniform_names);
+            ShaderProgram(const Shader& vertexShder, const Shader& fragmentShader);
             ~ShaderProgram() {};
             void AddShader(const Shader& shader);
-            void AddUniform(const std::string& uniform_name);
+            unsigned int AddUniform(const std::string& uniform_name);
             unsigned int AttachAndLink();
             void Use();
-            unsigned int GetShaderProgram() {
-                return shaderProgram;
-            }
+            int GetUniform(const std::string& name);
             void SetUniform(const std::string& name, const float& x, const float& y, const float& z, const float& w);
+            void SetUniform(const std::string& name, const int& number);
+            void SetUniform(const std::string& name, const int* arr, const int& arr_size);
     };
 }

@@ -2,10 +2,11 @@
 #include "Log.h"
 #include <cstdio>
 #include <fstream>
+#include <regex>
 #include <string>
 
 namespace Larry {
-    Shader::Shader(std::string path, enum ShaderType type_) {
+    Shader::Shader(const std::string& path, const enum ShaderType& type_, const std::unordered_map<std::string, std::string>& compile_type_definations_) {
         std::ifstream shader_file = std::ifstream(path.c_str());
         /* std::string str; */
         while(!shader_file.eof())
@@ -14,6 +15,7 @@ namespace Larry {
         }
 
         type = type_;
+        compile_type_definations = compile_type_definations_;
     };
 
     Shader::~Shader() {
@@ -22,6 +24,11 @@ namespace Larry {
 
     bool Shader::Compile() {
         if (!this->compiled) {
+            // replace definations
+            for (auto key_value : compile_type_definations) {
+                shader_text = std::regex_replace(shader_text, std::regex(key_value.first), key_value.second);
+            }
+            // compile
             shader = glCreateShader(type);
 
             const char* text = shader_text.c_str();
@@ -35,6 +42,7 @@ namespace Larry {
             {
                 glGetShaderInfoLog(shader, 512, NULL, infoLog);
                 LA_CORE_WARN("Shader compilation failed. {}", infoLog);
+                LA_CORE_INFO("Shader code:\n{}", shader_text);
             } else {
                 LA_CORE_INFO("Compiled shader {}", shader);
                 compiled = true;

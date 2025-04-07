@@ -2,6 +2,7 @@
 #include <string>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <unordered_map>
 
 namespace Larry {
     enum ShaderType {
@@ -14,9 +15,10 @@ namespace Larry {
         std::string shader_text;
         unsigned int shader;
         enum ShaderType type;
+        std::unordered_map<std::string, std::string> compile_type_definations;
         bool compiled = false;
     public:
-        Shader(std::string path, enum ShaderType type);
+        Shader(const std::string& path, const enum ShaderType& type, const std::unordered_map<std::string, std::string>& compile_type_definations_);
         ~Shader();
 
         bool Compile(); // returns if compiling succeded

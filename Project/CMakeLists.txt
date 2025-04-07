@@ -14,16 +14,19 @@ set(SOURCE_FILES
     libraries/glad/src/glad.c
 
     Larry/src/main.cpp
-    Larry/src/Log.cpp
     Larry/src/Application.cpp
 
+    Larry/src/Renderer/TextureObject.cpp
     Larry/src/Renderer/Renderer.cpp
     Larry/src/Renderer/Shader.cpp
     Larry/src/Renderer/ShaderProgram.cpp
     Larry/src/Renderer/VertexArrayObject.cpp
+
+    Larry/src/Utils/Log.cpp
 )
 set(HEADER_DIRECTORIES
     Larry/src
+    Larry/src/Utils
     Larry/src/Renderer
 )
 
@@ -32,6 +35,7 @@ if(OPENGL_FOUND)
     include_directories(${GLFW_INCLUDE_DIR}) # Add GLFW include directory
     include_directories(libraries/spdlog/include)  # SPDLOG
     include_directories(libraries/glad/include) # GLAD
+    include_directories(libraries/stb_image)
 
     include_directories(${HEADER_DIRECTORIES}) # My Headers
     add_executable(Larry ${SOURCE_FILES})  # My executables
