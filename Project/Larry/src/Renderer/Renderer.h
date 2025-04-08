@@ -73,6 +73,8 @@ namespace Larry {
 
             // bool ShouldClose() - returns true if someone clicked on close
             bool ShouldClose();
+            // void 
+            void SetViewPort(const int& x, const int& y, const int& width, const int& height);
             // void Background(Color) - Paints the background with the color provided
             void Background(Color color);
             // void UpdateFrame() - Draw the frame to the screen

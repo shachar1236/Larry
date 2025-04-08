@@ -23,11 +23,15 @@ set(SOURCE_FILES
     Larry/src/Renderer/VertexArrayObject.cpp
 
     Larry/src/Utils/Log.cpp
+
+    Larry/src/EventSystem/EventSystem.cpp
+    Larry/src/EventSystem/ErrorEvent.cpp
 )
 set(HEADER_DIRECTORIES
     Larry/src
     Larry/src/Utils
     Larry/src/Renderer
+    Larry/src/EventSystem
 )
 
 if(OPENGL_FOUND)

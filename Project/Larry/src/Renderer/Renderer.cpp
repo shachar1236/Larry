@@ -1,11 +1,13 @@
 #include "Renderer.h"
 #include "BufferObject.h"
+#include "EventSystem.h"
 #include "Log.h"
 #include "Shader.h"
 #include "ShaderProgram.h"
 #include "TextureObject.h"
 #include "VertexArrayObject.h"
 #include "LarryMemory.h"
+#include "WindowResizedEvent.h"
 #include "glm/detail/qualifier.hpp"
 #include "glm/ext/vector_float3.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -17,8 +19,8 @@
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-    glViewport(0, 0, width, height);
-    LA_CORE_INFO("Windows resized to: ({}, {})", width, height);
+    Larry::Ref<Larry::Events::WindowResizedEvent> event = Larry::CreateRef<Larry::Events::WindowResizedEvent>(width, height, window);
+    Larry::EventSystem::DispatchEvent(event);
 }
 
 namespace Larry {
@@ -45,10 +47,7 @@ namespace Larry {
         }    
 
         glViewport(0, 0, config.viewport_width, config.viewport_height);
-        if (config.resizable) {
-            LA_CORE_INFO("Window is resizable!");
-            glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);  
-        }
+        glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);  
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -118,6 +117,10 @@ namespace Larry {
         glfwTerminate();
     }
 
+    void Renderer::SetViewPort(const int& x, const int& y, const int& width, const int& height) {
+        glViewport(0, 0, width, height);
+        LA_CORE_INFO("Viewport changed to: ({}, {}, {}, {})", x, y, width, height);
+    }
 
     bool Renderer::ShouldClose() {
         return glfwWindowShouldClose(window);

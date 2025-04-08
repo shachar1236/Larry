@@ -1,5 +1,8 @@
 #include "Shader.h"
+#include "EventSystem.h"
+#include "LarryMemory.h"
 #include "Log.h"
+#include "ShaderCompilationFaildErrorEvent.h"
 #include <cstdio>
 #include <fstream>
 #include <regex>
@@ -41,8 +44,8 @@ namespace Larry {
             if(!success)
             {
                 glGetShaderInfoLog(shader, 512, NULL, infoLog);
-                LA_CORE_WARN("Shader compilation failed. {}", infoLog);
-                LA_CORE_INFO("Shader code:\n{}", shader_text);
+                Ref<Events::ShaderCompilationFailedErrorEvent> err = CreateRef<Events::ShaderCompilationFailedErrorEvent>(infoLog, shader_text);
+                EventSystem::DispatchEvent(err);
             } else {
                 LA_CORE_INFO("Compiled shader {}", shader);
                 compiled = true;

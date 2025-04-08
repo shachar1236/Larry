@@ -8,6 +8,5 @@ namespace Larry {
         int viewport_width = 800;
         int viewport_height = 600;
         std::string window_name = "test";
-        bool resizable = true;
     };
 }
