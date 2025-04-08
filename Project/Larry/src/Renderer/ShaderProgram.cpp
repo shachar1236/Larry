@@ -2,6 +2,7 @@
 #include "BufferObject.h"
 #include "Log.h"
 #include "Shader.h"
+#include "glm/gtc/type_ptr.hpp"
 
 namespace Larry {
     ShaderProgram::ShaderProgram(const Shader& vertexShder, const Shader& fragmentShader)  {
@@ -60,6 +61,9 @@ namespace Larry {
         glUniform1iv(AddUniform(name), arr_size, arr);
     }
 
+    void ShaderProgram::SetUniform(const std::string& name, const glm::mat4& mat) {
+        glUniformMatrix4fv(AddUniform(name), 1, GL_FALSE, glm::value_ptr(mat));
+    }
 }
 
 

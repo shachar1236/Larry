@@ -6,6 +6,11 @@
 #include "TextureObject.h"
 #include "VertexArrayObject.h"
 #include "LarryMemory.h"
+#include "glm/detail/qualifier.hpp"
+#include "glm/ext/vector_float3.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
+#include "glm/glm.hpp"
 #include <algorithm>
 #include <string>
 #include <unordered_map>
@@ -81,6 +86,11 @@ namespace Larry {
         quad_vertices_buffer.SetAttributeOnVBO(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, textureCords));
         quad_vertices_buffer.SetAttributeOnVBO(3, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, textureSlot));
 
+        quad_vertices_buffer.SetAttributeOnVBO(4, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, modelCol1));
+        quad_vertices_buffer.SetAttributeOnVBO(5, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, modelCol2));
+        quad_vertices_buffer.SetAttributeOnVBO(6, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, modelCol3));
+        quad_vertices_buffer.SetAttributeOnVBO(7, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, modelCol4));
+
         MAX_QUADS_NUMBER = (quads_vertices_buffer_size / 4) / sizeof(Vertex);
         LA_CORE_INFO("MAX_QUADS_NUMBER = {}", MAX_QUADS_NUMBER);
         quad_indices_buffer = BufferObject<unsigned int>(GL_ELEMENT_ARRAY_BUFFER,  DrawType::DYNAMIC_DRAW);
@@ -130,11 +140,15 @@ namespace Larry {
         quad_vertices_buffer.ChangeData(0, quad_vertices.data(), quad_vertices.size() * sizeof(Vertex));
         // use our shader
         quad_shader_program.Use();
+        // set textures
         quad_shader_program.SetUniform("ourTextures", quad_texture_samplers.get(), MAX_TEXTURE_UNITS);
         for (int i = 0; i < currentlyUsedTextures.size(); i++) {
             currentlyUsedTextures[i]->Activate(i);
             currentlyUsedTextures[i]->Bind();
         }
+        // set view, projection
+        quad_shader_program.SetUniform("u_View", View);
+        quad_shader_program.SetUniform("u_Projection", Projection);
         // use our vao
         quad_vao->Bind();
 
@@ -151,19 +165,50 @@ namespace Larry {
             LA_CORE_INFO("Reached MAX_QUADS_NUMBER flushing current batch");
             FlushBatch();
         }
-        Vertex ver1( {x+width, y-height, 0.0f}, {}, { CurrentShapeOptions.TextureCords[0][0], CurrentShapeOptions.TextureCords[0][1]}); // top right
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, CurrentShapeOptions.translation + glm::vec3(x, y, 0.0f));
+        model = glm::rotate(model, CurrentShapeOptions.rotation, CurrentShapeOptions.rotation_axis);
+        model = glm::scale(model, CurrentShapeOptions.scaling);
+
+        Vertex ver1({}, {}, { CurrentShapeOptions.TextureCords[1][0], CurrentShapeOptions.TextureCords[1][1]}); // bottom right
+        ver1.vertices = glm::vec3(0.5 * width, 0.5 * height, 0.0f);
         ver1.textureSlot = CurrentShapeOptions.CurrentTextureSlot;
-        Vertex ver2({x+width, y, 0.0f}, {}, { CurrentShapeOptions.TextureCords[1][0], CurrentShapeOptions.TextureCords[1][1]}); // bottom right
+        Vertex ver2( {}, {}, { CurrentShapeOptions.TextureCords[0][0], CurrentShapeOptions.TextureCords[0][1]}); // top right
+        ver2.vertices = glm::vec3(0.5 * width, -0.5 * height, 0.0f);
         ver2.textureSlot = CurrentShapeOptions.CurrentTextureSlot;
-        Vertex ver3({x, y, 0.0f}, {}, { CurrentShapeOptions.TextureCords[2][0], CurrentShapeOptions.TextureCords[2][1]}); // bottom left
+        Vertex ver3({}, {}, { CurrentShapeOptions.TextureCords[3][0], CurrentShapeOptions.TextureCords[3][1]}); // top left
+        ver3.vertices = glm::vec3(-0.5 * width, -0.5 * height, 0.0f);
         ver3.textureSlot = CurrentShapeOptions.CurrentTextureSlot;
-        Vertex ver4({x, y-height, 0.0f}, {}, { CurrentShapeOptions.TextureCords[3][0], CurrentShapeOptions.TextureCords[3][1]}); // top left
+        Vertex ver4({}, {}, { CurrentShapeOptions.TextureCords[2][0], CurrentShapeOptions.TextureCords[2][1]}); // bottom left
+        ver4.vertices = glm::vec3(-0.5 * width, 0.5 * height, 0.0f);
         ver4.textureSlot = CurrentShapeOptions.CurrentTextureSlot;
         for (int i = 0; i < 4; i++) {
             ver1.colors[i] = CurrentShapeOptions.FillColors[i];
             ver2.colors[i] = CurrentShapeOptions.FillColors[i];
             ver3.colors[i] = CurrentShapeOptions.FillColors[i];
             ver4.colors[i] = CurrentShapeOptions.FillColors[i];
+        }
+
+        for (int i = 0; i < 4; i++) {
+            ver1.modelCol1 = model[0];
+            ver2.modelCol1 = model[0];
+            ver3.modelCol1 = model[0];
+            ver4.modelCol1 = model[0];
+
+            ver1.modelCol2 = model[1];
+            ver2.modelCol2 = model[1];
+            ver3.modelCol2 = model[1];
+            ver4.modelCol2 = model[1];
+
+            ver1.modelCol3 = model[2];
+            ver2.modelCol3 = model[2];
+            ver3.modelCol3 = model[2];
+            ver4.modelCol3 = model[2];
+
+            ver1.modelCol4 = model[3];
+            ver2.modelCol4 = model[3];
+            ver3.modelCol4 = model[3];
+            ver4.modelCol4 = model[3];
         }
 
         quad_vertices.push_back(ver1);
@@ -175,6 +220,14 @@ namespace Larry {
         CurrentShapeOptions = ShapeOptions();
     }
 
+
+    void Renderer::InitializeOrthographicProjection(const float& left, const float& right, const float& bottom, const float& top, const float& nearDist, const float& farDist) {
+        Projection = glm::ortho(left, right, bottom, top, nearDist, farDist);
+    }
+
+    void Renderer::InitializePrespectiveProjection(const float& fov, const float& aspectRatio, const float& near, const float& far) {
+        Projection = glm::perspective(fov, aspectRatio, near, far);
+    }
 
     void Renderer::Fill(float r, float g, float b, float a) {
         CurrentShapeOptions.FillColors[0] = r;
@@ -207,5 +260,22 @@ namespace Larry {
                 CurrentShapeOptions.TextureCords[i][j] = cords[i][j];
             }
         }
+    }
+
+    void Renderer::Translate(const glm::vec3& amount) {
+        CurrentShapeOptions.translation = amount;
+    }
+
+    void Renderer::Scale(const glm::vec3& amount) {
+        CurrentShapeOptions.scaling = amount;
+    }
+
+    void Renderer::Rotate(const float& degrees) {
+        CurrentShapeOptions.rotation = degrees; 
+    }
+
+    void Renderer::Rotate(const float& degrees, const glm::vec3& axis) {
+        CurrentShapeOptions.rotation = degrees; 
+        CurrentShapeOptions.rotation_axis = axis;
     }
 }

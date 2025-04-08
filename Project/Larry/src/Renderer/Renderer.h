@@ -10,14 +10,21 @@
 #include "ShaderProgram.h"
 #include "TextureObject.h"
 #include "VertexArrayObject.h"
+#include "glm/ext/matrix_float4x4.hpp"
+#include "glm/ext/vector_float3.hpp"
+#include "glm/glm.hpp"
 
 namespace Larry {
 
     struct Vertex {
-        float vertices[3];
+        glm::vec3 vertices;
         float colors[4] = {1.0f, 1.0f, 1.0f, 1.0f};
         float textureCords[2];
         float textureSlot;
+        glm::vec4 modelCol1;
+        glm::vec4 modelCol2;
+        glm::vec4 modelCol3;
+        glm::vec4 modelCol4;
     };
 
     struct ShapeOptions {
@@ -29,6 +36,10 @@ namespace Larry {
             { 0.0f, 1.0f },
         };
         int CurrentTextureSlot = 0;
+        glm::vec3 translation = glm::vec3(0.0f, 0.0f, 0.0f);
+        float rotation = 0.0f;
+        glm::vec3 rotation_axis = glm::vec3(0.0f, 0.0f, 1.0f);
+        glm::vec3 scaling = glm::vec3(1.0f, 1.0f, 1.0f);
     };
 
     class Renderer {
@@ -54,6 +65,8 @@ namespace Larry {
             std::vector<Ref<TextureObject>> currentlyUsedTextures;
         public:
             ShapeOptions CurrentShapeOptions;
+            glm::mat4 View = glm::mat4(1.0f);
+            glm::mat4 Projection = glm::mat4(1.0f);
 
             Renderer(RendererConfig config_);
             ~Renderer();
@@ -70,9 +83,17 @@ namespace Larry {
             void DrawQuad(const float& x, const float& y, const float& width, const float& height);
             /* void DrawTriangle(const float& x, const float& y, const float& width, const float& height); */
 
+            // initializing variables
+            void InitializeOrthographicProjection(const float& left, const float& right, const float& bottom, const float& top, const float& nearDist, const float& farDist);
+            void InitializePrespectiveProjection(const float& fov, const float& aspectRatio, const float& near, const float& far);
+
             // Setting next draw options
             void Fill(float r, float g, float b, float a);
             void Texture(const Ref<TextureObject>& texture);
             void TextureCords(const float cords[4][2]);
+            void Translate(const glm::vec3& amount);
+            void Scale(const glm::vec3& amount);
+            void Rotate(const float& degrees);
+            void Rotate(const float& degrees, const glm::vec3& axis);
     };
 }

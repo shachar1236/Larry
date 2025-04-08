@@ -36,6 +36,7 @@ if(OPENGL_FOUND)
     include_directories(libraries/spdlog/include)  # SPDLOG
     include_directories(libraries/glad/include) # GLAD
     include_directories(libraries/stb_image)
+    include_directories(libraries)
 
     include_directories(${HEADER_DIRECTORIES}) # My Headers
     add_executable(Larry ${SOURCE_FILES})  # My executables
