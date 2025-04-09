@@ -66,5 +66,98 @@ namespace Larry {
                     return codepoint;
                 }
         };
+
+        class MouseMovedEvent : public Event {
+            private:
+                GLFWwindow* window;
+                double x, y;
+            public:
+                MouseMovedEvent(GLFWwindow* window_, const double& x_, const double& y_) : window(window_), x(x_), y(y_) {}
+                virtual ~MouseMovedEvent() {}
+
+                virtual enum EventCategory GetEventCategory() { return EventCategory::Input; }
+                virtual enum EventType GetEventType() { return MouseMovedEvent::GetStaticType(); }
+                static EventType GetStaticType() { return EventType::MouseMoved; }
+
+                GLFWwindow* GetWindow() {
+                    return window;
+                }
+
+                double GetX() {
+                    return x;
+                }
+
+                double GetY() {
+                    return y;
+                }
+        };
+
+        class MousePressedEvent : public Event {
+            private:
+                GLFWwindow* window;
+                int button;
+            public:
+                MousePressedEvent(GLFWwindow* window_, const int& button_) : window(window_), button(button_) {}
+                virtual ~MousePressedEvent() {}
+
+                virtual enum EventCategory GetEventCategory() { return EventCategory::Input; }
+                virtual enum EventType GetEventType() { return MousePressedEvent::GetStaticType(); }
+                static EventType GetStaticType() { return EventType::MouseButtonPressed; }
+
+                GLFWwindow* GetWindow() {
+                    return window;
+                }
+
+                int GetButton() {
+                    return button;
+                }
+        };
+
+
+        class MouseReleasedEvent : public Event {
+            private:
+                GLFWwindow* window;
+                int button;
+            public:
+                MouseReleasedEvent(GLFWwindow* window_, const int& button_) : window(window_), button(button_) {}
+                virtual ~MouseReleasedEvent() {}
+
+                virtual enum EventCategory GetEventCategory() { return EventCategory::Input; }
+                virtual enum EventType GetEventType() { return MouseReleasedEvent::GetStaticType(); }
+                static EventType GetStaticType() { return EventType::MouseButtonReleased; }
+
+                GLFWwindow* GetWindow() {
+                    return window;
+                }
+
+                int GetButton() {
+                    return button;
+                }
+        };
+
+        class MouseScrolledEvent : public Event {
+            private:
+                GLFWwindow* window;
+                double xoffset, yoffset;
+            public:
+                MouseScrolledEvent(GLFWwindow* window_, const double& x, const double& y) : window(window_), xoffset(x), yoffset(y) {}
+                virtual ~MouseScrolledEvent() {}
+
+                virtual enum EventCategory GetEventCategory() { return EventCategory::Input; }
+                virtual enum EventType GetEventType() { return MouseScrolledEvent::GetStaticType(); }
+                static EventType GetStaticType() { return EventType::MouseScrolled; }
+
+                GLFWwindow* GetWindow() {
+                    return window;
+                }
+
+                double GetXOffset() {
+                    return xoffset;
+                }
+
+                double GetYOffset() {
+                    return yoffset;
+                }
+        };
     }
 }

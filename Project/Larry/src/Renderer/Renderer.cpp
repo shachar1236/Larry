@@ -107,7 +107,9 @@ namespace Larry {
     }
 
     void Renderer::SetViewPort(const int& x, const int& y, const int& width, const int& height) {
-        glViewport(0, 0, width, height);
+        viewport_size.x = x;
+        viewport_size.y = y;
+        glViewport(x, y, width, height);
         LA_CORE_INFO("Viewport changed to: ({}, {}, {}, {})", x, y, width, height);
     }
 

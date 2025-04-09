@@ -10,6 +10,8 @@ namespace Larry {
 
     GameLayer::GameLayer() : Layer("GameLayer") {
         renderer = Renderer::GetRenderer();
+        viewport_size = renderer->GetViewportSize();
+
         TextureConfig config;
         config.CreateMipmap = false;
         face = CreateRef<TextureObject>("media/textures/awesomeface.png", config);
@@ -39,6 +41,10 @@ namespace Larry {
     void GameLayer::HandleEvent(const Ref<Event>& event) {
         DispatchEvent<Events::KeyPressedEvent>(event, BIND_EVENT_FN(HandleKeyPressed));
         DispatchEvent<Events::KeyReleasedEvent>(event, BIND_EVENT_FN(HandleKeyReleased));
+
+        DispatchEvent<Events::MousePressedEvent>(event, BIND_EVENT_FN(HandleMousePressed));
+        DispatchEvent<Events::MouseReleasedEvent>(event, BIND_EVENT_FN(HandleMouseReleased));
+        DispatchEvent<Events::MouseMovedEvent>(event, BIND_EVENT_FN(HandleMouseMoved));
     }
 
     void GameLayer::HandleKeyPressed(const Ref<Event>& event) {
@@ -77,5 +83,20 @@ namespace Larry {
                 moveDirection.x = 0;
                 break;
         }
+    }
+
+    void GameLayer::HandleMouseMoved(const Ref<Event>& event) {
+        if (mouse_pressed) {
+            Events::MouseMovedEvent* mouse_event = (Events::MouseMovedEvent*)event.get();
+            this->position.x = mouse_event->GetX();
+        }
+    }
+
+    void GameLayer::HandleMousePressed(const Ref<Event>& event) {
+        mouse_pressed = true;
+    }
+
+    void GameLayer::HandleMouseReleased(const Ref<Event>& event) {
+        mouse_pressed = false;
     }
 }

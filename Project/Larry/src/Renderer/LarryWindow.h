@@ -14,6 +14,12 @@ namespace Larry {
         bool maximized = false;
     };
 
+    enum CursorMode {
+        Hidden = GLFW_CURSOR_HIDDEN,
+        Captured = GLFW_CURSOR_CAPTURED,
+        Normal = GLFW_CURSOR_NORMAL,
+    };
+
     class LarryWindow {
         private:
             WindowConfig config;
@@ -36,5 +42,7 @@ namespace Larry {
 
             void Maximize();
             void Unmaximize();
+
+            void SetCursorMode(CursorMode mode);
     };
 }

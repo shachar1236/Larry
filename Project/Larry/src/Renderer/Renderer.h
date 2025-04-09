@@ -63,6 +63,7 @@ namespace Larry {
             Ref<TextureObject> white_texture;
             std::vector<Ref<TextureObject>> currentlyUsedTextures;
 
+            Math::Vec2 viewport_size;
             static Renderer* renderer;
         public:
             ShapeOptions CurrentShapeOptions;
@@ -77,6 +78,7 @@ namespace Larry {
 
             // void 
             void SetViewPort(const int& x, const int& y, const int& width, const int& height);
+            Math::Vec2 GetViewportSize() { return viewport_size; }
             // void Background(Color) - Paints the background with the color provided
             void Background(const Math::Vec4& color);
             // void UpdateFrame() - Draw the frame to the screen

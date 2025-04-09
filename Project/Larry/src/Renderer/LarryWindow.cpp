@@ -104,4 +104,8 @@ namespace Larry {
     void LarryWindow::Unmaximize() {
         glfwRestoreWindow(window);
     }
+
+    void LarryWindow::SetCursorMode(CursorMode mode) {
+        glfwSetInputMode(window, GLFW_CURSOR, mode);
+    }
 }

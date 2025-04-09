@@ -32,8 +32,43 @@ namespace Larry {
         EventSystem::HandleEvent(event);
     }
 
+    void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+    {
+        Ref<Events::MouseMovedEvent> event = CreateRef<Events::MouseMovedEvent>(window, xpos, ypos);
+        EventSystem::HandleEvent(event);
+    }
+
+    void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+    {
+        switch (action) {
+            case GLFW_PRESS:
+                {
+                    Ref<Events::MousePressedEvent> event = CreateRef<Events::MousePressedEvent>(window, button);
+                    EventSystem::HandleEvent(event);
+                }
+                break;
+            case GLFW_RELEASE:
+                {
+                    Ref<Events::MouseReleasedEvent> event = CreateRef<Events::MouseReleasedEvent>(window, button);
+                    EventSystem::HandleEvent(event);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+    {
+        Ref<Events::MouseScrolledEvent> event = CreateRef<Events::MouseScrolledEvent>(window, xoffset, yoffset);
+        EventSystem::HandleEvent(event);
+    }
+
     void InitInput(GLFWwindow* window) {
         glfwSetKeyCallback(window, key_callback);
         glfwSetCharCallback(window, character_callback);
+        glfwSetCursorPosCallback(window, cursor_position_callback);
+        glfwSetMouseButtonCallback(window, mouse_button_callback);
+        glfwSetScrollCallback(window, scroll_callback);
     };
 }

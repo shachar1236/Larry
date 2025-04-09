@@ -9,6 +9,7 @@ namespace Larry {
     class GameLayer : public Layer {
         private:
             Renderer* renderer;
+            Math::Vec2 viewport_size;
 
             Ref<TextureObject> face;
             Ref<TextureObject> test;
@@ -17,6 +18,8 @@ namespace Larry {
             float speed = 10.0f;
             Math::Vec2 moveDirection = Math::Vec3(0.0f);
             Math::Vec2 position = Math::Vec2(200, 300);
+
+            bool mouse_pressed = false;
         public:
             GameLayer();
             virtual ~GameLayer();
@@ -28,5 +31,9 @@ namespace Larry {
 
             void HandleKeyPressed(const Ref<Event>& event);
             void HandleKeyReleased(const Ref<Event>& event);
+
+            void HandleMouseMoved(const Ref<Event>& event);
+            void HandleMousePressed(const Ref<Event>& event);
+            void HandleMouseReleased(const Ref<Event>& event);
     };
 }
