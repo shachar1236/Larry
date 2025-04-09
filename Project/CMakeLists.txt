@@ -21,6 +21,7 @@ set(SOURCE_FILES
     Larry/src/Application/GUILayer.cpp
 
     Larry/src/Renderer/TextureObject.cpp
+    Larry/src/Renderer/LarryWindow.cpp
     Larry/src/Renderer/Renderer.cpp
     Larry/src/Renderer/Shader.cpp
     Larry/src/Renderer/ShaderProgram.cpp
@@ -31,7 +32,6 @@ set(SOURCE_FILES
     Larry/src/Math/Math.cpp
 
     Larry/src/EventSystem/EventSystem.cpp
-    Larry/src/EventSystem/ErrorEvent.cpp
 
     Larry/src/Layers/LayerStack.cpp
 )

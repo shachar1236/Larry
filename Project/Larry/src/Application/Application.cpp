@@ -1,18 +1,24 @@
 #include "Application.h"
-#include "ErrorEvent.h"
+#include "ErrorEvents.h"
 #include "Event.h"
 #include "EventSystem/EventSystem.h"
 #include "GLFW/glfw3.h"
 #include "LarryMemory.h"
+#include "LarryWindow.h"
 #include "Log.h"
-#include "ShaderCompilationFaildErrorEvent.h"
-#include "WindowResizedEvent.h"
 #include "LayerStack.h"
 #include "BackgroundLayer.h"
 #include "GameLayer.h"
 #include "UILayer.h"
 #include "GUILayer.h"
+#include "WindowEvents.h"
 #include <cstdlib>
+
+void gflw_error_callback(int code, const char* description)
+{
+    Larry::Ref<Larry::Events::GlfwErrorEvent> event = Larry::CreateRef<Larry::Events::GlfwErrorEvent>(description, code);
+    Larry::EventSystem::HandleEvent(event);
+}
 
 namespace Larry {
      Application* Application::application = nullptr;
@@ -39,7 +45,13 @@ namespace Larry {
     }
 
     void Application::OnCreate() {
-        renderer = Renderer::InitRenderer(rendererConfig);
+        glfwInit();
+        // setting error callback
+        glfwSetErrorCallback(gflw_error_callback);
+
+        /* windowConfig.maximized = true; */
+        window = CreateRef<LarryWindow>(windowConfig);
+        renderer = Renderer::InitRenderer(rendererConfig, window);
 
         layerStack.AttachLayer(CreateRef<BackgroundLayer>());
         layerStack.AttachLayer(CreateRef<GameLayer>());
@@ -49,7 +61,7 @@ namespace Larry {
 
     void Application::Run() {
         double lastFrameTime = glfwGetTime(); 
-        while(!renderer->ShouldClose())
+        while(running)
         {
             double time = glfwGetTime();
             double deltaTime = time - lastFrameTime;
@@ -95,10 +107,12 @@ namespace Larry {
         if (!dispatched) {
             Events::ErrorEvent* err = (Events::ErrorEvent*)event.get();
             LA_CORE_ERROR("Got an error: {}.", err->GetErrorMessage());
+            if (err->IsFatal()) {
+                event->Handeled = true;
+                LA_CORE_INFO("Error is fatal terminating program.");
+                running = false;
+            }
         }
-        event->Handeled = true;
-        LA_CORE_INFO("Terminating program.");
-        exit(1);
     }
 
     void Application::HandleInputEvent(const Ref<Event>& event) {
@@ -110,6 +124,12 @@ namespace Larry {
             Events::WindowResizedEvent* window_event = (Events::WindowResizedEvent*)event.get();
             LA_CORE_INFO("Windows resized to: ({}, {})", window_event->GetWidth(), window_event->GetHeight());
             renderer->SetViewPort(0, 0, window_event->GetWidth(), window_event->GetHeight());
+        });
+
+        dispatched = dispatched || DispatchEvent<Events::WindowCloseEvent>(event, [this](const Ref<Event>& event){
+            Events::WindowCloseEvent* window_event = (Events::WindowCloseEvent*)event.get();
+            LA_CORE_INFO("User pressed close button!");
+            running = false;
         });
 
         if (!dispatched) {

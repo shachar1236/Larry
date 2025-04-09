@@ -10,6 +10,7 @@
 #include "TextureObject.h"
 #include "VertexArrayObject.h"
 #include "Math.h"
+#include "LarryWindow.h"
 
 namespace Larry {
 
@@ -42,7 +43,8 @@ namespace Larry {
     class Renderer {
         private:
             RendererConfig config;
-            GLFWwindow* window;
+            Ref<LarryWindow> window;
+
             int MAX_TEXTURE_UNITS;
             unsigned int MAX_QUADS_NUMBER;
             unsigned int quads_number = 0;
@@ -67,14 +69,12 @@ namespace Larry {
             Math::Mat4 View = Math::Mat4(1.0f);
             Math::Mat4 Projection = Math::Mat4(1.0f);
 
-            Renderer(RendererConfig config_);
+            Renderer(const RendererConfig& config, const Ref<LarryWindow>& window_);
             ~Renderer();
 
-            static Renderer* InitRenderer(const RendererConfig& config);
+            static Renderer* InitRenderer(const RendererConfig& config, const Ref<LarryWindow>& window_);
             static Renderer* GetRenderer();
 
-            // bool ShouldClose() - returns true if someone clicked on close
-            bool ShouldClose();
             // void 
             void SetViewPort(const int& x, const int& y, const int& width, const int& height);
             // void Background(Color) - Paints the background with the color provided

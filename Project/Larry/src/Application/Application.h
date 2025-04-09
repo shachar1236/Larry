@@ -1,14 +1,18 @@
 #pragma once
+#include "Renderer/Renderer.h"
 #include "EventSystem/Event.h"
+#include "LarryWindow.h"
 #include "LayerStack.h"
 #include "Log.h"
 #include "LarryMemory.h"
-#include "Renderer/Renderer.h"
 
 namespace Larry {
     class Application {
         private:
+            bool running = true;
 
+            WindowConfig windowConfig;
+            Ref<LarryWindow> window;
             RendererConfig rendererConfig;
             Renderer* renderer;
             LayerStack layerStack;

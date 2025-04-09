@@ -14,7 +14,7 @@ namespace Larry {
         None = 0,
         RegularError, OpenGLShaderCompilationFailedError, GlfwError,
 
-        WindowResize, WindowFocus, WindowLostFocus, WindowMoved,
+        WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved,
         KeyPressed, KeyReleased, KeyTyped,
 		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
     };

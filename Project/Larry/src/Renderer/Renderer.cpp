@@ -1,36 +1,25 @@
 #include "Renderer.h"
 #include "BufferObject.h"
 #include "EventSystem.h"
-#include "GlfwErrorEvent.h"
+#include "WindowEvents.h"
+#include "ErrorEvents.h"
 #include "Log.h"
 #include "Shader.h"
 #include "ShaderProgram.h"
 #include "TextureObject.h"
 #include "VertexArrayObject.h"
 #include "LarryMemory.h"
-#include "WindowResizedEvent.h"
 #include "Math.h"
 #include <algorithm>
 #include <string>
 #include <unordered_map>
-
-void error_callback(int code, const char* description)
-{
-    Larry::Ref<Larry::Events::GlfwErrorEvent> event = Larry::CreateRef<Larry::Events::GlfwErrorEvent>(description, code);
-    Larry::EventSystem::HandleEvent(event);
-}
-
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    Larry::Ref<Larry::Events::WindowResizedEvent> event = Larry::CreateRef<Larry::Events::WindowResizedEvent>(width, height, window);
-    Larry::EventSystem::HandleEvent(event);
-}
+#include "LarryWindow.h"
 
 namespace Larry {
     Renderer* Renderer::renderer = nullptr;
 
-    Renderer* Renderer::InitRenderer(const RendererConfig& config) {
-        Renderer::renderer = new Renderer(config);
+    Renderer* Renderer::InitRenderer(const RendererConfig& config, const Ref<LarryWindow>& window_) {
+        Renderer::renderer = new Renderer(config, window_);
         return Renderer::renderer;
     }
 
@@ -38,25 +27,8 @@ namespace Larry {
         return Renderer::renderer;
     }
 
-    Renderer::Renderer(RendererConfig config_) : config(config_)
+    Renderer::Renderer(const RendererConfig& config_, const Ref<LarryWindow>& window_) : config(config_), window(window_)
     {
-        glfwInit();
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-        // setting error callback
-        glfwSetErrorCallback(error_callback);
-
-        window = glfwCreateWindow(config.window_width, config.window_height, config.window_name.c_str(), NULL, NULL);
-        if (window == NULL)
-        {
-            LA_CORE_ERROR("Failed to create GLFW window");
-            glfwTerminate();
-        }
-
-        glfwMakeContextCurrent(window);
-
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         {
             LA_CORE_ERROR("Failed to initialize GLAD" );
@@ -64,7 +36,6 @@ namespace Larry {
         }    
 
         glViewport(0, 0, config.viewport_width, config.viewport_height);
-        glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);  
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -140,10 +111,6 @@ namespace Larry {
         LA_CORE_INFO("Viewport changed to: ({}, {}, {}, {})", x, y, width, height);
     }
 
-    bool Renderer::ShouldClose() {
-        return glfwWindowShouldClose(window);
-    }
-
     void Renderer::Background(const Math::Vec4& color) {
         glClearColor(color.r, color.g, color.b, color.a);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -152,7 +119,7 @@ namespace Larry {
     void Renderer::UpdateFrame() {
         FlushBatch();
 
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(window->GetWindow());
         glfwPollEvents();    
 
     }

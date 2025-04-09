@@ -3,7 +3,7 @@
 #include "EventSystem.h"
 #include "Layer.h"
 #include "Renderer.h"
-#include "WindowResizedEvent.h"
+#include "WindowEvents.h"
 
 namespace Larry {
 
