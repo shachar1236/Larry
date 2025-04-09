@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Layer.h"
+#include "Math.h"
 #include "Renderer.h"
 #include "TextureObject.h"
 
@@ -8,6 +9,7 @@ namespace Larry {
     class BackgroundLayer : public Layer {
         private:
             Renderer* renderer;
+            Math::Vec4 color;
         public:
             BackgroundLayer();
             virtual ~BackgroundLayer();

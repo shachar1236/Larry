@@ -1,6 +1,9 @@
 #include "BackgroundLayer.h"
+#include "Event.h"
+#include "EventSystem.h"
 #include "Layer.h"
 #include "Renderer.h"
+#include "WindowResizedEvent.h"
 
 namespace Larry {
 
@@ -13,10 +16,11 @@ namespace Larry {
 
     void BackgroundLayer::OnAttach() {
         renderer = Renderer::GetRenderer();
+        color = {0.1f, 0.1f, 0.3f, 1};
     }
 
     void BackgroundLayer::OnUpdate(const double& deltaTime) {
-        renderer->Background(Color{0.1f, 0.1f, 0.3f, 1});
+        renderer->Background(color);
     }
 
     void BackgroundLayer::OnDetach() {
@@ -24,6 +28,8 @@ namespace Larry {
     }
 
     void BackgroundLayer::HandleEvent(const Ref<Event>& event) {
-
+        bool dispatched = DispatchEvent<Events::WindowResizedEvent>(event, EVENT_LAMBDA(this, {
+            color.r += 0.05;
+        }));
     }
 }

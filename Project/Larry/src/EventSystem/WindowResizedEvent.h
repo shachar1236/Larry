@@ -15,7 +15,8 @@ namespace Larry {
                 virtual ~WindowResizedEvent() {};
 
                 virtual enum EventCategory GetEventCategory() { return EventCategory::Window; }
-                virtual enum EventType GetEventType() { return EventType::WindowResized; }
+                virtual enum EventType GetEventType() { return WindowResizedEvent::GetStaticType(); }
+                static EventType GetStaticType() { return EventType::WindowResized; }
 
                 int GetWidth() {
                     return width;

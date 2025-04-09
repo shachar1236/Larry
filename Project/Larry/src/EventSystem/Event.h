@@ -11,6 +11,7 @@ namespace Larry {
     inline auto format_as(enum EventCategory f) { return fmt::underlying(f); }
 
     enum EventType {
+        None = 0,
         RegularError,
         OpenGLError,
         OpenGLShaderCompilationFailedError,
@@ -21,10 +22,12 @@ namespace Larry {
 
     class Event {
         public:
-            bool Handeled;
+            bool Handeled; // set this to true if you want the event to not be handled any more
             Event() {};
 
             virtual EventCategory GetEventCategory() = 0;
             virtual EventType GetEventType() = 0;
+
+            static EventType GetStaticType() { return EventType::None; }
     };
 }

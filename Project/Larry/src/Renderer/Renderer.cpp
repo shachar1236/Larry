@@ -16,7 +16,7 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     Larry::Ref<Larry::Events::WindowResizedEvent> event = Larry::CreateRef<Larry::Events::WindowResizedEvent>(width, height, window);
-    Larry::EventSystem::DispatchEvent(event);
+    Larry::EventSystem::HandleEvent(event);
 }
 
 namespace Larry {
@@ -132,7 +132,7 @@ namespace Larry {
         return glfwWindowShouldClose(window);
     }
 
-    void Renderer::Background(Color color) {
+    void Renderer::Background(const Math::Vec4& color) {
         glClearColor(color.r, color.g, color.b, color.a);
         glClear(GL_COLOR_BUFFER_BIT);
     }

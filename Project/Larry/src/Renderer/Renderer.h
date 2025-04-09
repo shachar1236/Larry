@@ -1,7 +1,6 @@
 #pragma once
 #include "Log.h"
 #include "BufferObject.h"
-#include "Color.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "LarryMemory.h"
@@ -79,7 +78,7 @@ namespace Larry {
             // void 
             void SetViewPort(const int& x, const int& y, const int& width, const int& height);
             // void Background(Color) - Paints the background with the color provided
-            void Background(Color color);
+            void Background(const Math::Vec4& color);
             // void UpdateFrame() - Draw the frame to the screen
             void UpdateFrame();
             // void FlushBatch() - draws the current batch to the screen

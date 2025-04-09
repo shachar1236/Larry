@@ -12,9 +12,11 @@ namespace Larry {
                 virtual ~ErrorEvent();
 
                 virtual enum EventCategory GetEventCategory() { return EventCategory::Error; }
-                virtual enum EventType GetEventType() { return EventType::RegularError; }
+                virtual enum EventType GetEventType() { return ErrorEvent::GetEventType(); }
+                static EventType GetStaticType() { return EventType::RegularError; }
 
                 virtual std::string GetErrorMessage();
+
         };
     };
 }

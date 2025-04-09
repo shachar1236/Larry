@@ -27,7 +27,7 @@ namespace Larry {
     }
 
     Application::Application()  {
-        EventSystem::SetCallbackFunction(Application::HandleEvent);
+        EventSystem::SetCallbackFunction(BIND_EVENT_FN(handleEvent));
     }
 
     Application::~Application() {
@@ -78,23 +78,23 @@ namespace Larry {
                 LA_CORE_INFO("Got an event of category {} and type {} and I dont know how t0 handle it.", event->GetEventCategory(), event->GetEventType());
                 break;
         }
+
+        if (!event->Handeled) {
+            layerStack.PassEventToLayers(event);
+        }
     }
 
     void Application::handleErrorEvent(const Ref<Event>& event) {
-        switch (event->GetEventType()) {
-            case EventType::OpenGLShaderCompilationFailedError:
-                {
-                    Events::ShaderCompilationFailedErrorEvent* e = (Events::ShaderCompilationFailedErrorEvent*)event.get();
-                    LA_CORE_ERROR("Shader compilation failed, error: {}", e->GetInfoLog());
-                    LA_CORE_INFO("Shader code:\n{}", e->GetShaderCode());
-                };
-                break;
-            default:
-                {
-                    Events::ErrorEvent* err = (Events::ErrorEvent*)event.get();
-                    LA_CORE_ERROR("Got an error: {}.", err->GetErrorMessage());
-                }
-                break;
+        bool dispatched = DispatchEvent<Events::ShaderCompilationFailedErrorEvent>(event, 
+            [](const Ref<Event>& event){
+                Events::ShaderCompilationFailedErrorEvent* e = (Events::ShaderCompilationFailedErrorEvent*)event.get();
+                LA_CORE_ERROR("Shader compilation failed, error: {}", e->GetInfoLog());
+                LA_CORE_INFO("Shader code:\n{}", e->GetShaderCode());
+           });
+
+        if (!dispatched) {
+            Events::ErrorEvent* err = (Events::ErrorEvent*)event.get();
+            LA_CORE_ERROR("Got an error: {}.", err->GetErrorMessage());
         }
         event->Handeled = true;
         LA_CORE_INFO("Terminating program.");
@@ -102,24 +102,18 @@ namespace Larry {
     }
 
     void Application::HandleInputEvent(const Ref<Event>& event) {
-        event->Handeled = true;
         LA_CORE_INFO("Got input event!");
     }
 
     void Application::HandleWindowEvent(const Ref<Event>& event) {
-        switch (event->GetEventType()) {
-            case EventType::WindowResized: 
-                {
-                    Events::WindowResizedEvent* window_event = (Events::WindowResizedEvent*)event.get();
-                    LA_CORE_INFO("Windows resized to: ({}, {})", window_event->GetWidth(), window_event->GetHeight());
-                    renderer->SetViewPort(0, 0, window_event->GetWidth(), window_event->GetHeight());
-                    event->Handeled = true;
-                }
-                break;
-            default:
-                event->Handeled = true;
-                LA_CORE_INFO("Got a WindowEvent, event type: {}", event->GetEventType());
-                break;
+        bool dispatched = DispatchEvent<Events::WindowResizedEvent>(event, [this](const Ref<Event>& event){
+            Events::WindowResizedEvent* window_event = (Events::WindowResizedEvent*)event.get();
+            LA_CORE_INFO("Windows resized to: ({}, {})", window_event->GetWidth(), window_event->GetHeight());
+            renderer->SetViewPort(0, 0, window_event->GetWidth(), window_event->GetHeight());
+        });
+
+        if (!dispatched) {
+            LA_CORE_INFO("Got a WindowEvent, event type: {}", event->GetEventType());
         }
     }
 }

@@ -1,13 +1,15 @@
 #include "EventSystem.h"
 
 namespace Larry {
-    void(*EventSystem::CallbackFunction)(const Ref<Event>&);
+    using EventCallbackFunction = std::function<void(const Ref<Event>&)> ;
+    EventCallbackFunction EventSystem::CallbackFunction;
 
-    void EventSystem::SetCallbackFunction(void(callbackFunction)(const Ref<Event>&)) {
-        EventSystem::CallbackFunction = callbackFunction;
+    void EventSystem::SetCallbackFunction(const EventCallbackFunction& cl) {
+        EventSystem::CallbackFunction = cl;
     }
 
-    void EventSystem::DispatchEvent(const Ref<Event>& event) {
+    void EventSystem::HandleEvent(const Ref<Event>& event) {
         CallbackFunction(event);
     }
+
 }

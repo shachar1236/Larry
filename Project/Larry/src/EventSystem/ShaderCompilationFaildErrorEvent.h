@@ -14,7 +14,8 @@ namespace Larry {
                 virtual ~ShaderCompilationFailedErrorEvent () {}
 
                 virtual enum EventCategory GetEventCategory() { return EventCategory::Error; }
-                virtual enum EventType GetEventType() { return EventType::OpenGLShaderCompilationFailedError; }
+                virtual enum EventType GetEventType() { return ShaderCompilationFailedErrorEvent::GetStaticType(); }
+                static EventType GetStaticType() { return EventType::OpenGLShaderCompilationFailedError; }
 
                 virtual std::string GetErrorMessage() { return "Shader compilation failed: " + infoLog; }
                 std::string GetInfoLog() { return infoLog; }
