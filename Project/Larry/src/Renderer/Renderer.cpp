@@ -1,6 +1,7 @@
 #include "Renderer.h"
 #include "BufferObject.h"
 #include "EventSystem.h"
+#include "GlfwErrorEvent.h"
 #include "Log.h"
 #include "Shader.h"
 #include "ShaderProgram.h"
@@ -12,6 +13,12 @@
 #include <algorithm>
 #include <string>
 #include <unordered_map>
+
+void error_callback(int code, const char* description)
+{
+    Larry::Ref<Larry::Events::GlfwErrorEvent> event = Larry::CreateRef<Larry::Events::GlfwErrorEvent>(description, code);
+    Larry::EventSystem::HandleEvent(event);
+}
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -38,12 +45,16 @@ namespace Larry {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+        // setting error callback
+        glfwSetErrorCallback(error_callback);
+
         window = glfwCreateWindow(config.window_width, config.window_height, config.window_name.c_str(), NULL, NULL);
         if (window == NULL)
         {
             LA_CORE_ERROR("Failed to create GLFW window");
             glfwTerminate();
         }
+
         glfwMakeContextCurrent(window);
 
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -57,6 +68,7 @@ namespace Larry {
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
         // getting max texuters units
         glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &MAX_TEXTURE_UNITS);
         LA_CORE_INFO("MAX_TEXTURE_UNITS = {}", MAX_TEXTURE_UNITS);

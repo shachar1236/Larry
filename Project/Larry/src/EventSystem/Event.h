@@ -12,11 +12,11 @@ namespace Larry {
 
     enum EventType {
         None = 0,
-        RegularError,
-        OpenGLError,
-        OpenGLShaderCompilationFailedError,
+        RegularError, OpenGLShaderCompilationFailedError, GlfwError,
 
-        WindowResized,
+        WindowResize, WindowFocus, WindowLostFocus, WindowMoved,
+        KeyPressed, KeyReleased, KeyTyped,
+		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
     };
     inline auto format_as(enum EventType f) { return fmt::underlying(f); }
 
