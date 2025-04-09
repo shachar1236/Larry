@@ -29,6 +29,8 @@ set(SOURCE_FILES
 
     Larry/src/Utils/Log.cpp
 
+    Larry/src/Input/Input.cpp
+
     Larry/src/Math/Math.cpp
 
     Larry/src/EventSystem/EventSystem.cpp
@@ -39,6 +41,7 @@ set(HEADER_DIRECTORIES
     Larry/src
     Larry/src/Application
     Larry/src/Utils
+    Larry/src/Input
     Larry/src/Math
     Larry/src/Renderer
     Larry/src/EventSystem

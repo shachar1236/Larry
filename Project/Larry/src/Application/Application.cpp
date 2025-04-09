@@ -3,6 +3,7 @@
 #include "Event.h"
 #include "EventSystem/EventSystem.h"
 #include "GLFW/glfw3.h"
+#include "Input.h"
 #include "LarryMemory.h"
 #include "LarryWindow.h"
 #include "Log.h"
@@ -49,9 +50,12 @@ namespace Larry {
         // setting error callback
         glfwSetErrorCallback(gflw_error_callback);
 
+
         /* windowConfig.maximized = true; */
         window = CreateRef<LarryWindow>(windowConfig);
         renderer = Renderer::InitRenderer(rendererConfig, window);
+
+        InitInput(window->GetWindow());
 
         layerStack.AttachLayer(CreateRef<BackgroundLayer>());
         layerStack.AttachLayer(CreateRef<GameLayer>());
@@ -116,7 +120,7 @@ namespace Larry {
     }
 
     void Application::HandleInputEvent(const Ref<Event>& event) {
-        LA_CORE_INFO("Got input event!");
+        LA_CORE_INFO("Got input event! type {}", event->GetEventType());
     }
 
     void Application::HandleWindowEvent(const Ref<Event>& event) {

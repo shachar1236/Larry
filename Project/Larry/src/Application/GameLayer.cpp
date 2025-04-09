@@ -1,5 +1,9 @@
 #include "GameLayer.h"
+#include "EventSystem.h"
+#include "InputEvents.h"
+#include "KeyCodes.h"
 #include "Layer.h"
+#include "Log.h"
 #include "Renderer.h"
 
 namespace Larry {
@@ -23,20 +27,9 @@ namespace Larry {
     }
 
     void GameLayer::OnUpdate(const double& deltaTime) {
-        /* renderer->Texture(wall); */
-        /* renderer->Scale(Math::vec3(sin(time)+2.0f * 3.0f, 1.01f, 1.0f)); */
-        /* renderer->Rotate(cos(time) * 3.14); */
-        /* renderer->Translate(Math::vec3(0.25f, -0.25f, 0.0f)); */
-        /* renderer->Translate(Math::vec3(0.0, 0.0, -0.5f)); */
-        /* renderer->Scale(Math::vec3(1.0f, 2.0f, 1.0f)); */
-        /* renderer->Translate(Math::vec3(400.0f, 300.0f, 0.0f)); */
+        position += moveDirection;
         renderer->Fill(1, 1, 1, 1);
-        renderer->DrawQuad(200.0f, 300.0f, 200.0f, 200.0f);
-
-        /* renderer->Texture(face); */
-        /* renderer->Rotate((time)); */
-        /* renderer->Translate(Math::vec3(-0.85f, -0.85f, 0.0f)); */
-        /* renderer->DrawQuad(0.2f, 0.7f, 0.3f, 0.3f); */
+        renderer->DrawQuad(position.x, position.y, 200.0f, 200.0f);
     }
 
     void GameLayer::OnDetach() {
@@ -44,6 +37,45 @@ namespace Larry {
     }
 
     void GameLayer::HandleEvent(const Ref<Event>& event) {
+        DispatchEvent<Events::KeyPressedEvent>(event, BIND_EVENT_FN(HandleKeyPressed));
+        DispatchEvent<Events::KeyReleasedEvent>(event, BIND_EVENT_FN(HandleKeyReleased));
+    }
 
+    void GameLayer::HandleKeyPressed(const Ref<Event>& event) {
+        Events::KeyPressedEvent* keyEvent = (Events::KeyPressedEvent*)event.get();
+
+        switch (keyEvent->GetKey()) {
+            case KEY_W:
+                moveDirection.y += speed;
+                break;
+            case KEY_S:
+                moveDirection.y -= speed;
+                break;
+            case KEY_D:
+                moveDirection.x += speed;
+                break;
+            case KEY_A:
+                moveDirection.x -= speed;
+                break;
+        }
+    }
+
+    void GameLayer::HandleKeyReleased(const Ref<Event>& event) {
+        Events::KeyReleasedEvent* keyEvent = (Events::KeyReleasedEvent*)event.get();
+
+        switch (keyEvent->GetKey()) {
+            case KEY_W:
+                moveDirection.y = 0;
+                break;
+            case KEY_S:
+                moveDirection.y = 0;
+                break;
+            case KEY_D:
+                moveDirection.x = 0;
+                break;
+            case KEY_A:
+                moveDirection.x = 0;
+                break;
+        }
     }
 }
