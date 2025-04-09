@@ -20,6 +20,16 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 }
 
 namespace Larry {
+    Renderer* Renderer::renderer = nullptr;
+
+    Renderer* Renderer::InitRenderer(const RendererConfig& config) {
+        Renderer::renderer = new Renderer(config);
+        return Renderer::renderer;
+    }
+
+    Renderer* Renderer::GetRenderer() {
+        return Renderer::renderer;
+    }
 
     Renderer::Renderer(RendererConfig config_) : config(config_)
     {

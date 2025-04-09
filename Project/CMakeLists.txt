@@ -14,7 +14,11 @@ set(SOURCE_FILES
     libraries/glad/src/glad.c
 
     Larry/src/main.cpp
-    Larry/src/Application.cpp
+    Larry/src/Application/Application.cpp
+    Larry/src/Application/BackgroundLayer.cpp
+    Larry/src/Application/GameLayer.cpp
+    Larry/src/Application/UILayer.cpp
+    Larry/src/Application/GUILayer.cpp
 
     Larry/src/Renderer/TextureObject.cpp
     Larry/src/Renderer/Renderer.cpp
@@ -28,13 +32,17 @@ set(SOURCE_FILES
 
     Larry/src/EventSystem/EventSystem.cpp
     Larry/src/EventSystem/ErrorEvent.cpp
+
+    Larry/src/Layers/LayerStack.cpp
 )
 set(HEADER_DIRECTORIES
     Larry/src
+    Larry/src/Application
     Larry/src/Utils
     Larry/src/Math
     Larry/src/Renderer
     Larry/src/EventSystem
+    Larry/src/Layers
 )
 
 if(OPENGL_FOUND)

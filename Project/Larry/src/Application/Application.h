@@ -1,5 +1,6 @@
 #pragma once
 #include "EventSystem/Event.h"
+#include "LayerStack.h"
 #include "Log.h"
 #include "LarryMemory.h"
 #include "Renderer/Renderer.h"
@@ -7,12 +8,10 @@
 namespace Larry {
     class Application {
         private:
-            Ref<TextureObject> face; //("media/textures/wal.jpg", TextureConfig{})
-            Ref<TextureObject> test; //("media/textures/wal.jpg", TextureConfig{})
-            Ref<TextureObject> wall; //("media/textures/wal.jpg", TextureConfig{})
 
             RendererConfig rendererConfig;
-            Scope<Renderer> renderer;
+            Renderer* renderer;
+            LayerStack layerStack;
 
             static Application* application;
         public:

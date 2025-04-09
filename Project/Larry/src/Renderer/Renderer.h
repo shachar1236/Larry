@@ -61,6 +61,8 @@ namespace Larry {
 
             Ref<TextureObject> white_texture;
             std::vector<Ref<TextureObject>> currentlyUsedTextures;
+
+            static Renderer* renderer;
         public:
             ShapeOptions CurrentShapeOptions;
             Math::Mat4 View = Math::Mat4(1.0f);
@@ -68,6 +70,9 @@ namespace Larry {
 
             Renderer(RendererConfig config_);
             ~Renderer();
+
+            static Renderer* InitRenderer(const RendererConfig& config);
+            static Renderer* GetRenderer();
 
             // bool ShouldClose() - returns true if someone clicked on close
             bool ShouldClose();

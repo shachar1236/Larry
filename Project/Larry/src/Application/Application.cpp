@@ -1,5 +1,4 @@
 #include "Application.h"
-#include "Math.h"
 #include "ErrorEvent.h"
 #include "Event.h"
 #include "EventSystem/EventSystem.h"
@@ -7,8 +6,12 @@
 #include "LarryMemory.h"
 #include "Log.h"
 #include "ShaderCompilationFaildErrorEvent.h"
-#include "TextureObject.h"
 #include "WindowResizedEvent.h"
+#include "LayerStack.h"
+#include "BackgroundLayer.h"
+#include "GameLayer.h"
+#include "UILayer.h"
+#include "GUILayer.h"
 #include <cstdlib>
 
 namespace Larry {
@@ -36,38 +39,27 @@ namespace Larry {
     }
 
     void Application::OnCreate() {
-        renderer = CreateScope<Renderer>(rendererConfig);
-        TextureConfig config;
-        config.CreateMipmap = false;
-        face = CreateRef<TextureObject>("media/textures/awesomeface.png", config);
-        test = CreateRef<TextureObject>("media/textures/test.jpg", TextureConfig{});
-        wall = CreateRef<TextureObject>("media/textures/wall.jpg", TextureConfig{});
+        renderer = Renderer::InitRenderer(rendererConfig);
+
+        layerStack.AttachLayer(CreateRef<BackgroundLayer>());
+        layerStack.AttachLayer(CreateRef<GameLayer>());
+        layerStack.AttachLayer(CreateRef<UILayer>());
+        layerStack.AttachLayer(CreateRef<GUILayer>());
     }
 
     void Application::Run() {
-        renderer->InitializeOrthographicProjection(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
-        renderer->View = Math::translate(renderer->View, Math::Vec3(0.0f, 0.0f, -3.0f));
+        double lastFrameTime = glfwGetTime(); 
         while(!renderer->ShouldClose())
         {
-            double time = glfwGetTime() ;
-            renderer->Background(Color{0.1f, 0.1f, 0.3f, 1});
+            double time = glfwGetTime();
+            double deltaTime = time - lastFrameTime;
+            lastFrameTime = time;
 
-            /* renderer->Texture(wall); */
-            /* renderer->Scale(Math::vec3(sin(time)+2.0f * 3.0f, 1.01f, 1.0f)); */
-            /* renderer->Rotate(cos(time) * 3.14); */
-            /* renderer->Translate(Math::vec3(0.25f, -0.25f, 0.0f)); */
-            /* renderer->Translate(Math::vec3(0.0, 0.0, -0.5f)); */
-            /* renderer->Scale(Math::vec3(1.0f, 2.0f, 1.0f)); */
-            /* renderer->Translate(Math::vec3(400.0f, 300.0f, 0.0f)); */
-            renderer->Fill(1, 1, 1, 1);
-            renderer->DrawQuad(200.0f, 300.0f, 200.0f, 200.0f);
-
-            /* renderer->Texture(face); */
-            /* renderer->Rotate((time)); */
-            /* renderer->Translate(Math::vec3(-0.85f, -0.85f, 0.0f)); */
-            /* renderer->DrawQuad(0.2f, 0.7f, 0.3f, 0.3f); */
+            layerStack.UpdateLayers(deltaTime);
 
             renderer->UpdateFrame();
+
+            lastFrameTime = glfwGetTime();
         }
     }
 
