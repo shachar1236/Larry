@@ -24,12 +24,15 @@ set(SOURCE_FILES
 
     Larry/src/Utils/Log.cpp
 
+    Larry/src/Math/Math.cpp
+
     Larry/src/EventSystem/EventSystem.cpp
     Larry/src/EventSystem/ErrorEvent.cpp
 )
 set(HEADER_DIRECTORIES
     Larry/src
     Larry/src/Utils
+    Larry/src/Math
     Larry/src/Renderer
     Larry/src/EventSystem
 )

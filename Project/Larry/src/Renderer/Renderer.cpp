@@ -8,11 +8,7 @@
 #include "VertexArrayObject.h"
 #include "LarryMemory.h"
 #include "WindowResizedEvent.h"
-#include "glm/detail/qualifier.hpp"
-#include "glm/ext/vector_float3.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtc/type_ptr.hpp"
-#include "glm/glm.hpp"
+#include "Math.h"
 #include <algorithm>
 #include <string>
 #include <unordered_map>
@@ -168,22 +164,22 @@ namespace Larry {
             LA_CORE_INFO("Reached MAX_QUADS_NUMBER flushing current batch");
             FlushBatch();
         }
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, CurrentShapeOptions.translation + glm::vec3(x, y, 0.0f));
-        model = glm::rotate(model, CurrentShapeOptions.rotation, CurrentShapeOptions.rotation_axis);
-        model = glm::scale(model, CurrentShapeOptions.scaling);
+        Math::Mat4 model = Math::Mat4(1.0f);
+        model = Math::translate(model, CurrentShapeOptions.translation + Math::Vec3(x, y, 0.0f));
+        model = Math::rotate(model, CurrentShapeOptions.rotation, CurrentShapeOptions.rotation_axis);
+        model = Math::scale(model, CurrentShapeOptions.scaling);
 
         Vertex ver1({}, {}, { CurrentShapeOptions.TextureCords[1][0], CurrentShapeOptions.TextureCords[1][1]}); // bottom right
-        ver1.vertices = glm::vec3(0.5 * width, 0.5 * height, 0.0f);
+        ver1.vertices = Math::Vec3(0.5 * width, 0.5 * height, 0.0f);
         ver1.textureSlot = CurrentShapeOptions.CurrentTextureSlot;
         Vertex ver2( {}, {}, { CurrentShapeOptions.TextureCords[0][0], CurrentShapeOptions.TextureCords[0][1]}); // top right
-        ver2.vertices = glm::vec3(0.5 * width, -0.5 * height, 0.0f);
+        ver2.vertices = Math::Vec3(0.5 * width, -0.5 * height, 0.0f);
         ver2.textureSlot = CurrentShapeOptions.CurrentTextureSlot;
         Vertex ver3({}, {}, { CurrentShapeOptions.TextureCords[3][0], CurrentShapeOptions.TextureCords[3][1]}); // top left
-        ver3.vertices = glm::vec3(-0.5 * width, -0.5 * height, 0.0f);
+        ver3.vertices = Math::Vec3(-0.5 * width, -0.5 * height, 0.0f);
         ver3.textureSlot = CurrentShapeOptions.CurrentTextureSlot;
         Vertex ver4({}, {}, { CurrentShapeOptions.TextureCords[2][0], CurrentShapeOptions.TextureCords[2][1]}); // bottom left
-        ver4.vertices = glm::vec3(-0.5 * width, 0.5 * height, 0.0f);
+        ver4.vertices = Math::Vec3(-0.5 * width, 0.5 * height, 0.0f);
         ver4.textureSlot = CurrentShapeOptions.CurrentTextureSlot;
         for (int i = 0; i < 4; i++) {
             ver1.colors[i] = CurrentShapeOptions.FillColors[i];
@@ -225,11 +221,11 @@ namespace Larry {
 
 
     void Renderer::InitializeOrthographicProjection(const float& left, const float& right, const float& bottom, const float& top, const float& nearDist, const float& farDist) {
-        Projection = glm::ortho(left, right, bottom, top, nearDist, farDist);
+        Projection = Math::ortho(left, right, bottom, top, nearDist, farDist);
     }
 
     void Renderer::InitializePrespectiveProjection(const float& fov, const float& aspectRatio, const float& near, const float& far) {
-        Projection = glm::perspective(fov, aspectRatio, near, far);
+        Projection = Math::perspective(fov, aspectRatio, near, far);
     }
 
     void Renderer::Fill(float r, float g, float b, float a) {
@@ -265,11 +261,11 @@ namespace Larry {
         }
     }
 
-    void Renderer::Translate(const glm::vec3& amount) {
+    void Renderer::Translate(const Math::Vec3& amount) {
         CurrentShapeOptions.translation = amount;
     }
 
-    void Renderer::Scale(const glm::vec3& amount) {
+    void Renderer::Scale(const Math::Vec3& amount) {
         CurrentShapeOptions.scaling = amount;
     }
 
@@ -277,7 +273,7 @@ namespace Larry {
         CurrentShapeOptions.rotation = degrees; 
     }
 
-    void Renderer::Rotate(const float& degrees, const glm::vec3& axis) {
+    void Renderer::Rotate(const float& degrees, const Math::Vec3& axis) {
         CurrentShapeOptions.rotation = degrees; 
         CurrentShapeOptions.rotation_axis = axis;
     }

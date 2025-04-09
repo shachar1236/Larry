@@ -1,9 +1,9 @@
 #pragma once
 #include "Shader.h"
-#include "glm/ext/matrix_float4x4.hpp"
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include "Math.h"
 
 namespace Larry {
     class ShaderProgram {
@@ -24,6 +24,6 @@ namespace Larry {
             void SetUniform(const std::string& name, const float& x, const float& y, const float& z, const float& w);
             void SetUniform(const std::string& name, const int& number);
             void SetUniform(const std::string& name, const int* arr, const int& arr_size);
-            void SetUniform(const std::string& name, const glm::mat4& mat);
+            void SetUniform(const std::string& name, const Math::Mat4& mat);
     };
 }
