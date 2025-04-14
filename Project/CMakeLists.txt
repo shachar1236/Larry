@@ -39,6 +39,7 @@ set(SOURCE_FILES
 )
 set(HEADER_DIRECTORIES
     Larry/src
+    Larry/src/ECS
     Larry/src/Application
     Larry/src/Utils
     Larry/src/Input
@@ -58,6 +59,11 @@ if(OPENGL_FOUND)
 
     include_directories(${HEADER_DIRECTORIES}) # My Headers
     add_executable(Larry ${SOURCE_FILES})  # My executables
+
+    if(CMAKE_BUILD_TYPE STREQUAL "LarryTest")
+        target_compile_definitions(Larry PRIVATE LARRY_ENABLE_TESTING)
+    endif()
+
     target_link_libraries(Larry ${OPENGL_LIBRARIES} glfw spdlog) # Link GLFW
 else()
     message(FATAL_ERROR "OpenGL not found")

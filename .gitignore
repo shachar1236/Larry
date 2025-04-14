@@ -4,6 +4,7 @@
 # my things------
 Project/build
 Project/debug
+Project/test
 Project/.cache
 Project/.vscode
 peda*.txt
