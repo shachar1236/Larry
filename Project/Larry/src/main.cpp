@@ -7,9 +7,9 @@
 int main() {
     Larry::Log::Init();
 
+#ifdef LARRY_ENABLE_TESTING
     LA_CORE_INFO("Testing ECS");
     Larry::ECS::TestECS();
-#ifdef LARRY_ENABLE_TESTING
 #endif
 
     Larry::Application* app = Larry::Application::GetApplication();

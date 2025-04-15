@@ -60,7 +60,12 @@ if(OPENGL_FOUND)
     include_directories(${HEADER_DIRECTORIES}) # My Headers
     add_executable(Larry ${SOURCE_FILES})  # My executables
 
-    if(CMAKE_BUILD_TYPE STREQUAL "LarryTest")
+    if(NOT (CMAKE_BUILD_TYPE STREQUAL "Release"))
+        message(STATUS "Compiling with dev defination")
+        target_compile_definitions(Larry PRIVATE DEV)
+    endif()
+    if(Test)
+        message(STATUS "Testing...")
         target_compile_definitions(Larry PRIVATE LARRY_ENABLE_TESTING)
     endif()
 

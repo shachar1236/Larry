@@ -4,6 +4,7 @@
 #include "Entity.hpp"
 #include "EntityData.hpp"
 #include "Archetype.hpp"
+#include "Log.h"
 #include <cstring>
 #include <functional>
 #include <typeinfo>
@@ -40,7 +41,7 @@ namespace Larry::ECS {
                 number++;
             }
 
-            archetypes[types] = Archetype(types, size);
+            archetypes[types] = Archetype(types, size, type_manager);
             return &(archetypes.find(types)->second);
         }
     public:
@@ -56,10 +57,11 @@ namespace Larry::ECS {
             return Entity(FamilyGenerate());
         }
         
-        template<typename T>
-        void InsertComponent(Entity& entity, const T& component) {
-            type_manager->RegisterType<T>();
+        template<typename ...Types>
+        void InsertComponent(Entity& entity, const Types&... components) {
             EntityData new_entity_object;
+            TypesBitmap new_bitmap = entity.components_types | (type_manager->GetTypeBitmap<Types>() | ...);
+            Archetype* new_archetype = GetArchetype(new_bitmap);
 
             if (!entity.components_types.IsNull()) {
                 Archetype* archetype = GetArchetype(entity.components_types);
@@ -67,20 +69,19 @@ namespace Larry::ECS {
                 byte* old_entity_data = new byte[archetype->GetObjectSize()];
                 archetype->PopEntityAndComponents(entity, old_entity_data);
 
-                EntityData old_entity_object(old_entity_data, archetype->GetObjectSize(), type_manager);
-                new_entity_object = old_entity_object.AddComponent(component);
+                EntityData old_entity_object(old_entity_data, archetype->GetObjectSize(), type_manager, archetype->GetTypeMapper());
+                new_entity_object = old_entity_object.AddComponent<Types...>(components..., new_archetype->GetTypeMapper());
 
                 entity = *new_entity_object.entity;
                 delete[] old_entity_data;
             } else {
-                EntityData old_entity_object = EntityData((byte*)&entity, sizeof(Entity), type_manager);
-                new_entity_object = old_entity_object.AddComponent(component);
+                EntityData old_entity_object = EntityData((byte*)&entity, sizeof(Entity), type_manager, nullptr);
+                new_entity_object = old_entity_object.AddComponent<Types...>(components..., new_archetype->GetTypeMapper());
 
                 entity = *new_entity_object.entity;
             }
 
-            Archetype* new_archetype = GetArchetype(entity.components_types);
-            new_archetype->AddData(new_entity_object.data);
+            new_archetype->Add(new_entity_object);
             delete[] new_entity_object.data;
         }
     };

@@ -24,6 +24,11 @@ namespace Larry {
 #define LA_CORE_WARN(...)     ::Larry::Log::GetCoreLogger()->warn(__VA_ARGS__)
 #define LA_CORE_ERROR(...)    ::Larry::Log::GetCoreLogger()->error(__VA_ARGS__)
 #define LA_CORE_FATAL(...)    ::Larry::Log::GetCoreLogger()->fatal(__VA_ARGS__)
+#ifdef DEV
+#define LA_CORE_DEBUG(...)    ::Larry::Log::GetCoreLogger()->debug(__VA_ARGS__)
+#else
+#define LA_CORE_DEBUG(...)
+#endif
 
 // Client log macros
 #define LA_TRACE(...)	      ::Larry::Log::GetClientLogger()->trace(__VA_ARGS__)

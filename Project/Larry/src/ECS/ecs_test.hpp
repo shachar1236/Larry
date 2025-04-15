@@ -31,8 +31,7 @@ namespace Larry::ECS {
         World world;
 
         auto entity = world.CreateEntity();
-        world.InsertComponent<_Position>(entity, {1, 8});
-        world.InsertComponent<_Velocity>(entity, {1, 8});
+        world.InsertComponent<_Position, _Velocity>(entity, {1, 8}, {2, 9});
         world.InsertComponent<_Transform>(entity, {1, 8});
     }
 }
