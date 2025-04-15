@@ -3,6 +3,7 @@
 #include "ECS/TypeManger.hpp"
 #include "ECS/TypesBitmap.hpp"
 #include "Log.h"
+#include <cassert>
 #include <cstring>
 
 typedef unsigned char byte;
@@ -18,7 +19,8 @@ namespace Larry::ECS {
     public:
         byte* data;
         int data_size;
-        Entity* entity;
+        EncodedEntity* encoded_entity;
+        TypesBitmap components_types;
         TypeManager* type_manager;
         const UnknownTypeTypeMapper* type_mapper;
 
@@ -26,8 +28,14 @@ namespace Larry::ECS {
 
         }
 
-        EntityData(byte* data_, int size, TypeManager* type_manager_, const UnknownTypeTypeMapper* type_mapper_) : data(data_), data_size(size), type_manager(type_manager_), type_mapper(type_mapper_) {
-            entity = (Entity*)data;
+        EntityData(byte* data_, int size, TypesBitmap components_types_, TypeManager* type_manager_, const UnknownTypeTypeMapper* type_mapper_) :
+            data(data_),
+            data_size(size),
+            components_types(components_types_),
+            type_manager(type_manager_),
+            type_mapper(type_mapper_) 
+        {
+            encoded_entity = (EncodedEntity*)data;
         }
 
         ~EntityData() {
@@ -39,9 +47,9 @@ namespace Larry::ECS {
             TypesBitmap type_bitmap = type_manager->GetTypeBitmap<T>();
 
             int number = 0;
-            int size = sizeof(Entity);
+            int size = sizeof(EncodedEntity);
             do {
-                curr = entity->components_types.GetType(number);
+                curr = components_types.GetType(number);
                 if (curr == type_bitmap) {
                     return GetComponentFromRawIndex<T>(size);
                 }
@@ -59,7 +67,7 @@ namespace Larry::ECS {
 
             byte* new_data = new byte[data_size + sizeof(T)];
             TypesBitmap type_bitmap = type_manager->GetTypeBitmap<T>();
-            Entity* new_entity = (Entity*)new_data;
+            EncodedEntity* new_entity = (EncodedEntity*)new_data;
 
             auto index_it = new_type_mapper->find(type_bitmap);
             if (index_it != new_type_mapper->end()) {
@@ -67,11 +75,10 @@ namespace Larry::ECS {
                 memcpy(new_data, data, index);
                 memcpy(new_data+index, &component, sizeof(T));
                 memcpy(new_data+index+sizeof(T), data+index, data_size-index);
-                new_entity->components_types = new_entity->components_types | type_bitmap;
-                return EntityData(new_data, data_size+sizeof(T), type_manager, new_type_mapper);
+                return EntityData(new_data, data_size+sizeof(T), components_types | type_bitmap, type_manager, new_type_mapper);
             } else {
                 LA_CORE_WARN("ECS: Type dosent exist on mapper!");
-                return EntityData(nullptr, 0, type_manager, nullptr);
+                return EntityData(nullptr, 0, {0}, type_manager, nullptr);
             }
         }
 
@@ -83,18 +90,20 @@ namespace Larry::ECS {
 
             const int TYPES_SIZE = (... + sizeof(Types));
             byte* new_data = new byte[data_size + TYPES_SIZE];
-            memcpy(new_data, data, sizeof(Entity));
-            Entity* new_entity = (Entity*)new_data;
+            memcpy(new_data, data, sizeof(EncodedEntity));
+            EncodedEntity* new_entity = (EncodedEntity*)new_data;
+            TypesBitmap new_components_types = components_types;
 
             int size = data_size;
             auto copy_argument_funtion = [&]<typename T>(const T& arg){
+                LA_CORE_DEBUG("Doing type {}, size {}", typeid(T).name(), sizeof(T));
                 TypesBitmap type_bitmap = type_manager->GetTypeBitmap<T>();
                 auto index_it = new_type_mapper->find(type_bitmap);
                 if (index_it != new_type_mapper->end()) {
                     memcpy(new_data+index_it->second, &arg, sizeof(T));
-                    new_entity->components_types = new_entity->components_types | type_bitmap;
+                    new_components_types = new_components_types | type_bitmap;
                 } else {
-                    LA_CORE_WARN("ECS: Type dosent exist on mapper!");
+                    assert("ECS: Type dosent exist on mapper!");
                 }
                 size += sizeof(T);
             };
@@ -107,7 +116,7 @@ namespace Larry::ECS {
                 }
             }
 
-            return EntityData(new_data, size, type_manager, new_type_mapper);
+            return EntityData(new_data, size, new_components_types, type_manager, new_type_mapper);
         }
 
         bool IsNull() {

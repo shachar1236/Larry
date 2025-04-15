@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ECS/TypesBitmap.hpp"
+#include <cassert>
 #include <cstddef>
 #include <cstdio>
 #include <unordered_map>
@@ -16,12 +17,11 @@ namespace Larry::ECS {
 
         std::unordered_map<TypesBitmap, int> typeBitmap_to_size;
 
-        static TypeManager* instance;
-
     public:
         TypeManager() { }
 
-        template <typename T> TypesBitmap GetTypeBitmap()
+        template<typename T>
+        TypesBitmap GetTypeBitmap()
         {
             TypeHashCode hash = typeid(T).hash_code();
             auto res = typeHash_to_TypeBitmap.find(hash);
@@ -37,8 +37,15 @@ namespace Larry::ECS {
             }
         }
 
-        template <typename T> constexpr void RegisterType() { GetTypeBitmap<T>(); }
+        template <typename T>
+        void RegisterType() { GetTypeBitmap<T>(); }
 
-        int GetTypeSize(TypesBitmap type) { return typeBitmap_to_size[type]; }
+        int GetTypeSize(TypesBitmap type) { 
+            auto res = typeBitmap_to_size.find(type);
+            if (res == typeBitmap_to_size.end()) {
+                assert("Didnt find type size");
+            }
+            return res->second;
+        }
     };
 }

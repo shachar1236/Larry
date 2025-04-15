@@ -12,7 +12,7 @@ namespace Larry::ECS {
             int element_data_size;
         public:
             UnknownTypeVector(int element_data_size_) : element_data_size(element_data_size_) {
-                
+                data.reserve(element_data_size * 4);
             }
 
             inline int SizeBytes() {
@@ -27,21 +27,18 @@ namespace Larry::ECS {
                 return element_data_size;
             }
 
-            inline void AddRawData(const byte* component_data) {
-                /* int last_data_size = data.size(); */
-                /* byte* last_data = data.data(); */
-                /* data.resize(last_data_size + data_size); */
-                /* memcpy(last_data, component_data, data_size); */
-
-                data.reserve(element_data_size);
-                for (int i = 0; i < element_data_size; i++) {
-                    data.push_back(component_data[i]);
-                }
+            // returns data address
+            inline byte* AddRawData(const byte* element_data) {
+                int last_data_size = data.size();
+                byte* last_data = data.data() + last_data_size;
+                data.resize(last_data_size + element_data_size);
+                memcpy(last_data, element_data, element_data_size);
+                return last_data;
             }
 
             template<typename T>
-            inline void AddData(const T& component) {
-                AddRawData((byte*)(&component));
+            inline void AddData(const T& element) {
+                AddRawData((byte*)(&element));
             }
 
             inline byte* GetRawByIndex(int i) {
