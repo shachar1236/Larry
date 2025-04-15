@@ -33,16 +33,7 @@ namespace Larry::ECS {
                 return &(res->second);
             }
 
-            TypesBitmap curr = types.GetType(1);
-            int number = 1;
-            int size = 0;
-            while (!curr.IsNull()) {
-                size += type_manager->GetTypeSize(curr);
-                number++;
-                curr = types.GetType(number);
-            }
-
-            archetypes[types] = Archetype(types, size, type_manager);
+            archetypes[types] = Archetype(types, type_manager);
             return &(archetypes.find(types)->second);
         }
     public:
@@ -88,13 +79,11 @@ namespace Larry::ECS {
                 EntityData old_entity_object(old_entity_data, archetype->GetObjectSize(), entity->components_types, type_manager, archetype->GetTypeMapper());
                 new_entity_object = old_entity_object.AddComponent<Types...>(components..., new_archetype->GetTypeMapper());
 
-                /* entity = *new_entity_object.entity; */
                 delete[] old_entity_data;
             } else {
                 EntityData old_entity_object = EntityData((byte*)&enc_entity, sizeof(EncodedEntity), entity->components_types, type_manager, nullptr);
                 new_entity_object = old_entity_object.AddComponent<Types...>(components..., new_archetype->GetTypeMapper());
 
-                /* entity = *new_entity_object.entity; */
             }
             
             // update entity to match the new data
@@ -102,6 +91,24 @@ namespace Larry::ECS {
             new_archetype->Add(new_entity_object, entity);
 
             delete[] new_entity_object.data;
+        }
+
+        template<typename T>
+        void DeleteComponent(const Ref<Entity> entity) {
+            // TODO: create this function
+        }
+
+        template<typename ...Types, typename F>
+        void System(const F& callback) {
+            // TODO: optimize this
+            TypesBitmap types = (... | type_manager->GetTypeBitmap<Types>());
+            
+            for (auto archetype : archetypes) {
+                bool has_types = (archetype.first & types) == types;
+                if (has_types) {
+                    archetype.second.CallFunctionWithComponents<Types...>(callback);
+                }
+            }
         }
     };
 }

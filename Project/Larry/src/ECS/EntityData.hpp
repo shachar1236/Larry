@@ -46,25 +46,15 @@ namespace Larry::ECS {
             TypesBitmap curr;
             TypesBitmap type_bitmap = type_manager->GetTypeBitmap<T>();
 
-            int number = 0;
-            int size = sizeof(EncodedEntity);
-            do {
-                curr = components_types.GetType(number);
-                if (curr == type_bitmap) {
-                    return GetComponentFromRawIndex<T>(size);
-                }
-                
-                size += type_manager->GetTypeSize(curr);
-                number++;
-            } while (!curr.IsNull());
+            auto it = type_mapper->find(type_bitmap);
+            assert(it != type_mapper->end());
+            return GetComponentFromRawIndex<T>(it->second);
         }
 
         // returns new EntityData with the new component.
         // WARNING! - old EntityData.data is not freed automaticly, you should handle it yourself
         template<typename T>
         EntityData AddComponent(const T& component, const UnknownTypeTypeMapper* new_type_mapper) {
-            LA_CORE_DEBUG("Adding one component to EntityData");
-
             byte* new_data = new byte[data_size + sizeof(T)];
             TypesBitmap type_bitmap = type_manager->GetTypeBitmap<T>();
             EncodedEntity* new_entity = (EncodedEntity*)new_data;
@@ -78,7 +68,7 @@ namespace Larry::ECS {
                 return EntityData(new_data, data_size+sizeof(T), components_types | type_bitmap, type_manager, new_type_mapper);
             } else {
                 LA_CORE_WARN("ECS: Type dosent exist on mapper!");
-                return EntityData(nullptr, 0, {0}, type_manager, nullptr);
+                return EntityData(nullptr, 0, TypesBitmap(), type_manager, nullptr);
             }
         }
 
@@ -86,8 +76,6 @@ namespace Larry::ECS {
         // WARNING! - old EntityData.data is not freed automaticly, you should handle it yourself
         template<typename... Types>
         EntityData AddComponent(const Types&... args, const UnknownTypeTypeMapper* new_type_mapper) {
-            LA_CORE_DEBUG("Adding multipule component to EntityData");
-
             const int TYPES_SIZE = (... + sizeof(Types));
             byte* new_data = new byte[data_size + TYPES_SIZE];
             memcpy(new_data, data, sizeof(EncodedEntity));
@@ -96,7 +84,6 @@ namespace Larry::ECS {
 
             int size = data_size;
             auto copy_argument_funtion = [&]<typename T>(const T& arg){
-                LA_CORE_DEBUG("Doing type {}, size {}", typeid(T).name(), sizeof(T));
                 TypesBitmap type_bitmap = type_manager->GetTypeBitmap<T>();
                 auto index_it = new_type_mapper->find(type_bitmap);
                 if (index_it != new_type_mapper->end()) {

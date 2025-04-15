@@ -46,7 +46,6 @@ namespace Larry::ECS {
                 kill_callback(kill_callback_),
                 type_manager(type_manger_)
             {
-                components_types = {0};
             }
 
             void Kill() {
@@ -83,7 +82,6 @@ namespace Larry::ECS {
                     TypesBitmap type = type_manager->GetTypeBitmap<T>();
                     auto index_it = (*type_mapper).find(type);
                     if (index_it != type_mapper->end()) {
-                        LA_CORE_DEBUG("Found component {} value", typeid(T).name());
                         return (T*)(data+index_it->second);
                     }
                 }

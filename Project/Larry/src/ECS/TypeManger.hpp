@@ -12,7 +12,7 @@ namespace Larry::ECS {
 
     class TypeManager {
     private:
-        int last_type_index;
+        int last_type_index = 0;
         std::unordered_map<TypeHashCode, TypesBitmap> typeHash_to_TypeBitmap;
 
         std::unordered_map<TypesBitmap, int> typeBitmap_to_size;

@@ -1,66 +1,69 @@
 #pragma once
+#include "Log.h"
 #include <cstddef>
 #include <functional>
 #include <utility>
-
-int countSetBits(unsigned long n) 
-{ 
-    unsigned int count = 0; 
-    while (n) 
-    { 
-      n &= (n-1) ; 
-      count++; 
-    } 
-    return count; 
-} 
+#include <sul/dynamic_bitset.hpp>
 
 namespace Larry::ECS {
 
-    // TODO: currently supports up to 64 differnt types, we need to make it suppord unlimited types
-    struct TypesBitmap {
-        unsigned long Bitmap;
-        static const int MAX_TYPE_NUMBER = sizeof(unsigned long);
-        
-        TypesBitmap operator|(TypesBitmap other) const {
-            return {Bitmap | other.Bitmap};
-        }
+    class TypesBitmap {
+        public:
+            static const int MAX_TYPE_NUMBER = 256;
+            sul::dynamic_bitset<> bitmap;
 
-        TypesBitmap  operator&(TypesBitmap other) const {
-            return {Bitmap & other.Bitmap};
-        }
+            TypesBitmap() : bitmap(MAX_TYPE_NUMBER) {
 
-        bool operator==(TypesBitmap other) const {
-            return Bitmap == other.Bitmap;
-        }
+            }
 
-        bool IsNull() {
-            return Bitmap == 0;
-        }
+            TypesBitmap operator|(const TypesBitmap& other) const {
+                TypesBitmap result;
+                result.bitmap = this->bitmap | other.bitmap;
+                return result;
+            }
 
-        static TypesBitmap TypeWithIndex(int i) {
-            unsigned long res = 1 << i;
-            return {res};
-        }
+            TypesBitmap operator&(const TypesBitmap& other) const {
+                TypesBitmap result;
+                result.bitmap = this->bitmap & other.bitmap;
+                return result;
+            }
 
-        // returns each type that in the bitmap by its number in the bit map, 1 will return the first, 2 will return the scond ....
-        TypesBitmap GetType(int number) {
-            int count = 0;
-            for (int i = 0; i < MAX_TYPE_NUMBER; i++) {
-                TypesBitmap curr = TypeWithIndex(i);
-                if (!(curr & *this).IsNull()) {
-                    count++;
-                    if (count == number) {
-                        return curr;
-                    }
+            TypesBitmap operator^(const TypesBitmap& other) const {
+                TypesBitmap result;
+                result.bitmap = this->bitmap ^ other.bitmap;
+                return result;
+            }
+
+            bool operator==(const TypesBitmap& other) const {
+                return this->bitmap == other.bitmap;
+            }
+            
+            bool IsNull() {
+                return bitmap.none();
+            }
+
+            static TypesBitmap TypeWithIndex(int i) {
+                TypesBitmap ret;
+                ret.bitmap.set(i);
+                return ret;
+            }
+
+            /* int FindNext(int prev) {
+                return bitmap.find_next(prev);
+            } */
+
+            inline int GetTypesCount() {
+                return bitmap.count();
+            }
+
+            template<typename F>
+            void ForEachType(const F& callback) {
+                int pos = bitmap.find_first();
+                while (pos != bitmap.npos) {
+                    callback(TypeWithIndex(pos));
+                    pos = bitmap.find_next(pos);
                 }
             }
-            return {0};
-        }
-
-        int GetTypesCount() {
-            return countSetBits(this->Bitmap);
-        }
-
     };
 
 }
@@ -68,8 +71,13 @@ namespace Larry::ECS {
 template <>
 struct std::hash<Larry::ECS::TypesBitmap>
 {
-  std::size_t operator()(const Larry::ECS::TypesBitmap& k) const
-  {
-    return std::hash<unsigned long>()(k.Bitmap);
-  }
+    std::size_t operator()(const Larry::ECS::TypesBitmap& k) const
+    {
+        std::size_t res;
+        auto data = k.bitmap.data();
+        for (int i = 0; i < k.bitmap.num_blocks(); i++) {
+            res = res ^ std::hash<unsigned long long>()(data[i]);
+        }
+        return res;
+    }
 };
