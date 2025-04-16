@@ -1,3 +1,4 @@
+#include "ECS.hpp"
 #include "ECS/World.hpp"
 #include "Log.h"
 #include "TypesBitmap.hpp"

@@ -1,36 +1,37 @@
 #pragma once
 #include "Log.h"
+#include <bitset>
 #include <cstddef>
 #include <cstring>
 #include <functional>
 #include <strings.h>
 #include <sul/dynamic_bitset.hpp>
 
-#define BITMAP_CHUNK_SIZE 4
-
-int countSetBits(unsigned long long n) 
-{ 
-    unsigned int count = 0; 
-    while (n) 
-    { 
-      n &= (n-1) ; 
-      count++; 
-    } 
-    return count; 
-} 
+#define FIND_NEXT_CHUNK_SIZE 32
 
 namespace Larry::ECS {
-    using bitset = unsigned long long;
+    /* using bitset = unsigned long long; */
+    using bitset = std::bitset<256>;
 
     inline bitset bit(int i) {
-        return (bitset)1 << i;
+        bitset ret;
+        ret.set(i);
+        return ret;
     }
 
+
     class TypesBitmap {
-        // TODO: currenty support up to 64 different types, make it support up to 256
         public:
+            static std::bitset<256> first32mask;
+
+            static void Init() {
+                for (int i = 0; i < 32; i++) {
+                    TypesBitmap::first32mask.set(i);
+                }
+            }
+
             bitset bitmap;
-            static const int MAX_TYPE_NUMBER = sizeof(bitset) * 8 * BITMAP_CHUNK_SIZE;
+            static const int MAX_TYPE_NUMBER = 256;
 
             TypesBitmap() {
                 bitmap = 0;
@@ -59,27 +60,60 @@ namespace Larry::ECS {
             bool operator==(const TypesBitmap& other) const {
                 return bitmap == other.bitmap;
             }
+
+            bool operator==(int other) const {
+                return bitmap == other;
+            }
             
             bool IsNull() const {
                 return bitmap == 0;
             }
 
             static TypesBitmap TypeWithIndex(int i) {
-                return TypesBitmap(bit(i));
+                TypesBitmap ret;
+                ret.bitmap.set(i);
+                return ret;
             }
 
             int find_next(int prevPlusOne) const {
-                for (int i = prevPlusOne; i < sizeof(bitset) * 8; i++) {
-                    if ((bitmap & bit(i)) != 0) {
-                        return i;
+                const int CHUNK_NUMBER = MAX_TYPE_NUMBER / FIND_NEXT_CHUNK_SIZE;
+
+                int prev = prevPlusOne - 1;
+                int prev_chunk = prev / FIND_NEXT_CHUNK_SIZE;
+                int prev_index = prev % FIND_NEXT_CHUNK_SIZE;
+
+                int curr_chunk = prevPlusOne / FIND_NEXT_CHUNK_SIZE;
+                int curr_index = prevPlusOne % FIND_NEXT_CHUNK_SIZE;
+
+                int start_chunk = curr_chunk;
+                int start_index = curr_index;
+                if (prev != -1 && curr_index != 0) {
+                    std::bitset<256> first32bits = ((bitmap >> (FIND_NEXT_CHUNK_SIZE * curr_chunk)) & first32mask);
+                    bool curr_chunk_empty = ((~(first32mask >> (FIND_NEXT_CHUNK_SIZE - prev_index))) & first32bits) == 0;
+                    if (curr_chunk_empty) {
+                        start_chunk = curr_chunk+1;
+                        start_index = 0;
                     }
+                }
+
+                for (int chunk = start_chunk; chunk < CHUNK_NUMBER; chunk++) {
+                    std::bitset<256> first32bits = ((bitmap >> (FIND_NEXT_CHUNK_SIZE * chunk)) & first32mask);
+                    bool chunk_not_empty = first32bits != 0;
+                    if (chunk_not_empty) {
+                        for (int i = start_index; i < FIND_NEXT_CHUNK_SIZE; i++) {
+                            if ((bitmap & bit(chunk * FIND_NEXT_CHUNK_SIZE + i)) != 0) {
+                                return i;
+                            }
+                        }
+                    }
+                    start_index = 0;
                 }
 
                 return -1;
             }
 
             inline int GetTypesCount() const {
-                return countSetBits(bitmap);
+                return bitmap.count();
             }
 
             template<typename F>
@@ -92,6 +126,7 @@ namespace Larry::ECS {
             }
     };
 
+    std::bitset<256> TypesBitmap::first32mask = 0;
 }
 
 template <>
@@ -99,6 +134,6 @@ struct std::hash<Larry::ECS::TypesBitmap>
 {
     std::size_t operator()(const Larry::ECS::TypesBitmap& k) const
     {
-        return std::hash<unsigned long long>()(k.bitmap);;
+        return std::hash<bitset<256>>()(k.bitmap);;
     }
 };

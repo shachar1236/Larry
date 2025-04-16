@@ -5,6 +5,7 @@
 #include "ECS/ecs_test.hpp"
 
 int main() {
+    Larry::ECS::Init();
     Larry::Log::Init();
 
 #ifdef LARRY_ENABLE_TESTING
