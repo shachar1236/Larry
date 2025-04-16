@@ -17,6 +17,7 @@ namespace Larry::ECS {
 
         std::unordered_map<TypesBitmap, int> typeBitmap_to_size;
 
+        std::unordered_map<TypesBitmap, void(*)(const void*)> type_to_destructor;
     public:
         TypeManager() { }
 
@@ -29,8 +30,14 @@ namespace Larry::ECS {
                 // new type
                 TypesBitmap type = TypesBitmap::TypeWithIndex(last_type_index);
                 last_type_index++;
+
                 typeHash_to_TypeBitmap[hash] = type;
+
                 typeBitmap_to_size[type] = sizeof(T);
+                type_to_destructor[type] = [](const void* x){
+                    static_cast<const T*>(x)->~T();
+                };
+
                 return type;
             } else {
                 return res->second;
@@ -46,6 +53,10 @@ namespace Larry::ECS {
                 assert("Didnt find type size");
             }
             return res->second;
+        }
+
+        void DestructType(TypesBitmap type, void* memory) {
+            type_to_destructor[type](memory);
         }
     };
 }

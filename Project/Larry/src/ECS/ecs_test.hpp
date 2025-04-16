@@ -5,7 +5,6 @@
 
 namespace Larry::ECS {
 
-#ifdef LARRY_ENABLE_TESTING
     struct _Position {
         float x, y;
     };
@@ -16,6 +15,38 @@ namespace Larry::ECS {
 
     struct _Transform {
         float x, y, z;
+    };
+
+    int _testComponentChildDestructed = 0;
+    int _testComponentFatherDestructed = 0;
+    int _testComponentOutsideDestructed = 0;
+
+    struct _TestComponentChild {
+        int temp;
+
+        ~_TestComponentChild() {
+            _testComponentChildDestructed++;
+            /* LA_CORE_DEBUG("_TestComponentChild destructed"); */
+        };
+    };
+
+    struct _TestComponentFather {
+        int x;
+        _TestComponentChild child;
+
+        ~_TestComponentFather() {
+            _testComponentFatherDestructed++;
+            /* LA_CORE_DEBUG("_TestComponentFather destructed"); */
+        };
+    };
+
+    struct _TestComponentOutside {
+        int x;
+
+        ~_TestComponentOutside () {
+            _testComponentOutsideDestructed++;
+            /* LA_CORE_DEBUG("_TestComponentOutside destructed"); */
+        };
     };
 
     void _InsertAndSetTest() {
@@ -195,6 +226,64 @@ namespace Larry::ECS {
         LA_CORE_DEBUG("ECS: DeleteComponent passed");
     }
 
+    void _DestractorTest() {
+        World world;
+        
+        auto entity = world.CreateEntity();
+        world.InsertComponent<_TestComponentFather, _TestComponentOutside>(entity, [](_TestComponentFather& father, _TestComponentOutside& outside){
+            father.x = 10;
+            father.child.temp = 9;
+            outside.x = 9;
+        });
+
+        auto father = world.GetComponent<_TestComponentFather>(entity);
+
+        world.SetComponents<_TestComponentFather>(entity, [](_TestComponentFather& father){
+            father.x = 10;
+            father.child.temp = 9;
+        });
+
+        world.System<_TestComponentFather>([&](const _TestComponentFather& father){
+            assert(father.x == 10);
+            assert(father.child.temp == 9);
+        });
+
+        assert(_testComponentFatherDestructed == 0);
+        assert(_testComponentChildDestructed == 0);
+        assert(_testComponentOutsideDestructed == 0);
+
+        world.DeleteComponent<_TestComponentFather>(entity);
+
+        assert(_testComponentFatherDestructed == 1);
+        assert(_testComponentChildDestructed == 1);
+        assert(_testComponentOutsideDestructed == 0);
+
+        world.KillEntity(entity);
+
+        assert(_testComponentFatherDestructed == 1);
+        assert(_testComponentChildDestructed == 1);
+        assert(_testComponentOutsideDestructed == 1);
+
+        auto entity2 = world.CreateEntity();
+        world.InsertComponent<_TestComponentFather>(entity2, [](_TestComponentFather& father){
+            father.x = 10;
+            father.child.temp = 9;
+        });
+        world.KillEntity(entity2);
+
+        assert(_testComponentFatherDestructed == 2);
+        assert(_testComponentChildDestructed == 2);
+
+        {
+            _TestComponentFather test;
+        }
+
+        assert(_testComponentFatherDestructed == 3);
+        assert(_testComponentChildDestructed == 3);
+
+        LA_CORE_DEBUG("ECS: Destractor passed");
+    }
+
     void TestECS()
     {
         /*  world ecs;
@@ -215,7 +304,11 @@ namespace Larry::ECS {
         _SystemTest();
         _CreateAndDeleteTest();
         _DeleteComponentTest();
+        _DestractorTest();
+
+        LA_CORE_DEBUG("ECS: Test passed");
     }
 
+#ifdef LARRY_ENABLE_TESTING
 #endif
 }

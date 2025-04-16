@@ -2,7 +2,7 @@
 
 #include "ECS/TypesBitmap.hpp"
 #include "Log.h"
-#include "TypeManger.hpp"
+#include "TypeManager.hpp"
 #include <functional>
 #include "UnknownTypeVector.hpp"
 #include <optional>

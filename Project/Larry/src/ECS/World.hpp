@@ -1,5 +1,5 @@
 #pragma once
-#include "ECS/TypeManger.hpp"
+#include "ECS/TypeManager.hpp"
 #include "ECS/TypesBitmap.hpp"
 #include "Entity.hpp"
 #include "Archetype.hpp"

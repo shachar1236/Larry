@@ -1,7 +1,7 @@
 #pragma once
 #include "LarryMemory.h"
 #include "Log.h"
-#include "TypeManger.hpp"
+#include "TypeManager.hpp"
 #include "UnknownTypeVector.hpp"
 #include "ECS/Entity.hpp"
 #include "TypesBitmap.hpp"
@@ -40,13 +40,23 @@ namespace Larry::ECS {
                 return entitys.size();
             }
 
-            void KillEntity(Entity& entity) {
+            void KillEntity(Entity& entity, bool destruct=true) {
                 entitys[entity.index].alive = false;
                 entity.alive = false;
                 /* for (auto& [_, value] : components) { */
                     /* value.Clear(entity.index); */
                 /* } */
                 dead_entites.push(entity.index);
+                if (destruct) {
+                    DestructComponents(entity.index, types_bitmap);
+                }
+            }
+
+            void DestructComponents(int index, TypesBitmap types) {
+                types.ForEachType([&](TypesBitmap curr){
+                    byte* object = components[curr].GetRawByIndex(index);
+                    type_manager->DestructType(curr, object);
+                });
             }
 
             std::optional<Entity> GetEntityById(UID id) {
@@ -107,7 +117,13 @@ namespace Larry::ECS {
                     other->components[type].Copy(entity.index, components[type].GetRawByIndex(index));
                 });
                 Entity copy_entity = Entity(entity);
-                other->KillEntity(copy_entity);
+                other->KillEntity(copy_entity, false);
+
+                TypesBitmap left_on_other = (~intesecting) & other->types_bitmap;
+                if (left_on_other != 0) {
+                    LA_CORE_DEBUG("There are components left on the other archetype!");
+                    other->DestructComponents(entity.index, left_on_other);
+                }
 
                 return index;
             }
