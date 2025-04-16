@@ -154,8 +154,21 @@ namespace Larry::ECS {
         assert(entity1_copy.has_value());
         assert(entity1_copy.value().GetId() == my_entity1.GetId());
 
+        int my_entity1_index = my_entity1.GetIndex();
         world.KillEntity(my_entity1);
         assert(!world.GetEntity(my_entity1.GetId()).has_value());
+
+        auto my_entity3 = world.CreateEntity();
+        world.InsertComponent<_Position, _Velocity>(my_entity3, [](_Position& pos, _Velocity& vel){
+            pos = { 77, 77 };
+            vel = { 2.0f, 9 };
+        });
+
+        assert(my_entity3.GetIndex() == my_entity1_index);
+
+        auto pos = world.GetComponent<_Position>(my_entity3);
+        assert(pos.has_value());
+        assert(pos.value()->x == 77 && pos.value()->y == 77);
 
         LA_CORE_DEBUG("ECS: CreateAndDelete passed");
     }

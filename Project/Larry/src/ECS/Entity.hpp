@@ -55,6 +55,10 @@ namespace Larry::ECS {
             UID GetId() const {
                 return id;
             }
+            
+            int GetIndex() {
+                return index;
+            }
     };
 
 }

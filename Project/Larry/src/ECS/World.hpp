@@ -76,37 +76,44 @@ namespace Larry::ECS {
         
         template<typename ...Types, typename F>
         void InsertComponent(Entity& entity, const F& set_callcack) {
-            TypesBitmap new_bitmap = entity.components_types | (type_manager->GetTypeBitmap<Types>() | ...);
-            Archetype* new_archetype = GetArchetype(new_bitmap);
+            if (entity.alive) {
+                TypesBitmap new_bitmap = entity.components_types | (type_manager->GetTypeBitmap<Types>() | ...);
+                Archetype* new_archetype = GetArchetype(new_bitmap);
 
-            if (!entity.components_types.IsNull()) {
-                Archetype* old_archetype = GetArchetype(entity.components_types);
+                if (!entity.components_types.IsNull()) {
+                    Archetype* old_archetype = GetArchetype(entity.components_types);
 
-                int index = new_archetype->PopEntityFromOtherArchetype(entity, old_archetype);
-                new_archetype->SetComponents<Types...>(index, set_callcack);
+                    int index = new_archetype->PopEntityFromOtherArchetype(entity, old_archetype);
+                    new_archetype->SetComponents<Types...>(index, set_callcack);
 
-                entity.index = index;
-            } else {
-                int index = new_archetype->AllocateNew(entity);
-                new_archetype->SetComponents<Types...>(index, set_callcack);
+                    entity.index = index;
+                } else {
+                    int index = new_archetype->AllocateNew(entity);
+                    new_archetype->SetComponents<Types...>(index, set_callcack);
 
-                entity.index = index;
+                    entity.index = index;
+                }
+
+                // update entity to match the new data
+                entity.components_types = new_bitmap;
             }
-            
-            // update entity to match the new data
-            entity.components_types = new_bitmap;
         }
 
         template<typename ...Types, typename F>
         void SetComponents(const Entity& entity, const F& set_callcack) {
-            Archetype* archetype = GetArchetype(entity.components_types);
-            archetype->SetComponents<Types...>(entity.index, set_callcack);
+            if (entity.alive) {
+                Archetype* archetype = GetArchetype(entity.components_types);
+                archetype->SetComponents<Types...>(entity.index, set_callcack);
+            }
         }
 
         template<typename T>
         std::optional<const T*> GetComponent(const Entity& entity) {
-            Archetype* archetype = GetArchetype(entity.components_types);
-            return archetype->GetComponent<T>(entity);
+            if (entity.alive) {
+                Archetype* archetype = GetArchetype(entity.components_types);
+                return archetype->GetComponent<T>(entity);
+            }
+            return std::nullopt;
         }
 
         template<typename T>
