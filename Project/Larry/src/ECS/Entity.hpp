@@ -18,6 +18,7 @@ namespace Larry::ECS {
 
     struct EncodedEntity {
         UID id;
+        bool alive = true;
 
         bool operator==(const EncodedEntity& other) const {
             return id == other.id;
@@ -29,6 +30,7 @@ namespace Larry::ECS {
             UID id;
             TypesBitmap components_types = {0};
             int index = -1;
+            bool alive = true;
 
             friend World;
             friend EntityData;
@@ -43,7 +45,11 @@ namespace Larry::ECS {
             }
 
             EncodedEntity ToEncodedEntity() const {
-                return {this->id};
+                return {this->id, alive};
+            }
+
+            bool IsAlive() const {
+                return alive;
             }
 
             UID GetId() const {

@@ -5,6 +5,7 @@
 #include "UnknownTypeVector.hpp"
 #include "ECS/Entity.hpp"
 #include "TypesBitmap.hpp"
+#include <queue>
 #include <strings.h>
 #include <unordered_map>
 #include <vector>
@@ -14,10 +15,13 @@ namespace Larry::ECS {
     class Archetype {
         private:
             TypeManager* type_manager;
-            std::vector<EncodedEntity> entitys;
-            std::unordered_map<TypesBitmap, UnknownTypeVector> components;
+
             TypesBitmap types_bitmap;
 
+            std::vector<EncodedEntity> entitys;
+            std::unordered_map<TypesBitmap, UnknownTypeVector> components;
+
+            std::queue<int> dead_entites;
         public:
             Archetype() {
 
@@ -36,9 +40,18 @@ namespace Larry::ECS {
                 return entitys.size();
             }
 
+            void KillEntity(Entity& entity) {
+                entitys[entity.index].alive = false;
+                entity.alive = false;
+                /* for (auto& [_, value] : components) { */
+                    /* value.Clear(entity.index); */
+                /* } */
+                dead_entites.push(entity.index);
+            }
+
             std::optional<Entity> GetEntityById(UID id) {
                 for (int i = 0; i < entitys.size(); i++) {
-                    if (entitys[i].id == id) {
+                    if (entitys[i].alive && entitys[i].id == id) {
                         Entity new_entity(id);
                         new_entity.index = i;
                         new_entity.components_types = types_bitmap;
@@ -63,6 +76,14 @@ namespace Larry::ECS {
             // allocate space for new entity and returns the index
             // dosent change entity.index
             int AllocateNew(const Entity& entity) {
+                // TODO: checl dead_entites queue before allocationg new data
+                if  (!dead_entites.empty()) {
+                    int index = dead_entites.front();
+                    dead_entites.pop();
+                    entitys[index] = entity.ToEncodedEntity();
+                    return index;
+                }
+
                 int index = entitys.size();
                 entitys.push_back(entity.ToEncodedEntity());
                 for (auto& [_, value] : components) {
@@ -82,10 +103,10 @@ namespace Larry::ECS {
                 int index = AllocateNew(entity);
                 int old_index = entity.index;
                 entity.components_types.ForEachType([&](TypesBitmap type){
-                    other->components[type].Pop(entity.index, components[type].GetRawByIndex(index));
+                    other->components[type].Copy(entity.index, components[type].GetRawByIndex(index));
                 });
-                other->entitys.erase(other->entitys.begin() + old_index, other->entitys.begin() + old_index + 1);
-                // TODO: make it mark the entity as erased so I want have to change all of the entites in that archtype indexes
+                Entity copy_entity = Entity(entity);
+                other->KillEntity(copy_entity);
 
                 return index;
             }
@@ -94,7 +115,9 @@ namespace Larry::ECS {
             void CallFunctionWithComponents(const F& callback) {
                 int size = entitys.size();
                 for (int i = 0; i < size; i++) {
-                    callback((Types&)(*components[type_manager->GetTypeBitmap<Types>()].GetRawByIndex(i))...);
+                    if (entitys[i].alive) {
+                        callback((Types&)(*components[type_manager->GetTypeBitmap<Types>()].GetRawByIndex(i))...);
+                    }
                 }
             }
 

@@ -74,5 +74,16 @@ namespace Larry::ECS {
                 auto start = data.begin() + real;
                 data.erase(start, start + element_data_size);
             }
+
+            inline void Copy(int i, byte* dest) {
+                int real = i * element_data_size;
+                memcpy(dest, data.data() + real, element_data_size);
+            }
+
+            // sets element to 0
+            inline void Clear(int index) {
+                int real = index * element_data_size;
+                memset(data.data() + real, 0, element_data_size);
+            }
     };
 }

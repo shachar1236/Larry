@@ -63,7 +63,8 @@ namespace Larry::ECS {
         
         // kills an entity
         void KillEntity(Entity& entity) {
-            
+            Archetype* archetype = GetArchetype(entity.components_types);
+            archetype->KillEntity(entity);
         }
 
         Entity CreateEntity() {
