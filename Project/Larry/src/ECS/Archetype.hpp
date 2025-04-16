@@ -36,6 +36,14 @@ namespace Larry::ECS {
                 });
             }
 
+            bool operator==(const Archetype& other) {
+                return this->types_bitmap == other.types_bitmap;
+            }
+
+            TypesBitmap GetTypesBitmap() {
+                return types_bitmap;
+            }
+
             int GetSize() {
                 return entitys.size();
             }

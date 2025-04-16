@@ -11,6 +11,7 @@
 #include <functional>
 #include <optional>
 #include <typeinfo>
+#include <unordered_set>
 #include <vector>
 
 namespace Larry::ECS {
@@ -29,6 +30,9 @@ namespace Larry::ECS {
 
         std::unordered_map<TypesBitmap, Archetype> archetypes;
 
+        // a map where the key is a type and the value is a set of all the archetypes containing that type
+        std::unordered_map<TypesBitmap, std::unordered_set<Archetype*>> type_to_archetypes;
+
         Archetype* GetArchetype(TypesBitmap types) {
             auto res = archetypes.find(types);
             if (res != archetypes.end()) {
@@ -37,7 +41,12 @@ namespace Larry::ECS {
 
             archetypes[types] = Archetype(types, type_manager);
             res = archetypes.find(types);
-            return &(res->second);
+            Archetype* ptr = &(res->second);
+            types.ForEachType([this, ptr](TypesBitmap curr){
+                type_to_archetypes[curr].insert(ptr);
+            });
+
+            return ptr;
         }
 
     public:
@@ -137,11 +146,20 @@ namespace Larry::ECS {
         void System(const F& callback) {
             // TODO: optimize this
             TypesBitmap types = (... | type_manager->GetTypeBitmap<Types>());
-            
-            for (auto& archetype : archetypes) {
-                bool has_types = (archetype.first & types) == types;
+
+            int shortest = -1;
+            std::unordered_set<Archetype*> my_archetypes;
+            types.ForEachType([&](TypesBitmap curr){
+                std::unordered_set<Archetype*> c = type_to_archetypes[curr];
+                if (c.size() < my_archetypes.size() || shortest == -1) {
+                    my_archetypes = c;
+                }
+            });
+
+            for (auto& archetype : my_archetypes) {
+                bool has_types = (archetype->GetTypesBitmap() & types) == types;
                 if (has_types) {
-                    archetype.second.CallFunctionWithComponents<Types...>(callback);
+                    archetype->CallFunctionWithComponents<Types...>(callback);
                 }
             }
         }

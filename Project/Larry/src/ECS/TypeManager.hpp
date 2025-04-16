@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <cstdio>
 #include <unordered_map>
+
 namespace Larry::ECS {
 
     using UnknownTypeTypeMapper = std::unordered_map<TypesBitmap, int>;

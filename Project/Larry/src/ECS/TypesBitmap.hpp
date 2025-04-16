@@ -5,7 +5,6 @@
 #include <cstring>
 #include <functional>
 #include <strings.h>
-#include <sul/dynamic_bitset.hpp>
 
 #define FIND_NEXT_CHUNK_SIZE 32
 
