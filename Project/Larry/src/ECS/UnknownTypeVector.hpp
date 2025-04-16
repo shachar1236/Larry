@@ -11,7 +11,8 @@ namespace Larry::ECS {
             std::vector<byte> data;
             int element_data_size;
         public:
-            UnknownTypeVector() {}
+            UnknownTypeVector() : element_data_size(0) {
+            }
 
             UnknownTypeVector(int element_data_size_) : element_data_size(element_data_size_) {
                 data.reserve(element_data_size * 4);
@@ -27,6 +28,13 @@ namespace Larry::ECS {
 
             inline int GetElementDataSize() {
                 return element_data_size;
+            }
+
+            inline byte* AllocateData() {
+                int last_data_size = data.size();
+                byte* last_data = data.data() + last_data_size;
+                data.resize(last_data_size + element_data_size);
+                return last_data;
             }
 
             // returns data address

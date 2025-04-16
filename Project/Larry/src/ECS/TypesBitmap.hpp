@@ -56,7 +56,7 @@ namespace Larry::ECS {
                 return bitmap == other.bitmap;
             }
             
-            bool IsNull() {
+            bool IsNull() const {
                 return bitmap == 0;
             }
 
@@ -64,7 +64,7 @@ namespace Larry::ECS {
                 return TypesBitmap(bit(i));
             }
 
-            int find_next(int prevPlusOne) {
+            int find_next(int prevPlusOne) const {
                 for (int i = prevPlusOne; i < sizeof(bitset) * 8; i++) {
                     if ((bitmap & bit(i)) != 0) {
                         return i;
@@ -74,12 +74,12 @@ namespace Larry::ECS {
                 return -1;
             }
 
-            inline int GetTypesCount() {
+            inline int GetTypesCount() const {
                 return countSetBits(bitmap);
             }
 
             template<typename F>
-            void ForEachType(const F& callback) {
+            void ForEachType(const F& callback) const {
                 int pos = find_next(0);
                 while (pos != -1) {
                     callback(TypeWithIndex(pos));

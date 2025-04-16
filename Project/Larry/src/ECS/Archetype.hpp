@@ -1,78 +1,100 @@
 #pragma once
 #include "LarryMemory.h"
+#include "Log.h"
 #include "TypeManger.hpp"
 #include "UnknownTypeVector.hpp"
 #include "ECS/Entity.hpp"
-#include "ECS/EntityData.hpp"
 #include "TypesBitmap.hpp"
 #include <strings.h>
+#include <unordered_map>
+#include <vector>
 
 namespace Larry::ECS {
 
     class Archetype {
         private:
             TypeManager* type_manager;
-            UnknownTypeTypeMapper type_mapper;
+            std::vector<EncodedEntity> entitys;
+            std::unordered_map<TypesBitmap, UnknownTypeVector> components;
+            TypesBitmap types_bitmap;
 
         public:
-            TypesBitmap contained_types_bitmap;
-            // containes 
-            UnknownTypeVector entity_and_components;
-
-            Archetype() : entity_and_components(sizeof(EncodedEntity)) {
+            Archetype() {
 
             }
 
-            Archetype(TypesBitmap contained_types_bitmap_, TypeManager* type_manager_) :
-                contained_types_bitmap(contained_types_bitmap_),
+            Archetype(TypesBitmap types_bitmap_, TypeManager* type_manager_) :
+                types_bitmap(types_bitmap_),
                 type_manager(type_manager_)
             {
-                const int ENTITY_SIZE = sizeof(EncodedEntity);
-                int index = ENTITY_SIZE;
-
-                contained_types_bitmap.ForEachType([&](TypesBitmap curr){
-                    type_mapper[curr] = index;
-                    index += type_manager->GetTypeSize(curr);
+                types_bitmap.ForEachType([&](TypesBitmap curr){
+                    components[curr] = UnknownTypeVector(type_manager->GetTypeSize(curr));
                 });
-
-                entity_and_components = UnknownTypeVector(index);
-            }
-
-            const UnknownTypeTypeMapper* GetTypeMapper() {
-                return &type_mapper;
-            }
-
-            int GetObjectSize() {
-                return entity_and_components.GetElementDataSize();
             }
 
             int GetSize() {
-                return entity_and_components.Size();
+                return entitys.size();
             }
 
-            void Add(const EntityData& data, const Ref<Entity>& entity) {
-                byte* new_data = entity_and_components.AddRawData(data.data);
-                entity->type_mapper = &type_mapper;
-                entity->data = new_data;
-            }
-
-            void PopEntityAndComponents(const EncodedEntity& entity, byte* dest) {
-                int size = entity_and_components.Size();
-                for (int i = 0; i < size; i++) {
-                    EncodedEntity* curr_entity = entity_and_components.GetByIndex<EncodedEntity>(i);
-                    if (entity == *curr_entity) {
-                        entity_and_components.Pop(i, dest);
-                        return;
+            std::optional<Entity> GetEntityById(UID id) {
+                for (int i = 0; i < entitys.size(); i++) {
+                    if (entitys[i].id == id) {
+                        Entity new_entity(id);
+                        new_entity.index = i;
+                        new_entity.components_types = types_bitmap;
+                        return new_entity;
                     }
                 }
+                return std::nullopt;
+            }
+
+            template<typename T>
+            std::optional<const T*> GetComponent(const Entity& entity) {
+                TypesBitmap type = type_manager->GetTypeBitmap<T>();
+                if ((types_bitmap & type) == type) {
+                    auto component = components.find(type);
+                    if (component != components.end()) {
+                        return component->second.GetByIndex<T>(entity.index);
+                    }
+                } 
+                return std::nullopt;
+            }
+
+            // allocate space for new entity and returns the index
+            // dosent change entity.index
+            int AllocateNew(const Entity& entity) {
+                int index = entitys.size();
+                entitys.push_back(entity.ToEncodedEntity());
+                for (auto& [_, value] : components) {
+                    value.AllocateData();
+                }
+                return index;
+            }
+
+            template<typename ...Types, typename F>
+            void SetComponents(int index, const F& set_callback) {
+                set_callback((Types&)(*(components[type_manager->GetTypeBitmap<Types>()].GetRawByIndex(index)))...);
+            }
+
+            // returns index of the new entity
+            // dosent change entity.index
+            int PopEntityFromOtherArchetype(const Entity& entity, Archetype* other) {
+                int index = AllocateNew(entity);
+                int old_index = entity.index;
+                entity.components_types.ForEachType([&](TypesBitmap type){
+                    other->components[type].Pop(entity.index, components[type].GetRawByIndex(index));
+                });
+                other->entitys.erase(other->entitys.begin() + old_index, other->entitys.begin() + old_index + 1);
+                // TODO: make it mark the entity as erased so I want have to change all of the entites in that archtype indexes
+
+                return index;
             }
 
             template<typename ...Types, typename F>
             void CallFunctionWithComponents(const F& callback) {
-                int size = entity_and_components.Size();
+                int size = entitys.size();
                 for (int i = 0; i < size; i++) {
-                    byte* data = entity_and_components.GetRawByIndex(i);
-                    callback((Types&)(*(data+type_mapper[type_manager->GetTypeBitmap<Types>()]))...);
+                    callback((Types&)(*components[type_manager->GetTypeBitmap<Types>()].GetRawByIndex(i))...);
                 }
             }
 

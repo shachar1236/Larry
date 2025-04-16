@@ -2,12 +2,14 @@
 #include "ECS/TypeManger.hpp"
 #include "ECS/TypesBitmap.hpp"
 #include "Entity.hpp"
-#include "EntityData.hpp"
 #include "Archetype.hpp"
 #include "LarryMemory.h"
 #include "Log.h"
+#include <algorithm>
+#include <cassert>
 #include <cstring>
 #include <functional>
+#include <optional>
 #include <typeinfo>
 #include <vector>
 
@@ -34,8 +36,10 @@ namespace Larry::ECS {
             }
 
             archetypes[types] = Archetype(types, type_manager);
-            return &(archetypes.find(types)->second);
+            res = archetypes.find(types);
+            return &(res->second);
         }
+
     public:
         World() {
             type_manager = new TypeManager();
@@ -45,52 +49,63 @@ namespace Larry::ECS {
             delete type_manager;
         }
 
-        // kills an entity
-        void KillEntity(EncodedEntity entity) {
-            // TODO: create this funtion
-        }
-
-        Ref<Entity> CreateEntity() {
-            UID id = FamilyGenerate();
-            return CreateRef<Entity>(id, [this](EncodedEntity entity){ KillEntity(entity); }, type_manager);
-        }
-
-        
         // should return an entity with the given id
         // WARNING: an expensive function avoid if possible
-        Ref<Entity> GetEntity(UID entity_id) {
-            // TODO: create this function
-            return nullptr;
+        std::optional<Entity> GetEntity(UID entity_id) {
+            for (auto& archetype : archetypes) {
+                auto res = archetype.second.GetEntityById(entity_id);
+                if (res.has_value()) {
+                    return res;
+                }
+            }
+            return std::nullopt;
         }
         
-        template<typename ...Types>
-        void InsertComponent(const Ref<Entity>& entity, const Types&... components) {
-            EntityData new_entity_object;
-            TypesBitmap new_bitmap = entity->components_types | (type_manager->GetTypeBitmap<Types>() | ...);
+        // kills an entity
+        void KillEntity(Entity& entity) {
+            
+        }
+
+        Entity CreateEntity() {
+            UID id = FamilyGenerate();
+            Entity entity = Entity(id);
+            return entity;
+        }
+
+        
+        template<typename ...Types, typename F>
+        void InsertComponent(Entity& entity, const F& set_callcack) {
+            TypesBitmap new_bitmap = entity.components_types | (type_manager->GetTypeBitmap<Types>() | ...);
             Archetype* new_archetype = GetArchetype(new_bitmap);
-            EncodedEntity enc_entity = {entity->id, entity.get()};
 
-            if (!entity->components_types.IsNull()) {
-                Archetype* archetype = GetArchetype(entity->components_types);
+            if (!entity.components_types.IsNull()) {
+                Archetype* old_archetype = GetArchetype(entity.components_types);
 
-                byte* old_entity_data = new byte[archetype->GetObjectSize()];
-                archetype->PopEntityAndComponents(enc_entity, old_entity_data);
+                int index = new_archetype->PopEntityFromOtherArchetype(entity, old_archetype);
+                new_archetype->SetComponents<Types...>(index, set_callcack);
 
-                EntityData old_entity_object(old_entity_data, archetype->GetObjectSize(), entity->components_types, type_manager, archetype->GetTypeMapper());
-                new_entity_object = old_entity_object.AddComponent<Types...>(components..., new_archetype->GetTypeMapper());
-
-                delete[] old_entity_data;
+                entity.index = index;
             } else {
-                EntityData old_entity_object = EntityData((byte*)&enc_entity, sizeof(EncodedEntity), entity->components_types, type_manager, nullptr);
-                new_entity_object = old_entity_object.AddComponent<Types...>(components..., new_archetype->GetTypeMapper());
+                int index = new_archetype->AllocateNew(entity);
+                new_archetype->SetComponents<Types...>(index, set_callcack);
 
+                entity.index = index;
             }
             
             // update entity to match the new data
-            entity->components_types = new_bitmap;
-            new_archetype->Add(new_entity_object, entity);
+            entity.components_types = new_bitmap;
+        }
 
-            delete[] new_entity_object.data;
+        template<typename ...Types, typename F>
+        void SetComponents(const Entity& entity, const F& set_callcack) {
+            Archetype* archetype = GetArchetype(entity.components_types);
+            archetype->SetComponents<Types...>(entity.index, set_callcack);
+        }
+
+        template<typename T>
+        std::optional<const T*> GetComponent(const Entity& entity) {
+            Archetype* archetype = GetArchetype(entity.components_types);
+            return archetype->GetComponent<T>(entity);
         }
 
         template<typename T>
@@ -103,7 +118,7 @@ namespace Larry::ECS {
             // TODO: optimize this
             TypesBitmap types = (... | type_manager->GetTypeBitmap<Types>());
             
-            for (auto archetype : archetypes) {
+            for (auto& archetype : archetypes) {
                 bool has_types = (archetype.first & types) == types;
                 if (has_types) {
                     archetype.second.CallFunctionWithComponents<Types...>(callback);
