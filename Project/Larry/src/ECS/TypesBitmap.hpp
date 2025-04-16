@@ -52,6 +52,10 @@ namespace Larry::ECS {
                 return TypesBitmap(this->bitmap & other.bitmap);
             }
 
+            TypesBitmap operator~() const {
+                return TypesBitmap(~this->bitmap);
+            }
+
             bool operator==(const TypesBitmap& other) const {
                 return bitmap == other.bitmap;
             }

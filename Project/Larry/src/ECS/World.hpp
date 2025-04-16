@@ -117,8 +117,20 @@ namespace Larry::ECS {
         }
 
         template<typename T>
-        void DeleteComponent(const Ref<Entity> entity) {
-            // TODO: create this function
+        void DeleteComponent(Entity& entity) {
+            if (entity.alive) {
+                TypesBitmap new_bitmap = entity.components_types & (~type_manager->GetTypeBitmap<T>());
+                Archetype* new_archetype = GetArchetype(new_bitmap);
+
+                if (!entity.components_types.IsNull()) {
+                    Archetype* old_archetype = GetArchetype(entity.components_types);
+
+                    int index = new_archetype->PopEntityFromOtherArchetype(entity, old_archetype);
+
+                    entity.index = index;
+                    entity.components_types = new_bitmap;
+                }
+            }
         }
 
         template<typename ...Types, typename F>

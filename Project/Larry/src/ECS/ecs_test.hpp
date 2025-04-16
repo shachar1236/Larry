@@ -119,7 +119,7 @@ namespace Larry::ECS {
         LA_CORE_DEBUG("ECS: SystemTest passed");
     }
 
-    void _CreateAndDelete() {
+    void _CreateAndDeleteTest() {
         World world;
 
         for (int i = 0; i < 10; i++) {
@@ -173,6 +173,28 @@ namespace Larry::ECS {
         LA_CORE_DEBUG("ECS: CreateAndDelete passed");
     }
 
+    void _DeleteComponentTest() {
+        World world;
+
+        auto entity1 = world.CreateEntity();
+        world.InsertComponent<_Position, _Velocity>(entity1, [](_Position& pos, _Velocity& vel){
+            pos = { 1, 8 };
+            vel = { 2, 9 };
+        });
+
+        auto entity2 = world.CreateEntity();
+        world.InsertComponent<_Position, _Velocity>(entity2, [](_Position& pos, _Velocity& vel){
+            pos = { 1, 8 };
+            vel = { 2, 9 };
+        });
+
+        world.DeleteComponent<_Position>(entity1);
+        assert(!world.GetComponent<_Position>(entity1).has_value());
+        assert(world.GetComponent<_Position>(entity2).has_value());
+
+        LA_CORE_DEBUG("ECS: DeleteComponent passed");
+    }
+
     void TestECS()
     {
         /*  world ecs;
@@ -191,7 +213,8 @@ namespace Larry::ECS {
             }); */
         _InsertAndSetTest();
         _SystemTest();
-        _CreateAndDelete();
+        _CreateAndDeleteTest();
+        _DeleteComponentTest();
     }
 
 #endif

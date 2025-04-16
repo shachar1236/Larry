@@ -102,7 +102,8 @@ namespace Larry::ECS {
             int PopEntityFromOtherArchetype(const Entity& entity, Archetype* other) {
                 int index = AllocateNew(entity);
                 int old_index = entity.index;
-                entity.components_types.ForEachType([&](TypesBitmap type){
+                TypesBitmap intesecting = types_bitmap & other->types_bitmap;
+                intesecting.ForEachType([&](TypesBitmap type){
                     other->components[type].Copy(entity.index, components[type].GetRawByIndex(index));
                 });
                 Entity copy_entity = Entity(entity);
