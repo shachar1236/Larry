@@ -22,7 +22,8 @@ void gflw_error_callback(int code, const char* description)
 }
 
 namespace Larry {
-     Application* Application::application = nullptr;
+
+    Application* Application::application = nullptr;
 
     Application* Application::GetApplication() {
         if (Application::application == nullptr) {
@@ -34,7 +35,7 @@ namespace Larry {
     }
 
     Application::Application()  {
-        EventSystem::SetCallbackFunction(BIND_EVENT_FN(handleEvent));
+        EventSystem::AddCallbackFunction(BIND_EVENT_FN(handleEvent));
     }
 
     Application::~Application() {
@@ -49,7 +50,6 @@ namespace Larry {
         glfwInit();
         // setting error callback
         glfwSetErrorCallback(gflw_error_callback);
-
 
         /* windowConfig.maximized = true; */
         window = CreateRef<LarryWindow>(windowConfig);
@@ -71,6 +71,7 @@ namespace Larry {
             double deltaTime = time - lastFrameTime;
             lastFrameTime = time;
 
+            EventSystem::HandleQueuedEvents();
             layerStack.UpdateLayers(deltaTime);
 
             renderer->UpdateFrame();
