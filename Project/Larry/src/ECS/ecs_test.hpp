@@ -3,6 +3,7 @@
 #include "Log.h"
 #include "TypesBitmap.hpp"
 #include <cassert>
+#include <set>
 
 namespace Larry::ECS {
 
@@ -112,41 +113,51 @@ namespace Larry::ECS {
 
         auto entity2 = world.CreateEntity();
         world.InsertComponent<_Position, _Velocity>(entity2, [](_Position& pos, _Velocity& vel){
-            pos = { 1, 8 };
+            pos = { 1 * 2, 8 };
             vel = { 2, 9 };
         });
 
         auto entity3 = world.CreateEntity();
         world.InsertComponent<_Position, _Velocity, _Transform>(entity3, [](_Position& pos, _Velocity& vel, _Transform& trans){
-            pos = { 1, 8 };
+            pos = { 1 * 3, 8 };
             vel = { 2, 9 };
             trans = { 1, 2, 3 };
         });
 
         auto entity4 = world.CreateEntity();
         world.InsertComponent<_Position>(entity4, [](_Position& pos){
-            pos = { 1, 8 };
+            pos = { 1 * 4, 8 };
         });
 
         int count = 0;
+        std::set<int> pos_x = {1, 2, 3};
         world.System<_Position, _Velocity>([&](_Position& pos, _Velocity& vel){
                 count++;
-                assert(pos.x == 1 && pos.y == 8);
+                auto res = pos_x.find(pos.x);
+                assert(res != pos_x.end());
+                pos_x.erase(res);
+                assert(pos.y == 8);
                 assert(vel.x == 2 && vel.y == 9);
             });
         assert(count == 3);
+        assert(pos_x.empty());
 
         world.InsertComponent<_Velocity>(entity4, [](_Velocity& vel){
             vel = { 2, 9 };
         });
 
         count = 0;
+        pos_x = {1, 2, 3, 4};
         world.System<_Position, _Velocity>([&](_Position& pos, _Velocity& vel){
                 count++;
-                assert(pos.x == 1 && pos.y == 8);
+                auto res = pos_x.find(pos.x);
+                assert(res != pos_x.end());
+                pos_x.erase(res);
+                assert(pos.y == 8);
                 assert(vel.x == 2 && vel.y == 9);
             });
         assert(count == 4);
+        assert(pos_x.empty());
 
         LA_CORE_DEBUG("ECS: SystemTest passed");
     }
@@ -287,20 +298,6 @@ namespace Larry::ECS {
 
     void TestECS()
     {
-        /*  world ecs;
-
-            ecs.system<Position, const Velocity>()
-            .each([](Position& p, const Velocity& v) {
-            p.x += v.x;
-            p.y += v.y;
-            });
-
-            auto e = ecs.entity();
-
-            ecs.insertComponent(e, [](Position& p, Velocity& v) {
-            p = {10, 20};
-            v = {1, 2};
-            }); */
         _InsertAndSetTest();
         _SystemTest();
         _CreateAndDeleteTest();

@@ -136,14 +136,25 @@ namespace Larry::ECS {
                 return index;
             }
 
+            template<typename Real, typename Hidden>
+            struct TypeWithHidden {
+                Real value;
+            };
+
+
             template<typename ...Types, typename F>
-            void CallFunctionWithComponents(const F& callback) {
+            void CallFunctionWithComponentsImplamentation(TypeWithHidden<TypesBitmap, Types>... types, const F& callback) {
                 int size = entitys.size();
                 for (int i = 0; i < size; i++) {
                     if (entitys[i].alive) {
-                        callback((Types&)(*components[type_manager->GetTypeBitmap<Types>()].GetRawByIndex(i))...);
+                        callback((Types&)(*components[types.value].GetRawByIndex(i))...);
                     }
                 }
+            }
+
+            template<typename ...Types, typename F>
+            void CallFunctionWithComponents(const F& callback) {
+                CallFunctionWithComponentsImplamentation<Types...>({type_manager->GetTypeBitmap<Types>()}..., callback);
             }
 
     };
