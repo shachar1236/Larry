@@ -7,7 +7,7 @@
 
 namespace Larry {
 
-    BackgroundLayer::BackgroundLayer() : Layer("BackgroundLayer") {
+    BackgroundLayer::BackgroundLayer(const Ref<ECS::World>& world_) : Layer("BackgroundLayer", world) {
     }
 
     BackgroundLayer::~BackgroundLayer() {

@@ -1,3 +1,4 @@
+#pragma once
 #include "ECS.hpp"
 #include "ECS/World.hpp"
 #include "Log.h"

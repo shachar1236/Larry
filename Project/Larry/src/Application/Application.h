@@ -5,6 +5,7 @@
 #include "LayerStack.h"
 #include "Log.h"
 #include "LarryMemory.h"
+#include "World.hpp"
 
 namespace Larry {
     class Application {
@@ -16,6 +17,7 @@ namespace Larry {
             RendererConfig rendererConfig;
             Renderer* renderer;
             LayerStack layerStack;
+            Ref<ECS::World> ecs_world;
 
             static Application* application;
         public:
@@ -25,7 +27,7 @@ namespace Larry {
             static Application* GetApplication();
             void OnCreate();
             void Run();
-            
+
             static void HandleEvent(const Ref<Event>&);
             void handleEvent(const Ref<Event>&);
             void handleErrorEvent(const Ref<Event>&);

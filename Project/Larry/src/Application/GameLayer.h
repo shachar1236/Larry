@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Entity.hpp"
 #include "Layer.h"
 #include "Math.h"
 #include "Renderer.h"
@@ -20,8 +21,11 @@ namespace Larry {
             Math::Vec2 position = Math::Vec2(200, 300);
 
             bool mouse_pressed = false;
+
+            ECS::Entity entity1;
+            ECS::Entity entity2;
         public:
-            GameLayer();
+            GameLayer(const Ref<ECS::World>& world_);
             virtual ~GameLayer();
 
             virtual void OnAttach();

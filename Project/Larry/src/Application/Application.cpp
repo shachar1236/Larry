@@ -10,6 +10,8 @@
 #include "LayerStack.h"
 #include "BackgroundLayer.h"
 #include "GameLayer.h"
+#include "Renderer.h"
+#include "Systems/RenderQuad.h"
 #include "UILayer.h"
 #include "GUILayer.h"
 #include "WindowEvents.h"
@@ -57,10 +59,20 @@ namespace Larry {
 
         InitInput(window->GetWindow());
 
-        layerStack.AttachLayer(CreateRef<BackgroundLayer>());
-        layerStack.AttachLayer(CreateRef<GameLayer>());
-        layerStack.AttachLayer(CreateRef<UILayer>());
-        layerStack.AttachLayer(CreateRef<GUILayer>());
+        ecs_world = CreateRef<ECS::World>();
+        ecs_world->CreateSingelton<Renderer*>([this](Renderer*& rend){
+            rend = renderer;
+        });
+        ecs_world->CreateSingelton<Ref<LarryWindow>>([this](Ref<LarryWindow>& win){
+            win = window;
+        });
+
+        layerStack.AttachLayer(CreateRef<BackgroundLayer>(ecs_world));
+        layerStack.AttachLayer(CreateRef<GameLayer>(ecs_world));
+        layerStack.AttachLayer(CreateRef<UILayer>(ecs_world));
+        layerStack.AttachLayer(CreateRef<GUILayer>(ecs_world));
+
+        layerStack.GetLayer("GameLayer")->AddSystem(CreateRef<RenderQuad>());
     }
 
     void Application::Run() {

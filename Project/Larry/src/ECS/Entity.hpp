@@ -41,6 +41,10 @@ namespace Larry::ECS {
             {
             }
         public:
+            Entity() {
+                alive = false;
+            }
+
             ~Entity() {
             }
 

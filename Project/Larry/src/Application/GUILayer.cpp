@@ -4,7 +4,7 @@
 
 namespace Larry {
 
-    GUILayer::GUILayer() : Layer("GUILayer") {
+    GUILayer::GUILayer(const Ref<ECS::World>& world_) : Layer("GUILayer", world_) {
     }
 
     GUILayer::~GUILayer() {

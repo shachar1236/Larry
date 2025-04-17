@@ -4,7 +4,7 @@
 
 namespace Larry {
 
-    UILayer::UILayer() : Layer("UILayer") {
+    UILayer::UILayer(const Ref<ECS::World>& world_) : Layer("UILayer", world_) {
     }
 
     UILayer::~UILayer() {

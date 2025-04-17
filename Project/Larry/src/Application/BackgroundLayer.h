@@ -4,6 +4,7 @@
 #include "Math.h"
 #include "Renderer.h"
 #include "TextureObject.h"
+#include "World.hpp"
 
 namespace Larry {
     class BackgroundLayer : public Layer {
@@ -11,7 +12,7 @@ namespace Larry {
             Renderer* renderer;
             Math::Vec4 color;
         public:
-            BackgroundLayer();
+            BackgroundLayer(const Ref<ECS::World>& world_);
             virtual ~BackgroundLayer();
 
             virtual void OnAttach();

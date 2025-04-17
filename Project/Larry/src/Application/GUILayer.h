@@ -9,7 +9,7 @@ namespace Larry {
         private:
             Renderer* renderer;
         public:
-            GUILayer();
+            GUILayer(const Ref<ECS::World>& world_);
             virtual ~GUILayer();
 
             virtual void OnAttach();
