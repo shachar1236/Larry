@@ -49,6 +49,11 @@ namespace Larry::ECS {
                 return entitys.size();
             }
 
+            bool IsAlive(const Entity& entity) {
+                EncodedEntity e = entitys[entity.index];
+                return e.id == entity.id && e.alive && types_bitmap == entity.components_types;
+            }
+
             void KillEntity(Entity& entity, bool destruct=true) {
                 entitys[entity.index].alive = false;
                 entity.alive = false;

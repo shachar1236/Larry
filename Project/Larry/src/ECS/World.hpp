@@ -82,7 +82,9 @@ namespace Larry::ECS {
         // kills an entity
         void KillEntity(Entity& entity) {
             Archetype* archetype = GetArchetype(entity.components_types);
-            archetype->KillEntity(entity);
+            if (archetype->IsAlive(entity)) {
+                archetype->KillEntity(entity);
+            }
         }
 
         Entity CreateEntity() {
@@ -128,11 +130,15 @@ namespace Larry::ECS {
 
                 if (!entity.components_types.IsNull()) {
                     Archetype* old_archetype = GetArchetype(entity.components_types);
+                    if (old_archetype->IsAlive(entity)) {
+                        int index = new_archetype->PopEntityFromOtherArchetype(entity, old_archetype);
+                        new_archetype->SetComponents<Types...>(index, set_callcack);
 
-                    int index = new_archetype->PopEntityFromOtherArchetype(entity, old_archetype);
-                    new_archetype->SetComponents<Types...>(index, set_callcack);
-
-                    entity.index = index;
+                        entity.index = index;
+                    } else {
+                        entity.alive = false;
+                        return false;
+                    }
                 } else {
                     int index = new_archetype->AllocateNew(entity);
                     new_archetype->SetComponents<Types...>(index, set_callcack);
@@ -151,7 +157,9 @@ namespace Larry::ECS {
         void SetComponents(const Entity& entity, const F& set_callcack) {
             if (entity.alive) {
                 Archetype* archetype = GetArchetype(entity.components_types);
-                archetype->SetComponents<Types...>(entity.index, set_callcack);
+                if (archetype->IsAlive(entity)) {
+                    archetype->SetComponents<Types...>(entity.index, set_callcack);
+                }
             }
         }
 
@@ -159,7 +167,9 @@ namespace Larry::ECS {
         std::optional<const T*> GetComponent(const Entity& entity) {
             if (entity.alive) {
                 Archetype* archetype = GetArchetype(entity.components_types);
-                return archetype->GetComponent<T>(entity);
+                if (archetype->IsAlive(entity)) {
+                    return archetype->GetComponent<T>(entity);
+                }
             }
             return std::nullopt;
         }
@@ -172,11 +182,13 @@ namespace Larry::ECS {
 
                 if (!entity.components_types.IsNull()) {
                     Archetype* old_archetype = GetArchetype(entity.components_types);
+                    if (old_archetype->IsAlive(entity)) {
+                        int index = new_archetype->PopEntityFromOtherArchetype(entity, old_archetype);
 
-                    int index = new_archetype->PopEntityFromOtherArchetype(entity, old_archetype);
+                        entity.index = index;
+                        entity.components_types = new_bitmap;
+                    }
 
-                    entity.index = index;
-                    entity.components_types = new_bitmap;
                 }
             }
         }
