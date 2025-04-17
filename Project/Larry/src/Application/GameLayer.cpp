@@ -89,6 +89,7 @@ namespace Larry {
         if (mouse_pressed) {
             Events::MouseMovedEvent* mouse_event = (Events::MouseMovedEvent*)event.get();
             this->position.x = mouse_event->GetX();
+            this->position.y = mouse_event->GetY();
         }
     }
 

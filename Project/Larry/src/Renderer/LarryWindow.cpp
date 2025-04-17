@@ -63,6 +63,9 @@ namespace Larry {
 
         glfwMakeContextCurrent(window);
 
+        Ref<Larry::Events::WindowResizedEvent> event = Larry::CreateRef<Larry::Events::WindowResizedEvent>(config.window_width , config.window_height, window);
+        EventSystem::HandleEvent(event);
+
         // set callbacks
         glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);  
         glfwSetWindowCloseCallback(window, window_close_callback);
