@@ -26,24 +26,24 @@ namespace Larry {
 
         world->InsertComponent<Transform, Quad>(entity1, [=, this](Transform& transform, Quad& quad){
             transform = Transform();
-            transform.translation.x = 0.7;
-            transform.translation.y = 0.3;
+            transform.translation.x = 100;
+            transform.translation.y = 200;
 
             quad = Quad();
-            quad.dimentions.x = 0.3;
-            quad.dimentions.y = 0.3;
+            quad.dimentions.x = 100;
+            quad.dimentions.y = 100;
             /* quad.color = Math::Vec4(0.4, 0.2, 0.7, 1.0f); */
             quad.texture = face;
         });
 
         world->InsertComponent<Transform, Quad>(entity2, [=](Transform& transform, Quad& quad){
             transform = Transform();
-            transform.translation.x = 0.4;
-            transform.translation.y = 0.7;
+            transform.translation.x = 200;
+            transform.translation.y = 400;
 
             quad = Quad();
-            quad.dimentions.x = 0.5;
-            quad.dimentions.y = 0.5;
+            quad.dimentions.x = 200;
+            quad.dimentions.y = 200;
             quad.color = Math::Vec4(0.2, 0.4, 0.3, 1.0f);
         });
     }
@@ -53,7 +53,7 @@ namespace Larry {
     }
 
     void GameLayer::OnAttach() {
-        renderer->InitializeOrthographicProjection(0.0f, 1.0f, 0.0f, 1.0f, 0.1f, 100.0f);
+        renderer->InitializeOrthographicProjection(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
         renderer->View = Math::translate(renderer->View, Math::Vec3(0.0f, 0.0f, -3.0f));
     }
 

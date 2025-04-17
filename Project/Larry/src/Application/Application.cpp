@@ -11,6 +11,7 @@
 #include "BackgroundLayer.h"
 #include "GameLayer.h"
 #include "Renderer.h"
+#include "Systems/ButtonSystem.h"
 #include "Systems/RenderQuad.h"
 #include "UILayer.h"
 #include "GUILayer.h"
@@ -73,6 +74,7 @@ namespace Larry {
         layerStack.AttachLayer(CreateRef<GUILayer>(ecs_world));
 
         layerStack.GetLayer("GameLayer")->AddSystem(CreateRef<RenderQuad>());
+        layerStack.GetLayer("UILayer")->AddSystem(CreateRef<ButtonSystem>());
     }
 
     void Application::Run() {

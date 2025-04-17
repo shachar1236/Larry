@@ -41,6 +41,7 @@ set(SOURCE_FILES
     Larry/src/ECS/TypesBitmap.cpp
 
     Larry/src/Application/Systems/RenderQuad.cpp
+    Larry/src/Application/Systems/ButtonSystem.cpp
 )
 set(HEADER_DIRECTORIES
     Larry/src
