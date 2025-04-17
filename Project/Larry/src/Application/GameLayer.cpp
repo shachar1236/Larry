@@ -24,15 +24,16 @@ namespace Larry {
         entity1 = world->CreateEntity();
         entity2 = world->CreateEntity();
 
-        world->InsertComponent<Transform, Quad>(entity1, [=](Transform& transform, Quad& quad){
+        world->InsertComponent<Transform, Quad>(entity1, [=, this](Transform& transform, Quad& quad){
             transform = Transform();
-            transform.translation.x = 0.1;
+            transform.translation.x = 0.7;
             transform.translation.y = 0.3;
 
             quad = Quad();
             quad.dimentions.x = 0.3;
             quad.dimentions.y = 0.3;
-            quad.color = Math::Vec4(0.4, 0.2, 0.7, 1.0f);
+            /* quad.color = Math::Vec4(0.4, 0.2, 0.7, 1.0f); */
+            quad.texture = face;
         });
 
         world->InsertComponent<Transform, Quad>(entity2, [=](Transform& transform, Quad& quad){
@@ -41,8 +42,8 @@ namespace Larry {
             transform.translation.y = 0.7;
 
             quad = Quad();
-            quad.dimentions.x = 0.1;
-            quad.dimentions.y = 0.2;
+            quad.dimentions.x = 0.5;
+            quad.dimentions.y = 0.5;
             quad.color = Math::Vec4(0.2, 0.4, 0.3, 1.0f);
         });
     }

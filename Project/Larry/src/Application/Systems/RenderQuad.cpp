@@ -16,6 +16,9 @@ namespace Larry {
             renderer->Rotate(transform.rotation_size, transform.rotation_axis);
             renderer->Scale(transform.scale);
             renderer->Fill(quad.color);
+            if (quad.texture != nullptr) {
+                renderer->Texture(quad.texture);
+            }
             renderer->DrawQuad(quad.dimentions);
         });
     }
