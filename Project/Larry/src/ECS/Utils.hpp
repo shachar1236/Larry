@@ -6,5 +6,7 @@ namespace Larry::ECS {
     template<typename Real, typename Hidden>
     struct TypeWithHidden {
         Real value;
+
+        TypeWithHidden(const Real& val) : value(val) {}
     };
 }

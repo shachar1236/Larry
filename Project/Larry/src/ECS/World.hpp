@@ -36,7 +36,7 @@ namespace Larry::ECS {
         std::unordered_map<TypesBitmap, std::unordered_set<Archetype*>> type_to_archetypes;
 
         TypesBitmap singeltons_bitmap;
-        std::unordered_map<TypesBitmap, Scope<byte[]>> singeltons;
+        std::unordered_map<TypesBitmap, byte*> singeltons;
 
         Archetype* GetArchetype(TypesBitmap types) {
             auto res = archetypes.find(types);
@@ -57,6 +57,10 @@ namespace Larry::ECS {
     public:
         World() {
             type_manager = new TypeManager();
+
+            for (auto& [_, ptr] : singeltons) {
+                delete[] ptr;
+            }
         }
 
         ~World() {
@@ -91,9 +95,9 @@ namespace Larry::ECS {
         void CreateSingelton(const F& callback) {
             TypesBitmap type = type_manager->GetTypeBitmap<T>();
             if (singeltons.find(type) == singeltons.end()) {
-                singeltons[type] = CreateScope<byte[]>(sizeof(T));
+                singeltons[type] = new byte[sizeof(T)];
                 singeltons_bitmap = singeltons_bitmap | type;
-                callback((T&)(*singeltons[type].get()));
+                callback((T&)(*singeltons[type]));
             }
         }
 
@@ -102,7 +106,7 @@ namespace Larry::ECS {
             TypesBitmap type = type_manager->GetTypeBitmap<T>();
             auto res = singeltons.find(type) ;
             if (res != singeltons.end()) {
-                return (T*)(res->second.get());
+                return (T*)(res->second);
             }
             return std::nullopt;
         }
@@ -110,7 +114,7 @@ namespace Larry::ECS {
         template<typename T, typename F>
         void SetSingelton(const F& callback) {
             TypesBitmap type = type_manager->GetTypeBitmap<T>();
-            callback((T&)(*singeltons[type].get()));
+            callback((T&)(*singeltons[type]));
         }
 
         // Inserts component to entity
@@ -177,6 +181,24 @@ namespace Larry::ECS {
             }
         }
 
+    private:
+        template<typename ...Types, typename F>
+        void _systemImpl(
+                TypeWithHidden<TypesBitmap, Types>... types,
+                TypeWithHidden<byte*, Types>... singeltons,
+                TypesBitmap types_bitmap,
+                const std::unordered_set<Archetype*>& my_archetypes,
+                const F& callback)
+        {
+            for (auto& archetype : my_archetypes) {
+                bool has_types = (archetype->GetTypesBitmap() & types_bitmap) == types_bitmap;
+                if (has_types) {
+                    archetype->CallFunctionWithComponents<Types...>(types..., singeltons..., singeltons_bitmap, callback);
+                }
+            }
+        }
+
+    public:
         template<typename ...Types, typename F>
         void System(const F& callback) {
             // TODO: optimize this
@@ -191,12 +213,11 @@ namespace Larry::ECS {
                 }
             });
 
-            for (auto& archetype : my_archetypes) {
-                bool has_types = (archetype->GetTypesBitmap() & types) == types;
-                if (has_types) {
-                    archetype->CallFunctionWithComponents<Types...>(singeltons_bitmap, singeltons, callback);
-                }
-            }
+            _systemImpl<Types...>({type_manager->GetTypeBitmap<Types>()}...,
+                    {singeltons.find(type_manager->GetTypeBitmap<Types>()) != singeltons.end() ? singeltons[type_manager->GetTypeBitmap<Types>()] : nullptr}...,
+                    types,
+                    my_archetypes,
+                    callback);
         }
     };
 }

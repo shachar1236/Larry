@@ -137,24 +137,44 @@ namespace Larry::ECS {
                 return index;
             }
 
+            struct TypeWithVector {
+                TypesBitmap type;
+                UnknownTypeVector* vector;
+
+                TypeWithVector(TypesBitmap type_, UnknownTypeVector* vector_) : type(type_), vector(vector_) {
+
+                };
+            };
+
+        private:
             template<typename ...Types, typename F>
             void CallFunctionWithComponentsImplamentation(
-                TypeWithHidden<TypesBitmap, Types>... types,
+                TypeWithHidden<TypeWithVector, Types>... types,
+                TypeWithHidden<byte*, Types>... singeltons,
                 TypesBitmap singeltons_types,
-                std::unordered_map<TypesBitmap, Scope<byte[]>>& singeltons,
                 const F& callback) 
             {
                 int size = entitys.size();
                 for (int i = 0; i < size; i++) {
                     if (entitys[i].alive) {
-                        callback((Types&)(*(singeltons_types.Intersect(types.value) ? singeltons[types.value].get() : components[types.value].GetRawByIndex(i)))...);
+                        callback((Types&)(*(singeltons_types.Intersect(types.value.type) ? singeltons.value : types.value.vector->GetRawByIndex(i)))...);
                     }
                 }
             }
 
+        public:
             template<typename ...Types, typename F>
-            void CallFunctionWithComponents(TypesBitmap singeltons_types, std::unordered_map<TypesBitmap, Scope<byte[]>>& singeltons, const F& callback) {
-                CallFunctionWithComponentsImplamentation<Types...>({ type_manager->GetTypeBitmap<Types>() }..., singeltons_types, singeltons, callback);
+            void CallFunctionWithComponents(
+                    TypeWithHidden<TypesBitmap, Types>... types,
+                    TypeWithHidden<byte*, Types>... singeltons,
+                    TypesBitmap singeltons_types,
+                    const F& callback) 
+            {
+                CallFunctionWithComponentsImplamentation<Types...>(
+                        { TypeWithVector(types.value, components.find(types.value) != components.end() ? &(components[types.value]) : nullptr) }...,
+                        singeltons...,
+                        singeltons_types,
+                        callback);
             }
 
     };
