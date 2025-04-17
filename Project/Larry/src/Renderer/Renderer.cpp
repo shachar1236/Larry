@@ -70,7 +70,7 @@ namespace Larry {
 
         quad_vertices_buffer.Generate(quad_vertices.data(), quads_vertices_buffer_size);
         quad_vertices_buffer.SetAttributeOnVBO(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, vertices));
-        quad_vertices_buffer.SetAttributeOnVBO(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, colors));
+        quad_vertices_buffer.SetAttributeOnVBO(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
         quad_vertices_buffer.SetAttributeOnVBO(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, textureCords));
         quad_vertices_buffer.SetAttributeOnVBO(3, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, textureSlot));
 
@@ -150,13 +150,16 @@ namespace Larry {
         quads_number = 0;
     }
 
-    void Renderer::DrawQuad(const float& x, const float& y, const float& width, const float& height) {
+    void Renderer::DrawQuad(Math::Vec2 dimentions) {
         if (quads_number >= MAX_QUADS_NUMBER) {
             LA_CORE_INFO("Reached MAX_QUADS_NUMBER flushing current batch");
             FlushBatch();
         }
+        float width = dimentions.x;
+        float height = dimentions.y;
+
         Math::Mat4 model = Math::Mat4(1.0f);
-        model = Math::translate(model, CurrentShapeOptions.translation + Math::Vec3(x, y, 0.0f));
+        model = Math::translate(model, CurrentShapeOptions.translation);
         model = Math::rotate(model, CurrentShapeOptions.rotation, CurrentShapeOptions.rotation_axis);
         model = Math::scale(model, CurrentShapeOptions.scaling);
 
@@ -173,10 +176,10 @@ namespace Larry {
         ver4.vertices = Math::Vec3(-0.5 * width, 0.5 * height, 0.0f);
         ver4.textureSlot = CurrentShapeOptions.CurrentTextureSlot;
         for (int i = 0; i < 4; i++) {
-            ver1.colors[i] = CurrentShapeOptions.FillColors[i];
-            ver2.colors[i] = CurrentShapeOptions.FillColors[i];
-            ver3.colors[i] = CurrentShapeOptions.FillColors[i];
-            ver4.colors[i] = CurrentShapeOptions.FillColors[i];
+            ver1.color[i] = CurrentShapeOptions.FillColors[i];
+            ver2.color[i] = CurrentShapeOptions.FillColors[i];
+            ver3.color[i] = CurrentShapeOptions.FillColors[i];
+            ver4.color[i] = CurrentShapeOptions.FillColors[i];
         }
 
         for (int i = 0; i < 4; i++) {
@@ -219,11 +222,8 @@ namespace Larry {
         Projection = Math::perspective(fov, aspectRatio, near, far);
     }
 
-    void Renderer::Fill(float r, float g, float b, float a) {
-        CurrentShapeOptions.FillColors[0] = r;
-        CurrentShapeOptions.FillColors[1] = g;
-        CurrentShapeOptions.FillColors[2] = b;
-        CurrentShapeOptions.FillColors[3] = a;
+    void Renderer::Fill(Math::Vec4 color) {
+        CurrentShapeOptions.FillColors = color;
     }
 
     void Renderer::Texture(const Ref<TextureObject>& texture) {

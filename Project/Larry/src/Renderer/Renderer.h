@@ -16,7 +16,7 @@ namespace Larry {
 
     struct Vertex {
         Math::Vec3 vertices;
-        float colors[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+        Math::Vec4 color;
         float textureCords[2];
         float textureSlot;
         Math::Vec4 modelCol1;
@@ -26,7 +26,7 @@ namespace Larry {
     };
 
     struct ShapeOptions {
-        float FillColors[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+        Math::Vec4 FillColors = Math::Vec4(1.0f);
         float TextureCords[4][2] = {
             { 1.0f, 1.0f },
             { 1.0f, 0.0f },
@@ -86,7 +86,7 @@ namespace Larry {
             // void FlushBatch() - draws the current batch to the screen
             void FlushBatch();
 
-            void DrawQuad(const float& x, const float& y, const float& width, const float& height);
+            void DrawQuad(Math::Vec2 dimentions);
             /* void DrawTriangle(const float& x, const float& y, const float& width, const float& height); */
 
             // initializing variables
@@ -94,7 +94,7 @@ namespace Larry {
             void InitializePrespectiveProjection(const float& fov, const float& aspectRatio, const float& near, const float& far);
 
             // Setting next draw options
-            void Fill(float r, float g, float b, float a);
+            void Fill(Math::Vec4 color);
             void Texture(const Ref<TextureObject>& texture);
             void TextureCords(const float cords[4][2]);
             void Translate(const Math::Vec3& amount);
