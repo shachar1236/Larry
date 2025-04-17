@@ -296,6 +296,64 @@ namespace Larry::ECS {
         LA_CORE_DEBUG("ECS: Destractor passed");
     }
 
+    void _SingeltonTest() {
+        World world;
+
+        world.CreateSingelton<_TestComponentChild>([](_TestComponentChild& child){
+            child.temp = 99;
+        });
+
+        std::optional<_TestComponentChild*> sing_opt = world.GetSingelton<_TestComponentChild>();
+        assert(sing_opt.has_value());
+        _TestComponentChild* sing = sing_opt.value();
+        assert(sing->temp == 99);
+
+        world.SetSingelton<_TestComponentChild>([](_TestComponentChild& child){
+            child.temp = 100;
+        });
+
+        sing_opt = world.GetSingelton<_TestComponentChild>();
+        assert(sing_opt.has_value());
+        sing = sing_opt.value();
+        assert(sing->temp == 100);
+
+        auto entity = world.CreateEntity();
+        bool succes = world.InsertComponent<_TestComponentChild>(entity, [](_TestComponentChild& child){
+            assert(false);
+        });
+        assert(!succes);
+
+        auto entity1 = world.CreateEntity();
+        world.InsertComponent<_Position, _Velocity>(entity1, [](_Position& pos, _Velocity& vel){
+            pos = { 1, 8 };
+            vel = { 2, 9 };
+        });
+
+        auto entity2 = world.CreateEntity();
+        world.InsertComponent<_Position, _Velocity>(entity2, [](_Position& pos, _Velocity& vel){
+            pos = { 1 * 2, 8 };
+            vel = { 2, 9 };
+        });
+
+        auto entity3 = world.CreateEntity();
+        world.InsertComponent<_Position, _Velocity, _Transform>(entity3, [](_Position& pos, _Velocity& vel, _Transform& trans){
+            pos = { 1 * 3, 8 };
+            vel = { 2, 9 };
+            trans = { 1, 2, 3 };
+        });
+
+        int count = 0;
+        world.System<_TestComponentChild, _Position>([&](_TestComponentChild& child, _Position& pos){
+            count++;
+            assert(child.temp == 100);
+            assert(pos.y == 8);
+        });
+
+        assert(count == 3);
+
+        LA_CORE_DEBUG("ECS: Singelton passed");
+    }
+
     void TestECS()
     {
         _InsertAndSetTest();
@@ -303,6 +361,7 @@ namespace Larry::ECS {
         _CreateAndDeleteTest();
         _DeleteComponentTest();
         _DestractorTest();
+        _SingeltonTest();
 
         LA_CORE_DEBUG("ECS: Test passed");
     }

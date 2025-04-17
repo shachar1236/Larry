@@ -68,6 +68,10 @@ namespace Larry::ECS {
                 return bitmap == 0;
             }
 
+            bool Intersect(TypesBitmap other) {
+                return (other & *this) != 0;
+            }
+
             static TypesBitmap TypeWithIndex(int i) {
                 TypesBitmap ret;
                 ret.bitmap.set(i);
