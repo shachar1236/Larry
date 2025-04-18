@@ -11,6 +11,7 @@
 #include "BackgroundLayer.h"
 #include "GameLayer.h"
 #include "Renderer.h"
+#include "Scripts/Scripts.h"
 #include "Systems/ButtonSystem.h"
 #include "Systems/RenderQuad.h"
 #include "UILayer.h"
@@ -75,6 +76,9 @@ namespace Larry {
 
         layerStack.GetLayer("GameLayer")->AddSystem(CreateRef<RenderQuad>());
         layerStack.GetLayer("UILayer")->AddSystem(CreateRef<ButtonSystem>());
+
+        Ref<Scripts::Script> script = Scripts::Script::GetNewInstanceOfScript("Test");
+        script->OnCreate();
     }
 
     void Application::Run() {

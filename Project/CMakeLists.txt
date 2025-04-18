@@ -13,6 +13,9 @@ add_subdirectory(libraries/spdlog)
 
 add_subdirectory(Larry/LarryApi)
 
+# addd gamescripts
+# add_subdirectory(SandboxGame)
+
 set(SOURCE_FILES
     libraries/glad/src/glad.c
 
@@ -81,7 +84,8 @@ if(OPENGL_FOUND)
         target_compile_definitions(LarryEngine PRIVATE LARRY_ENABLE_TESTING)
     endif()
 
-    target_link_libraries(LarryEngine ${LarrySharedLibraries} ${OPENGL_LIBRARIES} glfw)
+    target_link_directories(LarryEngine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/SandboxGame/build)
+    target_link_libraries(LarryEngine ${LarrySharedLibraries} ${OPENGL_LIBRARIES} GameScripts glfw)
 else()
     message(FATAL_ERROR "OpenGL not found")
 endif()

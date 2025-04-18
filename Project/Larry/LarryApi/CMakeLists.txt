@@ -15,8 +15,6 @@ target_include_directories(LarryUtils
 
 target_link_libraries(LarryUtils PUBLIC spdlog)
 
-# target_compile_options(LarryUtils PRIVATE -fPIC)
-
 # ---------- Larry ECS -------------
 add_library(LarryECS SHARED
             ${CMAKE_CURRENT_SOURCE_DIR}/../src/ECS/TypesBitmap.cpp

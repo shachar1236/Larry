@@ -8,6 +8,8 @@ Project/test
 Project/.cache
 Project/.vscode
 peda*.txt
+Project/SandboxGame/build
+Project/SandboxGame/LarryApi
 
 
 ### C++ ###
