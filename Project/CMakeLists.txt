@@ -1,14 +1,17 @@
 cmake_minimum_required(VERSION 3.26) # Set the minimum required CMake version
 
-project(Larry) # Set the project name
+project(LarryEngine) # Set the project name
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set (CMAKE_CXX_STANDARD 23)
 
 find_package(OpenGL REQUIRED)
-# Add GLFW as a subdirectory
 add_subdirectory(libraries/glfw)
+
+set(SPDLOG_BUILD_SHARED ON)
 add_subdirectory(libraries/spdlog)
+
+add_subdirectory(Larry/LarryApi)
 
 set(SOURCE_FILES
     libraries/glad/src/glad.c
@@ -28,8 +31,6 @@ set(SOURCE_FILES
     Larry/src/Renderer/ShaderProgram.cpp
     Larry/src/Renderer/VertexArrayObject.cpp
 
-    Larry/src/Utils/Log.cpp
-
     Larry/src/Input/Input.cpp
 
     Larry/src/Math/Math.cpp
@@ -38,7 +39,7 @@ set(SOURCE_FILES
 
     Larry/src/Layers/LayerStack.cpp
 
-    Larry/src/ECS/TypesBitmap.cpp
+    # Larry/src/ECS/TypesBitmap.cpp
 
     Larry/src/Application/Systems/RenderQuad.cpp
     Larry/src/Application/Systems/ButtonSystem.cpp
@@ -55,27 +56,32 @@ set(HEADER_DIRECTORIES
     Larry/src/Layers
 )
 
+set(LarrySharedLibraries
+    LarryUtils
+    LarryMath
+    LarryECS
+)
+
 if(OPENGL_FOUND)
     include_directories(${OPENGL_INCLUDE_DIRS}) # OpenGL
     include_directories(${GLFW_INCLUDE_DIR}) # Add GLFW include directory
-    include_directories(libraries/spdlog/include)  # SPDLOG
     include_directories(libraries/glad/include) # GLAD
     include_directories(libraries/stb_image)
     include_directories(libraries)
 
     include_directories(${HEADER_DIRECTORIES}) # My Headers
-    add_executable(Larry ${SOURCE_FILES})  # My executables
+    add_executable(LarryEngine ${SOURCE_FILES})  # My executables
 
     if(NOT (CMAKE_BUILD_TYPE STREQUAL "Release"))
         message(STATUS "Compiling with dev defination")
-        target_compile_definitions(Larry PRIVATE DEV)
+        target_compile_definitions(LarryEngine PRIVATE DEV)
     endif()
     if(Test)
         message(STATUS "Testing...")
-        target_compile_definitions(Larry PRIVATE LARRY_ENABLE_TESTING)
+        target_compile_definitions(LarryEngine PRIVATE LARRY_ENABLE_TESTING)
     endif()
 
-    target_link_libraries(Larry ${OPENGL_LIBRARIES} glfw spdlog) # Link GLFW
+    target_link_libraries(LarryEngine ${LarrySharedLibraries} ${OPENGL_LIBRARIES} glfw)
 else()
     message(FATAL_ERROR "OpenGL not found")
 endif()
