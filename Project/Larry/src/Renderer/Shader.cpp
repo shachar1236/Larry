@@ -11,6 +11,10 @@
 namespace Larry {
     Shader::Shader(const std::string& path, const enum ShaderType& type_, const std::unordered_map<std::string, std::string>& compile_type_definations_) {
         std::ifstream shader_file = std::ifstream(path.c_str());
+        if (!shader_file.good()) {
+            LA_CORE_ERROR("Was not able to load Shader file {}", path);
+            exit(1);
+        }
         /* std::string str; */
         while(!shader_file.eof())
         {
