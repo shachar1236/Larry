@@ -11,6 +11,8 @@ target_include_directories(GameScripts
                            PRIVATE
                            ${CMAKE_CURRENT_SOURCE_DIR}/libraries # If you have private headers
                            ${CMAKE_CURRENT_SOURCE_DIR}/libraries/spdlog/include # If you have private headers
+                           ${CMAKE_CURRENT_SOURCE_DIR}/libraries/glad/include # If you have private headers
+                           ${CMAKE_CURRENT_SOURCE_DIR}/libraries/glm # If you have private headers
                            ${CMAKE_CURRENT_SOURCE_DIR}/LarryApi/lib # If you have private headers
                            ${CMAKE_CURRENT_SOURCE_DIR}/scripts)      # Or just the current source dir
 

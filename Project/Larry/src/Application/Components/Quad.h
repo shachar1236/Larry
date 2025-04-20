@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Math.h"
-#include "TextureObject.h"
+#include "Math/Math.h"
+#include "TextureLoader/TextureObject.h"
 
 namespace Larry {
     struct Quad {

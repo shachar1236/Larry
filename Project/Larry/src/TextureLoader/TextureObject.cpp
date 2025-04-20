@@ -1,14 +1,15 @@
-#include "TextureObject.h"
-#include "BufferObject.h"
-#include "LarryMemory.h"
-#include "Log.h"
+#include "TextureLoader/TextureObject.h"
+#include "Utils/LarryMemory.h"
+#include "Utils/Log.h"
 #include <cstdlib>
-#include <memory>
+#include <cstddef>
+#include <functional>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 namespace Larry {
+
     TextureObject::TextureObject(const std::string& path, const TextureConfig& config) {
         glGenTextures(1, &texture); 
         Bind();

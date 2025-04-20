@@ -1,10 +1,15 @@
 #pragma once
 
 #include "Scripts/Scripts.h"
+#include "TextureLoader/TextureLoader.h"
+#include "TextureLoader/TextureObject.h"
 #include "Utils/LarryMemory.h"
 
 namespace Larry {
     class TestScript : public Scripts::Script {
+        private:
+            TextureLoader* texture_loader;
+            Ref<TextureObject> face_texture;
         public:
             TestScript(const Ref<ECS::World>& world_);
             ~TestScript();

@@ -3,7 +3,6 @@
 #include "Entity.hpp"
 #include "Layer.h"
 #include "Renderer.h"
-#include "TextureObject.h"
 
 namespace Larry {
     class UILayer : public Layer {

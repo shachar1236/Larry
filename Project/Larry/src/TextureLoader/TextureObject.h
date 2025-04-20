@@ -1,10 +1,8 @@
 #pragma once
 
-#include "LarryMemory.h"
-#include <memory>
+#include "Utils/LarryMemory.h"
 #include <string>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "glad/glad.h"
 
 
 namespace Larry {
@@ -59,3 +57,19 @@ namespace Larry {
             static Ref<TextureObject> CreateWhiteTexture();
     };
 }
+
+template<>
+struct std::hash<Larry::TextureConfig>
+{
+    std::size_t operator()(const Larry::TextureConfig& s) const noexcept
+    {
+        std::size_t h1 = std::hash<bool>{}(s.CreateMipmap);
+        std::size_t h2 = std::hash<int>{}(s.TextureWrappingS);
+        std::size_t h3 = std::hash<int>{}(s.MipmapFilterMin);
+        std::size_t h4 = std::hash<int>{}(s.TextureFilterMag);
+        std::size_t h5 = std::hash<int>{}(s.TextureFilterMin);
+        std::size_t h6 = std::hash<int>{}(s.TextureWrappingT);
+        return h1 ^ h2 ^ h3 ^ h4 ^ h5 ^ h6;
+    }
+};
+

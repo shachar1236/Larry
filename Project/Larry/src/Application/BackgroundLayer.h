@@ -3,7 +3,6 @@
 #include "Layer.h"
 #include "Math.h"
 #include "Renderer.h"
-#include "TextureObject.h"
 #include "World.hpp"
 
 namespace Larry {

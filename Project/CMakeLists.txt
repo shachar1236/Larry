@@ -27,7 +27,6 @@ set(SOURCE_FILES
     Larry/src/Application/UILayer.cpp
     Larry/src/Application/GUILayer.cpp
 
-    Larry/src/Renderer/TextureObject.cpp
     Larry/src/Renderer/LarryWindow.cpp
     Larry/src/Renderer/Renderer.cpp
     Larry/src/Renderer/Shader.cpp

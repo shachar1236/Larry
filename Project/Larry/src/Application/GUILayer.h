@@ -2,7 +2,6 @@
 
 #include "Layer.h"
 #include "Renderer.h"
-#include "TextureObject.h"
 
 namespace Larry {
     class GUILayer : public Layer {

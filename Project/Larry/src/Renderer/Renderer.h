@@ -7,7 +7,7 @@
 #include <vector>
 #include "RendererConfig.h"
 #include "ShaderProgram.h"
-#include "TextureObject.h"
+#include "TextureLoader/TextureObject.h"
 #include "VertexArrayObject.h"
 #include "Math.h"
 #include "LarryWindow.h"

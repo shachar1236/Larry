@@ -18,6 +18,7 @@
 #include "Systems/ButtonSystem.h"
 #include "Systems/RenderQuad.h"
 #include "Systems/ScriptsSystem.h"
+#include "TextureLoader/TextureLoader.h"
 #include "UILayer.h"
 #include "GUILayer.h"
 #include "WindowEvents.h"
@@ -73,6 +74,10 @@ namespace Larry {
             win = window;
         });
 
+        ecs_world->CreateSingelton<TextureLoader>([this](TextureLoader& loader){
+            loader = TextureLoader();
+        });
+
         layerStack.AttachLayer(CreateRef<BackgroundLayer>(ecs_world));
         layerStack.AttachLayer(CreateRef<GameLayer>(ecs_world));
         layerStack.AttachLayer(CreateRef<UILayer>(ecs_world));
@@ -110,8 +115,6 @@ namespace Larry {
         ECS::Entity entity2 = ecs_world->CreateEntity();
 
         Ref<Scripts::Script> script1 = Scripts::Script::GetNewInstanceOfScript("Test", ecs_world);
-        script1->OnCreate(entity1);
-
         ecs_world->InsertComponent<Transform, Quad, Scripts::ScriptsComponent>(entity1, [=, this](Transform& transform, Quad& quad, Scripts::ScriptsComponent& scripts){
             transform = Transform();
             transform.translation.x = 100;
@@ -126,6 +129,7 @@ namespace Larry {
             scripts = Scripts::ScriptsComponent();
             scripts.push_back(script1);
         });
+        script1->OnCreate(entity1);
 
         ecs_world->InsertComponent<Transform, Quad>(entity2, [=](Transform& transform, Quad& quad){
             transform = Transform();
