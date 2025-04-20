@@ -1,10 +1,7 @@
 #pragma once
-#include "ECS.hpp"
+#include "ECS/ECS.h"
 #include "ECS/World.hpp"
-#include "Log.h"
-#include "TypesBitmap.hpp"
 #include <cassert>
-#include <set>
 
 namespace Larry::ECS {
 #ifdef LARRY_ENABLE_TESTING

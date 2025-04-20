@@ -1,19 +1,13 @@
 #pragma once
 #include "ECS/TypeManager.hpp"
 #include "ECS/TypesBitmap.hpp"
-#include "Entity.hpp"
-#include "Archetype.hpp"
-#include "LarryMemory.h"
-#include "Log.h"
-#include <algorithm>
+#include "ECS/Entity.hpp"
+#include "ECS/Archetype.hpp"
 #include <cassert>
 #include <cmath>
 #include <cstring>
-#include <functional>
 #include <optional>
-#include <typeinfo>
 #include <unordered_set>
-#include <vector>
 #include "ECS/Utils.hpp"
 
 namespace Larry::ECS {
@@ -124,7 +118,7 @@ namespace Larry::ECS {
         template<typename ...Types, typename F>
         bool InsertComponent(Entity& entity, const F& set_callcack) {
             TypesBitmap new_bitmap = entity.components_types | (type_manager->GetTypeBitmap<Types>() | ...);
-            bool type_in_singeltons = (new_bitmap & singeltons_bitmap) != 0;
+            bool type_in_singeltons = !(new_bitmap & singeltons_bitmap).IsNull();
             if (entity.alive && !type_in_singeltons) {
                 Archetype* new_archetype = GetArchetype(new_bitmap);
 

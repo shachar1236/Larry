@@ -1,14 +1,14 @@
 #pragma once
-#include "LarryMemory.h"
 #include "ECS/Utils.hpp"
-#include "Log.h"
-#include "TypeManager.hpp"
-#include "UnknownTypeVector.hpp"
+#include "Utils/Log.h"
+#include "ECS/TypeManager.hpp"
+#include "ECS/UnknownTypeVector.hpp"
 #include "ECS/Entity.hpp"
-#include "TypesBitmap.hpp"
-#include <queue>
+#include "ECS/TypesBitmap.hpp"
 #include <strings.h>
+#include <optional>
 #include <unordered_map>
+#include <queue>
 #include <vector>
 
 namespace Larry::ECS {
@@ -134,7 +134,7 @@ namespace Larry::ECS {
                 other->KillEntity(copy_entity, false);
 
                 TypesBitmap left_on_other = (~intesecting) & other->types_bitmap;
-                if (left_on_other != 0) {
+                if (!left_on_other.IsNull()) {
                     LA_CORE_DEBUG("There are components left on the other archetype!");
                     other->DestructComponents(entity.index, left_on_other);
                 }

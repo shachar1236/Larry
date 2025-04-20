@@ -9,13 +9,13 @@ namespace Larry {
     class ScriptsSystem : public ISystem {
         private:
         public:
-            ScriptsSystem() {}
+            ScriptsSystem(const Ref<ECS::World>& world_) : ISystem(world_) {}
             ~ScriptsSystem() {}
 
-            virtual void OnCreate(ECS::World&);
-            virtual void OnUpdate(ECS::World&, const double& deltaTime);
-            virtual void OnDelete(ECS::World&);
+            virtual void OnCreate();
+            virtual void OnUpdate(double deltaTime);
+            virtual void OnDelete();
 
-            virtual void HandleEvent(ECS::World&, const Ref<Event>& event);
+            virtual void HandleEvent(const Ref<Event>& event);
     };
 }

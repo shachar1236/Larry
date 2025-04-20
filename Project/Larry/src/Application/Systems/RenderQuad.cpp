@@ -6,12 +6,12 @@
 
 namespace Larry {
 
-    void RenderQuad::OnCreate(ECS::World& world) {
-        renderer = *world.GetSingelton<Renderer*>().value();
+    void RenderQuad::OnCreate() {
+        renderer = *world->GetSingelton<Renderer*>().value();
     }
 
-    void RenderQuad::OnUpdate(ECS::World& world, const double& deltaTime) {
-        world.System<Transform, Quad>([this](Transform& transform, Quad& quad){
+    void RenderQuad::OnUpdate(double deltaTime) {
+        world->System<Transform, Quad>([this](Transform& transform, Quad& quad){
             renderer->Translate(transform.translation);
             renderer->Rotate(transform.rotation_size, transform.rotation_axis);
             renderer->Scale(transform.scale);
@@ -23,11 +23,11 @@ namespace Larry {
         });
     }
 
-    void RenderQuad::OnDelete(ECS::World&) {
+    void RenderQuad::OnDelete() {
 
     }
 
-    void RenderQuad::HandleEvent(ECS::World&, const Ref<Event>& event) {
+    void RenderQuad::HandleEvent(const Ref<Event>& event) {
 
     }
 }

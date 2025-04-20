@@ -1,12 +1,6 @@
 #pragma once
 
 #include "ECS/TypesBitmap.hpp"
-#include "Log.h"
-#include "TypeManager.hpp"
-#include <functional>
-#include "UnknownTypeVector.hpp"
-#include <optional>
-#include <unordered_map>
 
 namespace Larry::ECS {
     typedef unsigned long long UID;

@@ -11,13 +11,13 @@ namespace Larry {
             Renderer* renderer;
             int mouseX, mouseY;
         public:
-            ButtonSystem() {}
+            ButtonSystem(const Ref<ECS::World>& world_) : ISystem(world_) {}
             ~ButtonSystem() {}
 
-            virtual void OnCreate(ECS::World&);
-            virtual void OnUpdate(ECS::World&, const double& deltaTime);
-            virtual void OnDelete(ECS::World&);
-            void HandleMousePressedEvent(const Ref<Event>& event, ECS::World& world);
-            virtual void HandleEvent(ECS::World&, const Ref<Event>& event);
+            virtual void OnCreate();
+            virtual void OnUpdate(double deltaTime);
+            virtual void OnDelete();
+            void HandleMousePressedEvent(const Ref<Event>& event);
+            virtual void HandleEvent(const Ref<Event>& event);
     };
 }

@@ -2,12 +2,11 @@
 
 #include "Scripts/Scripts.h"
 #include "Utils/LarryMemory.h"
-#include <string>
 
-namespace Larry::Scripts {
-    class TestScript : public Script {
+namespace Larry {
+    class TestScript : public Scripts::Script {
         public:
-            TestScript();
+            TestScript(const Ref<ECS::World>& world_);
             ~TestScript();
             
             virtual void OnCreate(); // called when the entity is created

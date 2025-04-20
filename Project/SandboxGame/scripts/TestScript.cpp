@@ -1,10 +1,11 @@
 #include "TestScript.h"
+#include "Scripts/Scripts.h"
 #include "Utils/Log.h"
-#include <iostream>
+#include "ECS/World.hpp"
 
-namespace Larry::Scripts {
+namespace Larry {
 
-    TestScript::TestScript() {
+    TestScript::TestScript(const Ref<ECS::World>& world_) : Scripts::Script(world_) {
 
     }
 
@@ -20,10 +21,6 @@ namespace Larry::Scripts {
         LA_INFO("TestScript OnUpdate");
     }
 
-    /* void TestScript::OnDelete() {
-        std::cout << "TestScript OnDelete" << std::endl;
-    } */
-    
     void TestScript::HandleEvent(const Ref<Event>&) {
         LA_INFO("TestScript HandleEvent");
     }

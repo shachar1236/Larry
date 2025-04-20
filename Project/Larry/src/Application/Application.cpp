@@ -78,9 +78,9 @@ namespace Larry {
         layerStack.AttachLayer(CreateRef<UILayer>(ecs_world));
         layerStack.AttachLayer(CreateRef<GUILayer>(ecs_world));
 
-        layerStack.GetLayer("GameLayer")->AddSystem(CreateRef<RenderQuad>());
-        layerStack.GetLayer("GameLayer")->AddSystem(CreateRef<ScriptsSystem>());
-        layerStack.GetLayer("UILayer")->AddSystem(CreateRef<ButtonSystem>());
+        layerStack.GetLayer("GameLayer")->AddSystem(CreateRef<RenderQuad>(ecs_world));
+        layerStack.GetLayer("GameLayer")->AddSystem(CreateRef<ScriptsSystem>(ecs_world));
+        layerStack.GetLayer("UILayer")->AddSystem(CreateRef<ButtonSystem>(ecs_world));
 
         GenerateScene("test");
     }
@@ -121,7 +121,7 @@ namespace Larry {
             /* quad.texture = face; */
 
             scripts = Scripts::ScriptsComponent();
-            Ref<Scripts::Script> script = Scripts::Script::GetNewInstanceOfScript("Test");
+            Ref<Scripts::Script> script = Scripts::Script::GetNewInstanceOfScript("Test", ecs_world);
 
             script->OnCreate();
             scripts.push_back(script);
@@ -151,7 +151,7 @@ namespace Larry {
                 HandleWindowEvent(event);
                 break;
             default:
-                LA_CORE_INFO("Got an event of category {} and type {} and I dont know how t0 handle it.", event->GetEventCategory(), event->GetEventType());
+                LA_CORE_INFO("Got an event of category {} and type {} and I dont know how to handle it.", event->GetEventCategory(), event->GetEventType());
                 break;
         }
 

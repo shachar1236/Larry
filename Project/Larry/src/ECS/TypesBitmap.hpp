@@ -1,5 +1,4 @@
 #pragma once
-#include "Log.h"
 #include <bitset>
 #include <cstddef>
 #include <cstring>
@@ -23,12 +22,7 @@ namespace Larry::ECS {
         public:
             static std::bitset<256> first32mask;
 
-            static void Init() {
-                for (int i = 0; i < 32; i++) {
-                    TypesBitmap::first32mask.set(i);
-                }
-            }
-
+            static void Init();
             bitset bitmap;
             static const int MAX_TYPE_NUMBER = 256;
 
@@ -69,7 +63,7 @@ namespace Larry::ECS {
             }
 
             bool Intersect(TypesBitmap other) {
-                return (other & *this) != 0;
+                return !(other & *this).IsNull();
             }
 
             static TypesBitmap TypeWithIndex(int i) {
