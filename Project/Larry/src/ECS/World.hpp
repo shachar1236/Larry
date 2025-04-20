@@ -183,11 +183,9 @@ namespace Larry::ECS {
             }
         }
 
-        template<typename ...Types, typename F>
-        void System(const F& callback) {
-            // TODO: optimize this
-            TypesBitmap types = (~singeltons_bitmap) & (... | type_manager->GetTypeBitmap<Types>());
-
+    private:
+        template<typename F>
+        void LoopArchetypes(const TypesBitmap& types, const F& callback) {
             int shortest = -1;
             std::unordered_set<Archetype*> my_archetypes;
             types.ForEachType([&](TypesBitmap curr){
@@ -200,9 +198,28 @@ namespace Larry::ECS {
             for (auto& archetype : my_archetypes) {
                 bool has_types = (archetype->GetTypesBitmap() & types) == types;
                 if (has_types) {
-                    archetype->CallFunctionWithComponents<Types...>(singeltons_bitmap, singeltons, callback);
+                    callback(archetype);
                 }
             }
+        }
+
+    public:
+        template<typename ...Types, typename F>
+        void System(const F& callback) {
+            // TODO: optimize this
+            TypesBitmap types = (~singeltons_bitmap) & (... | type_manager->GetTypeBitmap<Types>());
+            LoopArchetypes(types, [&](Archetype* archetype){
+                archetype->CallFunctionWithComponents<Types...>(singeltons_bitmap, singeltons, callback);
+            });
+        }
+
+        // calls system but with the current entity and a break function
+        template<typename ...Types, typename F>
+        void AdvancedSystem(const F& callback) {
+            TypesBitmap types = (~singeltons_bitmap) & (... | type_manager->GetTypeBitmap<Types>());
+            LoopArchetypes(types, [&](Archetype* archetype){
+                archetype->CallFunctionWithComponentsAdvanced<Types...>(singeltons_bitmap, singeltons, callback);
+            });
         }
     };
 }

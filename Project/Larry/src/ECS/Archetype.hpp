@@ -1,10 +1,14 @@
 #pragma once
+/* #include "ECS.h" */
+#include "ECS.h"
 #include "ECS/Utils.hpp"
 #include "Utils/Log.h"
+#include "Utils/LarryMemory.h"
 #include "ECS/TypeManager.hpp"
 #include "ECS/UnknownTypeVector.hpp"
 #include "ECS/Entity.hpp"
 #include "ECS/TypesBitmap.hpp"
+#include <functional>
 #include <strings.h>
 #include <optional>
 #include <unordered_map>
@@ -159,9 +163,43 @@ namespace Larry::ECS {
 
             template<typename ...Types, typename F>
             void CallFunctionWithComponents(TypesBitmap singeltons_types, std::unordered_map<TypesBitmap, Scope<byte[]>>& singeltons, const F& callback) {
-                CallFunctionWithComponentsImplamentation<Types...>({ type_manager->GetTypeBitmap<Types>() }..., singeltons_types, singeltons, callback);
+                CallFunctionWithComponentsImplamentation<Types...>(
+                        { type_manager->GetTypeBitmap<Types>() }...,
+                        singeltons_types,
+                        singeltons,
+                        callback);
             }
 
+            template<typename ...Types, typename F>
+            void CallFunctionWithComponentsAdvancedImplamentation(
+                TypeWithHidden<TypesBitmap, Types>... types,
+                TypesBitmap singeltons_types,
+                std::unordered_map<TypesBitmap, Scope<byte[]>>& singeltons,
+                const F& callback) 
+            {
+                bool stop = false;
+                BreakFunction break_func = [&](){ stop = true; };
+                int size = entitys.size();
+                for (int i = 0; i < size && !stop; i++) {
+                    if (entitys[i].alive) {
+                        Entity entity;
+                        entity.alive = true;
+                        entity.id = entitys[i].id;
+                        entity.index = i;
+                        entity.components_types = types_bitmap;
+                        callback(entity, break_func, (Types&)(*(singeltons_types.Intersect(types.value) ? singeltons[types.value].get() : components[types.value].GetRawByIndex(i)))...);
+                    }
+                }
+            }
+
+            template<typename ...Types, typename F>
+            void CallFunctionWithComponentsAdvanced(TypesBitmap singeltons_types, std::unordered_map<TypesBitmap, Scope<byte[]>>& singeltons, const F& callback) {
+                CallFunctionWithComponentsAdvancedImplamentation<Types...>(
+                        { type_manager->GetTypeBitmap<Types>() }...,
+                        singeltons_types,
+                        singeltons,
+                        callback);
+            }
     };
 
 }

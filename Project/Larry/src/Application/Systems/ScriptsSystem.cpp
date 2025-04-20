@@ -1,4 +1,7 @@
 #include "ScriptsSystem.h"
+#include "ECS.h"
+#include "Entity.hpp"
+#include "Log.h"
 #include "Scripts/Scripts.h"
 
 namespace Larry {
@@ -9,7 +12,7 @@ namespace Larry {
 
     
     void ScriptsSystem::OnUpdate(double deltaTime) {
-        world->System<Scripts::ScriptsComponent>([deltaTime](Scripts::ScriptsComponent& scripts){
+        world->AdvancedSystem<Scripts::ScriptsComponent>([deltaTime](ECS::Entity entity, ECS::BreakFunction& brk, Scripts::ScriptsComponent& scripts){
             for (auto& script : scripts) {
                 script->OnUpdate(deltaTime);
             }
