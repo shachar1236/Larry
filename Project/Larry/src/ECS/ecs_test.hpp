@@ -4,7 +4,6 @@
 #include <cassert>
 
 namespace Larry::ECS {
-#ifdef LARRY_ENABLE_TESTING
 
     struct _Position {
         float x, y;
@@ -365,5 +364,6 @@ namespace Larry::ECS {
         LA_CORE_DEBUG("ECS: Test passed");
     }
 
+#ifdef LARRY_ENABLE_TESTING
 #endif
 }
