@@ -6,8 +6,10 @@
 #include "Log.h"
 #include "LarryMemory.h"
 #include "World.hpp"
+#include <string>
 
 namespace Larry {
+
     class Application {
         private:
             bool running = true;
@@ -27,6 +29,8 @@ namespace Larry {
             static Application* GetApplication();
             void OnCreate();
             void Run();
+
+            void GenerateScene(const std::string& scene_file_path);
 
             static void HandleEvent(const Ref<Event>&);
             void handleEvent(const Ref<Event>&);

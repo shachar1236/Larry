@@ -4,6 +4,7 @@
 #include <string>
 
 namespace Larry::Scripts {
+
     void Script::Init() {
 
     };

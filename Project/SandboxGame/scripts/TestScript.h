@@ -12,6 +12,8 @@ namespace Larry::Scripts {
             
             virtual void OnCreate(); // called when the entity is created
             virtual void OnUpdate(double deltaTime); // called every frame
-            virtual void OnDelete(); // called when the entity is destroyed
+            /* virtual void OnDelete(); // called when the entity is destroyed */
+
+            virtual void HandleEvent(const Ref<Event>&);
     };
 }

@@ -11,19 +11,6 @@ namespace Larry {
         private:
             Renderer* renderer;
             Math::Vec2 viewport_size;
-
-            Ref<TextureObject> face;
-            Ref<TextureObject> test;
-            Ref<TextureObject> wall;
-
-            float speed = 10.0f;
-            Math::Vec2 moveDirection = Math::Vec3(0.0f);
-            Math::Vec2 position = Math::Vec2(200, 300);
-
-            bool mouse_pressed = false;
-
-            ECS::Entity entity1;
-            ECS::Entity entity2;
         public:
             GameLayer(const Ref<ECS::World>& world_);
             virtual ~GameLayer();

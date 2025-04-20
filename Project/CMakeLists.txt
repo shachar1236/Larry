@@ -14,7 +14,7 @@ add_subdirectory(libraries/spdlog)
 add_subdirectory(Larry/LarryApi)
 
 # addd gamescripts
-# add_subdirectory(SandboxGame)
+add_subdirectory(SandboxGame)
 
 set(SOURCE_FILES
     libraries/glad/src/glad.c
@@ -42,10 +42,9 @@ set(SOURCE_FILES
 
     Larry/src/Layers/LayerStack.cpp
 
-    # Larry/src/ECS/TypesBitmap.cpp
-
     Larry/src/Application/Systems/RenderQuad.cpp
     Larry/src/Application/Systems/ButtonSystem.cpp
+    Larry/src/Application/Systems/ScriptsSystem.cpp
 )
 set(HEADER_DIRECTORIES
     Larry/src

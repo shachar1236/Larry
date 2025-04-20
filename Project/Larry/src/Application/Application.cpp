@@ -1,4 +1,7 @@
 #include "Application.h"
+#include "Components/Quad.h"
+#include "Components/Transform.h"
+#include "Entity.hpp"
 #include "ErrorEvents.h"
 #include "Event.h"
 #include "EventSystem/EventSystem.h"
@@ -14,6 +17,7 @@
 #include "Scripts/Scripts.h"
 #include "Systems/ButtonSystem.h"
 #include "Systems/RenderQuad.h"
+#include "Systems/ScriptsSystem.h"
 #include "UILayer.h"
 #include "GUILayer.h"
 #include "WindowEvents.h"
@@ -75,10 +79,10 @@ namespace Larry {
         layerStack.AttachLayer(CreateRef<GUILayer>(ecs_world));
 
         layerStack.GetLayer("GameLayer")->AddSystem(CreateRef<RenderQuad>());
+        layerStack.GetLayer("GameLayer")->AddSystem(CreateRef<ScriptsSystem>());
         layerStack.GetLayer("UILayer")->AddSystem(CreateRef<ButtonSystem>());
 
-        Ref<Scripts::Script> script = Scripts::Script::GetNewInstanceOfScript("Test");
-        script->OnCreate();
+        GenerateScene("test");
     }
 
     void Application::Run() {
@@ -90,12 +94,49 @@ namespace Larry {
             lastFrameTime = time;
 
             EventSystem::HandleQueuedEvents();
+
             layerStack.UpdateLayers(deltaTime);
 
             renderer->UpdateFrame();
 
             lastFrameTime = glfwGetTime();
         }
+    }
+
+
+    void Application::GenerateScene(const std::string& scene_file_path) {
+        // TODO: load file and generate scene
+        ECS::Entity entity1 = ecs_world->CreateEntity();
+        ECS::Entity entity2 = ecs_world->CreateEntity();
+
+        ecs_world->InsertComponent<Transform, Quad, Scripts::ScriptsComponent>(entity1, [=, this](Transform& transform, Quad& quad, Scripts::ScriptsComponent& scripts){
+            transform = Transform();
+            transform.translation.x = 100;
+            transform.translation.y = 200;
+
+            quad = Quad();
+            quad.dimentions.x = 100;
+            quad.dimentions.y = 100;
+            quad.color = Math::Vec4(0.4, 0.2, 0.7, 1.0f);
+            /* quad.texture = face; */
+
+            scripts = Scripts::ScriptsComponent();
+            Ref<Scripts::Script> script = Scripts::Script::GetNewInstanceOfScript("Test");
+
+            script->OnCreate();
+            scripts.push_back(script);
+        });
+
+        ecs_world->InsertComponent<Transform, Quad>(entity2, [=](Transform& transform, Quad& quad){
+            transform = Transform();
+            transform.translation.x = 200;
+            transform.translation.y = 400;
+
+            quad = Quad();
+            quad.dimentions.x = 200;
+            quad.dimentions.y = 200;
+            quad.color = Math::Vec4(0.2, 0.4, 0.3, 1.0f);
+        });
     }
 
     void Application::handleEvent(const Ref<Event>& event) {

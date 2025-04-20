@@ -17,9 +17,10 @@ check_dir SandboxGame/LarryApi/lib
 check_dir SandboxGame/LarryApi/lib/Utils
 check_dir SandboxGame/LarryApi/lib/ECS
 check_dir SandboxGame/LarryApi/lib/Math
-check_dir SandboxGame/LarryApi/lib/Events
+check_dir SandboxGame/LarryApi/lib/EventSystem
 check_dir SandboxGame/LarryApi/lib/Components
 check_dir SandboxGame/LarryApi/lib/Scripts
+check_dir SandboxGame/libraries
 
 # check if build/Larry/LarryApi/ directory exists 
 echo "Copying shared libraries from LarryApi/build/Larry/LarryApi/libraries/spdlog/ to build/Larry/LarryApi/lib"
@@ -34,9 +35,12 @@ cp Larry/src/Math/*.h SandboxGame/LarryApi/lib/Math
 
 # now copying things that are not shared libraries
 # copy all aside from EventSystem.h
-cp Larry/src/EventSystem/*.h SandboxGame/LarryApi/lib/Events
-rm SandboxGame/LarryApi/lib/Events/EventSystem.h
+cp Larry/src/EventSystem/*.h SandboxGame/LarryApi/lib/EventSystem
+rm SandboxGame/LarryApi/lib/EventSystem/EventSystem.h
 
 cp Larry/src/Application/Components/*.h SandboxGame/LarryApi/lib/Components
 
 cp Larry/src/Scripts/*.h SandboxGame/LarryApi/lib/Scripts
+
+# copying libraries
+cp -r libraries/spdlog SandboxGame/libraries

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "spdlog/fmt/bundled/format.h"
+#include <spdlog/fmt/bundled/format.h>
 
 namespace Larry {
     enum EventCategory {

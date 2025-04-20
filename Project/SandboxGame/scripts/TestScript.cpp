@@ -1,4 +1,5 @@
 #include "TestScript.h"
+#include "Log.h"
 #include <iostream>
 
 namespace Larry::Scripts {
@@ -12,14 +13,18 @@ namespace Larry::Scripts {
     }
 
     void TestScript::OnCreate() {
-        std::cout << "TestScript OnCreate" << std::endl;
+        LA_INFO("TestScript OnCreate!!!!!");
     }
 
     void TestScript::OnUpdate(double deltaTime) {
-        std::cout << "TestScript OnUpdate" << std::endl;
+        LA_INFO("TestScript OnUpdate");
     }
 
-    void TestScript::OnDelete() {
+    /* void TestScript::OnDelete() {
         std::cout << "TestScript OnDelete" << std::endl;
+    } */
+    
+    void TestScript::HandleEvent(const Ref<Event>&) {
+        LA_INFO("TestScript HandleEvent");
     }
 }
