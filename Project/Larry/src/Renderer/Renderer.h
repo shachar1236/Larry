@@ -91,6 +91,7 @@ namespace Larry {
             // initializing variables
             void InitializeOrthographicProjection(const float& left, const float& right, const float& bottom, const float& top, const float& nearDist, const float& farDist);
             void InitializePrespectiveProjection(const float& fov, const float& aspectRatio, const float& near, const float& far);
+            void ChangeProjection(const Math::Mat4& proj);
 
             // Setting next draw options
             void Fill(Math::Vec4 color);

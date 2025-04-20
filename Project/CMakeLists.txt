@@ -21,7 +21,7 @@ set(SOURCE_FILES
     libraries/glad/src/glad.c
 
     Larry/src/main.cpp
-    Larry/src/Layers/Layer.cpp
+    Larry/src/Layers/Layer/Layer.cpp
     Larry/src/Application/Application.cpp
     Larry/src/Application/BackgroundLayer.cpp
     Larry/src/Application/GameLayer.cpp
@@ -40,8 +40,6 @@ set(SOURCE_FILES
 
     Larry/src/EventSystem/EventSystem.cpp
 
-    Larry/src/Layers/LayerStack.cpp
-
     Larry/src/Application/Systems/RenderQuad.cpp
     Larry/src/Application/Systems/ButtonSystem.cpp
     Larry/src/Application/Systems/ScriptsSystem.cpp
@@ -57,6 +55,7 @@ set(HEADER_DIRECTORIES
     Larry/src/Math
     Larry/src/Renderer
     Larry/src/EventSystem
+    Larry/src/Layers/Layer
     Larry/src/Layers
 )
 

@@ -8,7 +8,6 @@
 namespace Larry {
     class BackgroundLayer : public Layer {
         private:
-            Renderer* renderer;
             Math::Vec4 color;
         public:
             BackgroundLayer(const Ref<ECS::World>& world_);

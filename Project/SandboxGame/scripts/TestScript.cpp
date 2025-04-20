@@ -1,4 +1,5 @@
 #include "TestScript.h"
+#include "Components/Projection.h"
 #include "Components/Quad.h"
 #include "Components/Transform.h"
 #include "Input/Input.h"
@@ -9,6 +10,7 @@
 #include "TextureLoader/TextureLoader.h"
 #include "Utils/Log.h"
 #include "ECS/World.hpp"
+#include "EventSystem/WindowEvents.h"
 
 namespace Larry {
 
@@ -51,7 +53,13 @@ namespace Larry {
         });
     }
 
-    void TestScript::HandleEvent(const ECS::Entity& entity, const Ref<Event>&) {
+    void TestScript::HandleEvent(const ECS::Entity& entity, const Ref<Event>& event) {
         LA_INFO("TestScript HandleEvent");
+        DispatchEvent<Events::WindowResizedEvent>(event, [this](const Ref<Event>& e){
+            Events::WindowResizedEvent* window_event = (Events::WindowResizedEvent*)e.get();
+            world->System<Projection>([window_event](Projection& proj){
+                proj.projection = Math::ortho(0, window_event->GetWidth(), 0, window_event->GetHeight(), 0.1f, 100.0f);
+            });
+        });
     }
 }

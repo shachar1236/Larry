@@ -15,7 +15,6 @@ namespace Larry {
     }
 
     void BackgroundLayer::OnAttach() {
-        renderer = Renderer::GetRenderer();
         color = {0.1f, 0.1f, 0.3f, 1};
     }
 

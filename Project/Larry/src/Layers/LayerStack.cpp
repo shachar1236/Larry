@@ -2,7 +2,7 @@
 
 namespace Larry {
     
-    void LayerStack::AttachLayer(const Ref<Layer>& layer) {
+    void LayerStack::AttachLayer(const Ref<ILayer>& layer) {
         layer->SetId(last_id);
         last_id++;
         layers.push_back(layer);
@@ -29,7 +29,7 @@ namespace Larry {
         }
     }
 
-    Ref<Layer> LayerStack::GetLayer(const std::string& name) {
+    Ref<ILayer> LayerStack::GetLayer(const std::string& name) {
         for (int i = 0; i < layers.size(); i++) {
             if (layers[i]->GetName() == name) {
                 return layers[i];
@@ -38,7 +38,7 @@ namespace Larry {
         return nullptr;
     }
 
-    Ref<Layer> LayerStack::GetLayer(const int& id) {
+    Ref<ILayer> LayerStack::GetLayer(const int& id) {
         for (int i = 0; i < layers.size(); i++) {
             if (layers[i]->GetId() == id) {
                 return layers[i];

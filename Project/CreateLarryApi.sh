@@ -24,6 +24,7 @@ check_dir SandboxGame/LarryApi/lib/EventSystem
 check_dir SandboxGame/LarryApi/lib/Components
 check_dir SandboxGame/LarryApi/lib/TextureLoader
 check_dir SandboxGame/LarryApi/lib/Scripts
+check_dir SandboxGame/LarryApi/lib/Layers
 check_dir SandboxGame/LarryApi/lib/Input
 check_dir SandboxGame/libraries
 check_dir SandboxGame/libraries/spdlog
@@ -41,6 +42,7 @@ cp Larry/src/ECS/*.hpp SandboxGame/LarryApi/lib/ECS
 cp Larry/src/Math/*.h SandboxGame/LarryApi/lib/Math
 cp Larry/src/TextureLoader/*.h SandboxGame/LarryApi/lib/TextureLoader
 cp Larry/src/Input/*.h SandboxGame/LarryApi/lib/Input
+cp Larry/src/Layers/*.h SandboxGame/LarryApi/lib/Layers
 
 # now copying things that are not shared libraries
 # copy all aside from EventSystem.h

@@ -4,6 +4,7 @@ project(LarryApi)
 
 # ---------- Larry Utils -------------
 add_library(LarryApi SHARED
+            ${CMAKE_CURRENT_SOURCE_DIR}/../src/Layers/LayerStack.cpp
             ${CMAKE_CURRENT_SOURCE_DIR}/../src/Utils/Log.cpp
             ${CMAKE_CURRENT_SOURCE_DIR}/../src/ECS/ECS.cpp
             ${CMAKE_CURRENT_SOURCE_DIR}/../src/Math/Math.cpp
@@ -28,6 +29,7 @@ target_include_directories(LarryApi
                ${CMAKE_CURRENT_SOURCE_DIR}/../src/Math/
                ${CMAKE_CURRENT_SOURCE_DIR}/../src/TextureLoader/
                ${CMAKE_CURRENT_SOURCE_DIR}/../src/Input/
+               ${CMAKE_CURRENT_SOURCE_DIR}/../src/Layers/
                )
 
 target_link_libraries(LarryApi PUBLIC spdlog)

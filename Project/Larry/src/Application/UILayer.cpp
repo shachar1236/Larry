@@ -15,7 +15,6 @@ namespace Larry {
     }
 
     void UILayer::OnAttach() {
-        renderer = Renderer::GetRenderer();
         button = world->CreateEntity();
 
         world->InsertComponent<Transform, Button>(button, [](Transform& transform, Button& b){

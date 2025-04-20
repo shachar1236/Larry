@@ -1,4 +1,6 @@
 #include "Application/Application.h"
+#include "Components/Projection.h"
+#include "Math.h"
 #include "Renderer.h"
 #include "Components/Quad.h"
 #include "Components/Transform.h"
@@ -83,9 +85,9 @@ namespace Larry {
         layerStack.AttachLayer(CreateRef<UILayer>(ecs_world));
         layerStack.AttachLayer(CreateRef<GUILayer>(ecs_world));
 
-        layerStack.GetLayer("GameLayer")->AddSystem(CreateRef<RenderQuad>(ecs_world));
-        layerStack.GetLayer("GameLayer")->AddSystem(CreateRef<ScriptsSystem>(ecs_world));
-        layerStack.GetLayer("UILayer")->AddSystem(CreateRef<ButtonSystem>(ecs_world));
+        static_cast<Layer*>(layerStack.GetLayer("GameLayer").get())->AddSystem(CreateRef<RenderQuad>(ecs_world));
+        static_cast<Layer*>(layerStack.GetLayer("GameLayer").get())->AddSystem(CreateRef<ScriptsSystem>(ecs_world));
+        static_cast<Layer*>(layerStack.GetLayer("UILayer").get())->AddSystem(CreateRef<ButtonSystem>(ecs_world));
 
         GenerateScene("test");
     }
@@ -112,6 +114,15 @@ namespace Larry {
         // TODO: load file and generate scene
         ECS::Entity entity1 = ecs_world->CreateEntity();
         ECS::Entity entity2 = ecs_world->CreateEntity();
+
+        ECS::Entity proj_entity = ecs_world->CreateEntity();
+        ecs_world->InsertComponent<Projection>(proj_entity, [this](Projection& proj){
+            proj.projection = Math::ortho(0.0f, windowConfig.window_width, 0.0f, windowConfig.window_height, 0.1f, 100.0f);
+            proj.projection_layers = std::unordered_set<int>();
+            for (auto& layer : layerStack.layers) {
+                proj.projection_layers.insert(layer->GetId());
+            }
+        });
 
         Ref<Scripts::Script> script1 = Scripts::Script::GetNewInstanceOfScript("Test", ecs_world);
         ecs_world->InsertComponent<Transform, Quad, Scripts::ScriptsComponent>(entity1, [=, this](Transform& transform, Quad& quad, Scripts::ScriptsComponent& scripts){

@@ -7,7 +7,6 @@
 namespace Larry {
     class UILayer : public Layer {
         private:
-            Renderer* renderer;
             ECS::Entity button;
         public:
             UILayer(const Ref<ECS::World>& world_);
