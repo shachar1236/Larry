@@ -10,6 +10,7 @@ namespace Larry {
 
         Projection() {
             projection = Math::Mat4(1.0f);
+            projection_layers = std::unordered_set<int>();
         }
 
     };
