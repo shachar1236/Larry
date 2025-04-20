@@ -37,6 +37,7 @@ namespace Larry::ECS {
         public:
             Entity() {
                 alive = false;
+                index = -1;
             }
 
             ~Entity() {

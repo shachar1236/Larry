@@ -13,15 +13,15 @@ namespace Larry {
 
     }
 
-    void TestScript::OnCreate() {
+    void TestScript::OnCreate(const ECS::Entity& entity) {
         LA_INFO("TestScript OnCreate!!!!!");
     }
 
-    void TestScript::OnUpdate(double deltaTime) {
-        LA_INFO("TestScript OnUpdate");
+    void TestScript::OnUpdate(const ECS::Entity& entity, double deltaTime) {
+        LA_INFO("TestScript OnUpdate, entity: {}", entity.GetId());
     }
 
-    void TestScript::HandleEvent(const Ref<Event>&) {
+    void TestScript::HandleEvent(const ECS::Entity& entity, const Ref<Event>&) {
         LA_INFO("TestScript HandleEvent");
     }
 }

@@ -14,7 +14,7 @@ add_subdirectory(libraries/spdlog)
 add_subdirectory(Larry/LarryApi)
 
 # addd gamescripts
-add_subdirectory(SandboxGame)
+# add_subdirectory(SandboxGame)
 
 set(SOURCE_FILES
     libraries/glad/src/glad.c

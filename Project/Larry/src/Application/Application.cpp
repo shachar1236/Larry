@@ -1,4 +1,4 @@
-#include "Application.h"
+#include "Application/Application.h"
 #include "Components/Quad.h"
 #include "Components/Transform.h"
 #include "Entity.hpp"
@@ -109,6 +109,9 @@ namespace Larry {
         ECS::Entity entity1 = ecs_world->CreateEntity();
         ECS::Entity entity2 = ecs_world->CreateEntity();
 
+        Ref<Scripts::Script> script1 = Scripts::Script::GetNewInstanceOfScript("Test", ecs_world);
+        script1->OnCreate(entity1);
+
         ecs_world->InsertComponent<Transform, Quad, Scripts::ScriptsComponent>(entity1, [=, this](Transform& transform, Quad& quad, Scripts::ScriptsComponent& scripts){
             transform = Transform();
             transform.translation.x = 100;
@@ -121,10 +124,7 @@ namespace Larry {
             /* quad.texture = face; */
 
             scripts = Scripts::ScriptsComponent();
-            Ref<Scripts::Script> script = Scripts::Script::GetNewInstanceOfScript("Test", ecs_world);
-
-            script->OnCreate();
-            scripts.push_back(script);
+            scripts.push_back(script1);
         });
 
         ecs_world->InsertComponent<Transform, Quad>(entity2, [=](Transform& transform, Quad& quad){
