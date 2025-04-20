@@ -64,7 +64,7 @@ namespace Larry {
         window = CreateRef<LarryWindow>(windowConfig);
         renderer = Renderer::InitRenderer(rendererConfig, window);
 
-        InitInput(window->GetWindow());
+        Input::Init(window->GetWindow());
 
         ecs_world = CreateRef<ECS::World>();
         ecs_world->CreateSingelton<Renderer*>([this](Renderer*& rend){
@@ -98,13 +98,12 @@ namespace Larry {
             double deltaTime = time - lastFrameTime;
             lastFrameTime = time;
 
+            glfwPollEvents();
             EventSystem::HandleQueuedEvents();
 
             layerStack.UpdateLayers(deltaTime);
 
             renderer->UpdateFrame();
-
-            lastFrameTime = glfwGetTime();
         }
     }
 
