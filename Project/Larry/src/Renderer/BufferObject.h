@@ -2,8 +2,7 @@
 
 #include "Log.h"
 #include <span>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "gl.h"
 
 namespace Larry {
     enum DrawType {

@@ -1,8 +1,7 @@
 #pragma once
 #include "Log.h"
 #include "BufferObject.h"
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "gl.h"
 #include "LarryMemory.h"
 #include <vector>
 #include "RendererConfig.h"

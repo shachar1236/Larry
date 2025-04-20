@@ -4,12 +4,12 @@ project(LarryApi)
 
 # ---------- Larry Utils -------------
 add_library(LarryApi SHARED
-            ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/glad/src/glad.c
             ${CMAKE_CURRENT_SOURCE_DIR}/../src/Utils/Log.cpp
             ${CMAKE_CURRENT_SOURCE_DIR}/../src/ECS/ECS.cpp
             ${CMAKE_CURRENT_SOURCE_DIR}/../src/Math/Math.cpp
             ${CMAKE_CURRENT_SOURCE_DIR}/../src/TextureLoader/TextureObject.cpp
             ${CMAKE_CURRENT_SOURCE_DIR}/../src/TextureLoader/TextureLoader.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/../src/Input/Input.cpp
             )
 
 target_include_directories(LarryApi PRIVATE 
@@ -27,6 +27,7 @@ target_include_directories(LarryApi
                ${CMAKE_CURRENT_SOURCE_DIR}/../src/ECS/
                ${CMAKE_CURRENT_SOURCE_DIR}/../src/Math/
                ${CMAKE_CURRENT_SOURCE_DIR}/../src/TextureLoader/
+               ${CMAKE_CURRENT_SOURCE_DIR}/../src/Input/
                )
 
 target_link_libraries(LarryApi PUBLIC spdlog)

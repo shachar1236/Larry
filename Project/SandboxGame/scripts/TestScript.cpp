@@ -1,5 +1,9 @@
 #include "TestScript.h"
 #include "Components/Quad.h"
+#include "Components/Transform.h"
+#include "Input/Input.h"
+#include "Input/KeyCodes.h"
+#include "Math/Math.h"
 #include "Scripts/Scripts.h"
 #include "TextureLoader/TextureObject.h"
 #include "TextureLoader/TextureLoader.h"
@@ -26,7 +30,25 @@ namespace Larry {
     }
 
     void TestScript::OnUpdate(const ECS::Entity& entity, double deltaTime) {
-        LA_INFO("TestScript OnUpdate, entity: {}", entity.GetId());
+        /* LA_INFO("TestScript OnUpdate, entity: {}", entity.GetId()); */
+        Math::Vec3 direction(0);
+        /* LA_INFO("Delta time: {}", deltaTime); */
+        if (Input::KeyPressed(KEY_W)) {
+            direction.y += vel;
+        } 
+        if (Input::KeyPressed(KEY_S)) {
+            direction.y -= vel;
+        } 
+        if (Input::KeyPressed(KEY_D)) {
+            direction.x += vel;
+        } 
+        if (Input::KeyPressed(KEY_A)) {
+            direction.x -= vel;
+        } 
+        world->SetComponents<Transform>(entity, [direction, deltaTime](Transform& transform){
+            /* LA_INFO("Setting transform!"); */
+            transform.translation = transform.translation + (direction * (float)deltaTime);
+        });
     }
 
     void TestScript::HandleEvent(const ECS::Entity& entity, const Ref<Event>&) {

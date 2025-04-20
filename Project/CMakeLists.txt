@@ -6,6 +6,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set (CMAKE_CXX_STANDARD 23)
 
 find_package(OpenGL REQUIRED)
+
 add_subdirectory(libraries/glfw)
 
 set(SPDLOG_BUILD_SHARED ON)
@@ -84,6 +85,7 @@ if(OPENGL_FOUND)
 
     target_link_directories(LarryEngine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/SandboxGame/build)
     target_link_libraries(LarryEngine ${LarrySharedLibraries} ${OPENGL_LIBRARIES} GameScripts glfw)
+
     # target_link_libraries(LarryEngine ${LarrySharedLibraries} ${OPENGL_LIBRARIES} glfw)
 else()
     message(FATAL_ERROR "OpenGL not found")
