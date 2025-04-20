@@ -59,9 +59,7 @@ set(HEADER_DIRECTORIES
 )
 
 set(LarrySharedLibraries
-    LarryUtils
-    LarryMath
-    LarryECS
+    LarryApi
 )
 
 if(OPENGL_FOUND)

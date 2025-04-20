@@ -3,40 +3,22 @@ cmake_minimum_required(VERSION 3.0)
 project(LarryApi)
 
 # ---------- Larry Utils -------------
-add_library(LarryUtils SHARED
+add_library(LarryApi SHARED
             ${CMAKE_CURRENT_SOURCE_DIR}/../src/Utils/Log.cpp
-            )
-
-target_include_directories(LarryUtils PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/spdlog/include)
-
-target_include_directories(LarryUtils
-                           PUBLIC
-                           ${CMAKE_CURRENT_SOURCE_DIR}/../src/Utils/)
-
-target_link_libraries(LarryUtils PUBLIC spdlog)
-
-# ---------- Larry ECS -------------
-add_library(LarryECS SHARED
             ${CMAKE_CURRENT_SOURCE_DIR}/../src/ECS/TypesBitmap.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/../src/Math/Math.cpp
             )
 
-target_include_directories(LarryECS
-                           PUBLIC
-                           ${CMAKE_CURRENT_SOURCE_DIR}/../src/ECS/)
+target_include_directories(LarryApi PRIVATE 
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/spdlog/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/
+    )
 
-target_include_directories(LarryECS
-                            PRIVATE
-                           ${CMAKE_CURRENT_SOURCE_DIR}/../src/Utils/)
+target_include_directories(LarryApi
+               PUBLIC
+               ${CMAKE_CURRENT_SOURCE_DIR}/../src/Utils/
+               ${CMAKE_CURRENT_SOURCE_DIR}/../src/ECS/
+               ${CMAKE_CURRENT_SOURCE_DIR}/../src/Math/
+               )
 
-target_link_libraries(LarryECS PUBLIC spdlog)
-
-# ---------- Larry Math -------------
-add_library(LarryMath SHARED
-    ${CMAKE_CURRENT_SOURCE_DIR}/../src/Math/Math.cpp
-            )
-
-target_include_directories(LarryMath
-                           PUBLIC
-                           ${CMAKE_CURRENT_SOURCE_DIR}/../src/Math/)
-
-target_include_directories(LarryMath PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/)
+target_link_libraries(LarryApi PUBLIC spdlog)

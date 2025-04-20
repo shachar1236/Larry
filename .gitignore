@@ -11,6 +11,7 @@ peda*.txt
 Project/SandboxGame/build
 Project/SandboxGame/libraries
 Project/SandboxGame/LarryApi
+Project/GameOut
 
 
 ### C++ ###

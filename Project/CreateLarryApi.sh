@@ -5,6 +5,9 @@ function check_dir() {
     if [ ! -d $1 ]; then
         echo "Creating directory $1"
         mkdir -p $1
+    else
+        rm -r $1
+        mkdir -p $1
     fi
 }
 
