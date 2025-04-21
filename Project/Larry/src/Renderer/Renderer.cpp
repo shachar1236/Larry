@@ -231,6 +231,13 @@ namespace Larry {
         Projection = proj;
     }
 
+    void Renderer::ChangeView(const Math::Mat4 v) {
+        if (v != View) {
+            FlushBatch();
+        }
+        View = v;
+    }
+
     void Renderer::Fill(Math::Vec4 color) {
         CurrentShapeOptions.FillColors = color;
     }

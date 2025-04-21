@@ -26,6 +26,7 @@ namespace Larry {
             b.dimentions = Math::Vec2(50.0f);
             b.color = Math::Vec4(0.4, 0.8, 0.8, 1.0);
         });
+        Layer::OnAttach();
     }
 
     void UILayer::OnUpdate(const double& deltaTime) {

@@ -1,9 +1,11 @@
 #include "Application/Components/Projection.h"
+#include "Application/Components/Camera.h"
 #include "ECS.h"
 #include "Entity.hpp"
 #include "Event.h"
 #include "ILayer.h"
 #include "LarryMemory.h"
+#include "Log.h"
 #include "Layer.h"
 
 namespace Larry {
@@ -11,17 +13,30 @@ namespace Larry {
         renderer = Renderer::GetRenderer();
     }
 
-    void Layer::OnUpdate(const double& deltaTime) {
-        for (int i = 0; i < systems.size(); i++) {
-            systems[i]->OnUpdate(deltaTime);
-        }
+    void Layer::OnAttach() {
+        LA_CORE_INFO("Layer {} id {}", name, id);
+    }
 
+    void Layer::OnUpdate(const double& deltaTime) {
         world->AdvancedSystem<Projection>([this](ECS::Entity _, ECS::BreakFunction brk, Projection& proj){
             if (proj.projection_layers.contains(id)) {
                 this->renderer->ChangeProjection(proj.projection);
                 brk();
             }
         });
+
+        world->AdvancedSystem<Camera>([this](ECS::Entity _, ECS::BreakFunction brk, Camera& camera){
+            if (camera.view_layers.contains(id)) {
+                /* LA_CORE_WARN("Found corresponding layer"); */
+                this->renderer->ChangeView(camera.view);
+                brk();
+            }
+        });
+
+        for (int i = 0; i < systems.size(); i++) {
+            systems[i]->OnUpdate(deltaTime);
+        }
+
     }
 
     void Layer::OnDetach() {

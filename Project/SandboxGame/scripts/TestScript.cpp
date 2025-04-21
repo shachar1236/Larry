@@ -2,8 +2,11 @@
 #include "Components/Projection.h"
 #include "Components/Quad.h"
 #include "Components/Transform.h"
+#include "Components/Camera.h"
+#include "ECS/ECS.h"
 #include "Input/Input.h"
 #include "Input/KeyCodes.h"
+#include "Layers/LayerStack.h"
 #include "Math/Math.h"
 #include "Scripts/Scripts.h"
 #include "TextureLoader/TextureObject.h"
@@ -29,6 +32,13 @@ namespace Larry {
         world->SetComponents<Quad>(entity, [this](Quad& quad){
             quad.texture = face_texture;
         });
+        cameraPos.x = 0.0f;
+        cameraPos.y = 0.0f;
+        cameraPos.z = 3.0f;
+
+        LayerStack* lstack = *world->GetSingelton<LayerStack*>().value();
+        gameLayerId = lstack->GetLayer("GameLayer")->GetId();
+        LA_INFO("GameLayer id: {}", gameLayerId);
     }
 
     void TestScript::OnUpdate(const ECS::Entity& entity, double deltaTime) {
@@ -47,6 +57,26 @@ namespace Larry {
         if (Input::KeyPressed(KEY_A)) {
             direction.x -= vel;
         } 
+        if (Input::KeyPressed(KEY_R)) {
+            cameraPos.x += camera_vel * deltaTime;
+            world->AdvancedSystem<Camera>([direction, this](ECS::Entity _, ECS::BreakFunction brk, Camera& camera){
+                for (auto& layerId : camera.view_layers) {
+                    if (layerId == gameLayerId) {
+                        camera.SetPos(cameraPos);
+                    }
+                }
+            });
+        } 
+        if (Input::KeyPressed(KEY_E)) {
+            cameraPos.x -= camera_vel  * deltaTime;
+            world->AdvancedSystem<Camera>([direction, this](ECS::Entity _, ECS::BreakFunction brk, Camera& camera){
+                for (auto& layerId : camera.view_layers) {
+                    if (layerId == gameLayerId) {
+                        camera.SetPos(cameraPos);
+                    }
+                }
+            });
+        } 
         world->SetComponents<Transform>(entity, [direction, deltaTime](Transform& transform){
             /* LA_INFO("Setting transform!"); */
             transform.translation = transform.translation + (direction * (float)deltaTime);
@@ -56,6 +86,7 @@ namespace Larry {
     void TestScript::HandleEvent(const ECS::Entity& entity, const Ref<Event>& event) {
         LA_INFO("TestScript HandleEvent");
         DispatchEvent<Events::WindowResizedEvent>(event, [this](const Ref<Event>& e){
+            LA_INFO("TestScript HandleEvent2");
             Events::WindowResizedEvent* window_event = (Events::WindowResizedEvent*)e.get();
             world->System<Projection>([window_event](Projection& proj){
                 proj.projection = Math::ortho(0, window_event->GetWidth(), 0, window_event->GetHeight(), 0.1f, 100.0f);

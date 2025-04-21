@@ -93,6 +93,8 @@ namespace Larry {
             void InitializePrespectiveProjection(const float& fov, const float& aspectRatio, const float& near, const float& far);
             void ChangeProjection(const Math::Mat4& proj);
 
+            void ChangeView(const Math::Mat4 v);
+
             // Setting next draw options
             void Fill(Math::Vec4 color);
             void Texture(const Ref<TextureObject>& texture);

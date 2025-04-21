@@ -1,4 +1,5 @@
 #include "Application/Application.h"
+#include "Components/Camera.h"
 #include "Components/Projection.h"
 #include "Math.h"
 #include "Renderer.h"
@@ -80,6 +81,10 @@ namespace Larry {
             loader = TextureLoader();
         });
 
+        ecs_world->CreateSingelton<LayerStack*>([this](LayerStack*& layer_stack){
+                layer_stack = &this->layerStack;
+        });
+
         layerStack.AttachLayer(CreateRef<BackgroundLayer>(ecs_world));
         layerStack.AttachLayer(CreateRef<GameLayer>(ecs_world));
         layerStack.AttachLayer(CreateRef<UILayer>(ecs_world));
@@ -117,10 +122,30 @@ namespace Larry {
 
         ECS::Entity proj_entity = ecs_world->CreateEntity();
         ecs_world->InsertComponent<Projection>(proj_entity, [this](Projection& proj){
+            proj = Projection();
             proj.projection = Math::ortho(0.0f, windowConfig.window_width, 0.0f, windowConfig.window_height, 0.1f, 100.0f);
-            proj.projection_layers = std::unordered_set<int>();
             for (auto& layer : layerStack.layers) {
                 proj.projection_layers.insert(layer->GetId());
+            }
+        });
+
+        ECS::Entity camera_entity = ecs_world->CreateEntity();
+        ecs_world->InsertComponent<Camera>(camera_entity, [this](Camera& camera){
+            camera = Camera();
+            for (auto& layer : layerStack.layers) {
+                if (layer->GetName() != "GameLayer") {
+                    camera.view_layers.insert(layer->GetId());
+                }
+            }
+        });
+
+        ECS::Entity camera_entity2 = ecs_world->CreateEntity();
+        ecs_world->InsertComponent<Camera>(camera_entity2, [this](Camera& camera){
+            camera = Camera();
+            for (auto& layer : layerStack.layers) {
+                if (layer->GetName() == "GameLayer") {
+                    camera.view_layers.insert(layer->GetId());
+                }
             }
         });
 

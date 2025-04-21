@@ -19,7 +19,7 @@ namespace Larry {
             Layer(const std::string& name_, const Ref<ECS::World>& world_);
             virtual ~Layer() {};
 
-            virtual void OnAttach() = 0;
+            virtual void OnAttach();
             virtual void OnUpdate(const double& deltaTime);
             virtual void OnDetach();
             virtual void HandleEvent(const Ref<Event>& event);
