@@ -1,18 +1,6 @@
 # Created by https://www.toptal.com/developers/gitignore/api/c++,cmake
 # Edit at https://www.toptal.com/developers/gitignore?templates=c++,cmake
 
-# my things------
-Project/build
-Project/debug
-Project/test
-Project/.cache
-Project/.vscode
-peda*.txt
-Project/SandboxGame/build
-Project/SandboxGame/libraries
-Project/SandboxGame/LarryApi
-Project/GameOut
-
 
 ### C++ ###
 # Prerequisites
@@ -68,4 +56,18 @@ CMakeUserPresets.json
 *-prefix/
 
 # End of https://www.toptal.com/developers/gitignore/api/c++,cmake
+
+# my things------
+Project/build
+Project/debug
+Project/test
+Project/.cache
+Project/.vscode
+peda*.txt
+Project/SandboxGame/build
+Project/SandboxGame/libraries
+Project/SandboxGame/LarryApi
+Project/SandboxGame/.cache
+Project/GameOut
 Project/media
+

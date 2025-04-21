@@ -1,9 +1,6 @@
 #pragma once
 
-#include "Math/Math.h"
-#include "Scripts/Scripts.h"
-#include "TextureLoader/TextureLoader.h"
-#include "Utils/LarryMemory.h"
+#include "LarryApi.h"
 
 namespace Larry {
     class TestScript : public Scripts::Script {

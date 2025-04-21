@@ -43,6 +43,7 @@ cp Larry/src/Math/*.h SandboxGame/LarryApi/lib/Math
 cp Larry/src/TextureLoader/*.h SandboxGame/LarryApi/lib/TextureLoader
 cp Larry/src/Input/*.h SandboxGame/LarryApi/lib/Input
 cp Larry/src/Layers/*.h SandboxGame/LarryApi/lib/Layers
+cp Larry/src/LarryApi.h SandboxGame/LarryApi/lib/LarryApi.h
 
 # now copying things that are not shared libraries
 # copy all aside from EventSystem.h

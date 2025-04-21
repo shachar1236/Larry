@@ -82,6 +82,8 @@ if(OPENGL_FOUND)
         target_compile_definitions(LarryEngine PRIVATE LARRY_ENABLE_TESTING)
     endif()
 
+    # target_precompile_headers(LarryEngine PRIVATE Larry/src/LarryApi.h)
+
     target_link_directories(LarryEngine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/SandboxGame/build)
     target_link_libraries(LarryEngine ${LarrySharedLibraries} ${OPENGL_LIBRARIES} GameScripts glfw)
 

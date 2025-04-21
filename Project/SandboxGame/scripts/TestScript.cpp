@@ -1,19 +1,5 @@
+#include "LarryApi.h"
 #include "TestScript.h"
-#include "Components/Projection.h"
-#include "Components/Quad.h"
-#include "Components/Transform.h"
-#include "Components/Camera.h"
-#include "ECS/ECS.h"
-#include "Input/Input.h"
-#include "Input/KeyCodes.h"
-#include "Layers/LayerStack.h"
-#include "Math/Math.h"
-#include "Scripts/Scripts.h"
-#include "TextureLoader/TextureObject.h"
-#include "TextureLoader/TextureLoader.h"
-#include "Utils/Log.h"
-#include "ECS/World.hpp"
-#include "EventSystem/WindowEvents.h"
 
 namespace Larry {
 

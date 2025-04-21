@@ -2,9 +2,7 @@
 #include "Utils/LarryMemory.h"
 #include "Utils/Log.h"
 #include <cstdlib>
-#include <cstddef>
 #include "gl.h"
-#include <functional>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"

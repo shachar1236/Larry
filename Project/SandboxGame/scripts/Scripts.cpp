@@ -1,6 +1,5 @@
+#include "LarryApi.h"
 #include "TestScript.h"
-#include "Utils/LarryMemory.h"
-#include "Scripts/Scripts.h"
 #include <string>
 
 namespace Larry::Scripts {
