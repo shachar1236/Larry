@@ -34,7 +34,7 @@ namespace Larry::Scripts {
                                                                //
             virtual void HandleEvent(const ECS::Entity& entity, const Ref<Event>&) = 0;
 
-        static void Init();
+        static void Init(const Ref<ECS::World>& world);
         static Ref<Script> GetNewInstanceOfScript(const std::string& name, const Ref<ECS::World>& world);
     };
 

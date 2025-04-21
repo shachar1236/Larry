@@ -95,6 +95,7 @@ namespace Larry {
         static_cast<Layer*>(layerStack.GetLayer("UILayer").get())->AddSystem(CreateRef<ButtonSystem>(ecs_world));
 
         GenerateScene("test");
+        Scripts::Script::Init(ecs_world);
     }
 
     void Application::Run() {
@@ -137,44 +138,6 @@ namespace Larry {
                     camera.view_layers.insert(layer->GetId());
                 }
             }
-        });
-
-        ECS::Entity camera_entity2 = ecs_world->CreateEntity();
-        ecs_world->InsertComponent<Camera>(camera_entity2, [this](Camera& camera){
-            camera = Camera();
-            for (auto& layer : layerStack.layers) {
-                if (layer->GetName() == "GameLayer") {
-                    camera.view_layers.insert(layer->GetId());
-                }
-            }
-        });
-
-        Ref<Scripts::Script> script1 = Scripts::Script::GetNewInstanceOfScript("Test", ecs_world);
-        ecs_world->InsertComponent<Transform, Quad, Scripts::ScriptsComponent>(entity1, [=, this](Transform& transform, Quad& quad, Scripts::ScriptsComponent& scripts){
-            transform = Transform();
-            transform.translation.x = 100;
-            transform.translation.y = 200;
-
-            quad = Quad();
-            quad.dimentions.x = 100;
-            quad.dimentions.y = 100;
-            quad.color = Math::Vec4(0.4, 0.2, 0.7, 1.0f);
-            /* quad.texture = face; */
-
-            scripts = Scripts::ScriptsComponent();
-            scripts.push_back(script1);
-        });
-        script1->OnCreate(entity1);
-
-        ecs_world->InsertComponent<Transform, Quad>(entity2, [=](Transform& transform, Quad& quad){
-            transform = Transform();
-            transform.translation.x = 200;
-            transform.translation.y = 400;
-
-            quad = Quad();
-            quad.dimentions.x = 200;
-            quad.dimentions.y = 200;
-            quad.color = Math::Vec4(0.2, 0.4, 0.3, 1.0f);
         });
     }
 
