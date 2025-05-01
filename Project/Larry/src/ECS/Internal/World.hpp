@@ -166,7 +166,7 @@ namespace Larry::ECS::Internal {
                     const EntityWithArchtype fullEntity = fullEntityOpt.value();
                     TypesBitmap entity_components = fullEntity.archtype != nullptr ? fullEntity.archtype->GetTypesBitmap() : TypesBitmap();
                     TypesBitmap new_bitmap = entity_components;
-                    for (auto& component : components) {
+                    for (auto& component : components.elements) {
                         new_bitmap = new_bitmap | type_manager->GetTypeBitmap(component.type);
                     }
 

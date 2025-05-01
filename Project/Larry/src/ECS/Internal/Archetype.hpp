@@ -114,7 +114,7 @@ namespace Larry::ECS::Internal {
             }
 
             void SetComponents(int index, const AnyQueue& values) {
-                for (auto& value : values) {
+                for (auto& value : values.elements) {
                     memcpy(components[type_manager->GetTypeBitmap(value.type)].GetRawByIndex(index), value.value, type_manager->GetTypeSize(value.type));
                 }
             }
@@ -152,13 +152,13 @@ namespace Larry::ECS::Internal {
                     int size = entitys.size();
                     for (int i = 0; i < size && !stop; i++) {
                         if (entitys[i].alive) {
-                            system_components_queue.clear();
+                            system_components_queue.Clear();
                             for (auto& component_type : type_queue) {
                                 TypesBitmap t = type_manager->GetTypeBitmap(component_type);
                                 if (singeltons_types.Intersect(t)) {
-                                    system_components_queue.push_back(ECS_Any{singeltons[t].get(), component_type});
+                                    system_components_queue.elements.push_back(ECS_Any{singeltons[t].get(), component_type});
                                 } else {
-                                    system_components_queue.push_back(ECS_Any{components[t].GetRawByIndex(i), component_type});
+                                    system_components_queue.elements.push_back(ECS_Any{components[t].GetRawByIndex(i), component_type});
                                 }
                             }
                             callback(entitys[i].entity, system_components_queue, &stop);

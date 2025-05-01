@@ -21,8 +21,8 @@ void* ECS_CreateWorld();
 void ECS_RegisterType(ECS_World, ECS_TypeHashCode type, int type_size, void(*destructor)(const void*));
 
 ECS_Entity ECS_CreateEntity(ECS_World);
-bool ECS_IsEntityAlive(ECS_Entity);
-ECS_Entity ECS_KillEntity(ECS_World);
+bool ECS_IsEntityAlive(ECS_World, ECS_Entity);
+void ECS_KillEntity(ECS_World, ECS_Entity);
 
 // gives you a queue to work with
 ECS_AnyQueue ECS_InitAnyQueue(ECS_World);
@@ -45,7 +45,8 @@ void ECS_SetComponents(ECS_World, ECS_Entity, ECS_AnyQueue);
 ECS_Any ECS_GetComponent(ECS_World, ECS_Entity, ECS_TypeHashCode);
 void ECS_DeleteComponent(ECS_World, ECS_Entity, ECS_TypeHashCode);
 
-void ECS_System(ECS_World, ECS_TypeQueue components_types, ECS_AnyQueue system_components_queue, void(*SystemFunc)(ECS_Entity, ECS_AnyQueue components, bool* stop));
-
 void* ECS_CreateSingelton(ECS_World, ECS_Any); // returns a pointer to the singelton
 void* ECS_GetSingelton(ECS_World, ECS_TypeHashCode);
+
+void ECS_System(ECS_World, ECS_TypeQueue components_types, ECS_AnyQueue system_components_queue, void(*SystemFunc)(ECS_Entity, ECS_AnyQueue components, bool* stop));
+
