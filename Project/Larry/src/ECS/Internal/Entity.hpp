@@ -1,62 +1,22 @@
 #pragma once
 
 #include "ECS/Internal/TypesBitmap.hpp"
+#include "ECS_C.h"
+#include <cstdint>
 
 namespace Larry::ECS::Internal {
+    using Entity = ECS_Entity;
 
-    typedef unsigned long long UID;
+    int32_t GetEntityIdentifier(Entity entity) {
+        return entity;
+    }
 
-    class World;
-    class Archetype;
-    struct EntityData;
-    class Entity;
+    int32_t GetEntityVersion(Entity entity) {
+        return entity >> 32;
+    }
 
-    struct EncodedEntity {
-        UID id;
-        bool alive = true;
-
-        bool operator==(const EncodedEntity& other) const {
-            return id == other.id;
-        }
-    };
-
-    class Entity {
-        private:
-            UID id;
-            TypesBitmap components_types = {0};
-            int index = -1;
-            bool alive = true;
-
-            friend World;
-            friend EntityData;
-            friend Archetype;
-
-            Entity(UID id_) :
-                id(id_)
-        {
-        }
-        public:
-            Entity() {
-                alive = false;
-            }
-
-            ~Entity() {
-            }
-
-            EncodedEntity ToEncodedEntity() const {
-                return {this->id, alive};
-            }
-
-            bool IsAlive() const {
-                return alive;
-            }
-
-            UID GetId() const {
-                return id;
-            }
-
-            int GetIndex() {
-                return index;
-            }
-    };
+    Entity IncreaseEntityVersion(Entity entity) {
+        int64_t entity_version = GetEntityVersion(entity) + 1;
+        return entity | (entity_version << 32);
+    }
 }

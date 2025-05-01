@@ -18,10 +18,10 @@ void ECS_Init();
 
 void* ECS_CreateWorld();
 
-void ECS_RegisterType(ECS_TypeHashCode type, int type_size, void(*destructor)(const void*));
+void ECS_RegisterType(ECS_World, ECS_TypeHashCode type, int type_size, void(*destructor)(const void*));
 
 ECS_Entity ECS_CreateEntity(ECS_World);
-ECS_Entity ECS_GetEntity(ECS_World);
+bool ECS_IsEntityAlive(ECS_Entity);
 ECS_Entity ECS_KillEntity(ECS_World);
 
 // gives you a queue to work with

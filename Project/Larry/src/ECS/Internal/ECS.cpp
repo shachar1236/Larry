@@ -20,6 +20,12 @@ void* ECS_CreateWorld() {
     return (void*)(new World());
 }
 
-ECS_AnyQueue ECS_InitAnyQueue(ECS_World world) {
-    World
+void ECS_RegisterType(ECS_World world, ECS_TypeHashCode type, int type_size, void(*destructor)(const void*)) {
+    World* real_world = (World*)world;
+    real_world->GetTypeManager()->RegisterType(type, type_size, destructor);
+}
+
+ECS_Entity ECS_CreateEntity(ECS_World world) {
+    World* real_world = (World*)world;
+    return real_world->CreateEntity();
 }

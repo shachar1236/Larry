@@ -25,10 +25,15 @@ namespace Larry::ECS::Internal {
 
             TypesBitmap types_bitmap;
 
-            std::vector<EncodedEntity> entitys;
+            struct EntityWithState {
+                Entity entity;
+                bool alive = true;
+            };
+            std::vector<EntityWithState> entitys;
             std::unordered_map<TypesBitmap, UnknownTypeVector> components;
 
-            std::queue<int> dead_entites;
+            int dead_entites_number = 0;
+            int next_dead_entity;
         public:
             Archetype() {
 
@@ -55,48 +60,30 @@ namespace Larry::ECS::Internal {
                 return entitys.size();
             }
 
-            bool IsAlive(const Entity& entity) {
-                EncodedEntity e = entitys[entity.index];
-                return e.id == entity.id && e.alive && types_bitmap == entity.components_types;
-            }
-
-            void KillEntity(Entity& entity, bool destruct=true) {
-                entitys[entity.index].alive = false;
-                entity.alive = false;
-                /* for (auto& [_, value] : components) { */
-                /* value.Clear(entity.index); */
-                /* } */
-                dead_entites.push(entity.index);
+            void KillEntity(int entity_index, bool destruct=true) {
                 if (destruct) {
-                    DestructComponents(entity.index, types_bitmap);
+                    DestructComponents(entity_index, types_bitmap);
                 }
+
+                entitys[entity_index].entity = next_dead_entity;
+                entitys[entity_index].alive = false;
+                next_dead_entity = entity_index;
+                dead_entites_number++;
             }
 
             void DestructComponents(int index, TypesBitmap types) {
                 types.ForEachType([&](TypesBitmap curr){
-                        byte* object = components[curr].GetRawByIndex(index);
-                        type_manager->DestructType(curr, object);
-                        });
+                    byte* object = components[curr].GetRawByIndex(index);
+                    type_manager->DestructType(curr, object);
+                });
             }
 
-            std::optional<Entity> GetEntityById(UID id) {
-                for (int i = 0; i < entitys.size(); i++) {
-                    if (entitys[i].alive && entitys[i].id == id) {
-                        Entity new_entity(id);
-                        new_entity.index = i;
-                        new_entity.components_types = types_bitmap;
-                        return new_entity;
-                    }
-                }
-                return std::nullopt;
-            }
-
-            std::optional<ECS_Any> GetComponent(const Entity& entity, ECS_TypeHashCode type_hash) {
+            std::optional<ECS_Any> GetComponent(int entity_index, ECS_TypeHashCode type_hash) {
                 TypesBitmap type = type_manager->GetTypeBitmap(type_hash);
                 if ((types_bitmap & type) == type) {
                     auto component = components.find(type);
                     if (component != components.end()) {
-                        return ECS_Any{component->second.GetRawByIndex(entity.index), type_hash};
+                        return ECS_Any{component->second.GetRawByIndex(entity_index), type_hash};
                     }
                 } 
                 return std::nullopt;
@@ -104,17 +91,22 @@ namespace Larry::ECS::Internal {
 
             // allocate space for new entity and returns the index
             // dosent change entity.index
-            int AllocateNew(const Entity& entity) {
-                // TODO: checl dead_entites queue before allocationg new data
-                if  (!dead_entites.empty()) {
-                    int index = dead_entites.front();
-                    dead_entites.pop();
-                    entitys[index] = entity.ToEncodedEntity();
+            int AllocateNew(Entity entity) {
+                if  (dead_entites_number > 0) {
+                    int index = next_dead_entity;
+
+                    if (dead_entites_number > 1) {
+                        next_dead_entity = entitys[next_dead_entity].entity;
+                    }
+                    dead_entites_number--;
+
+                    entitys[index].entity = entity;
+                    entitys[index].alive = true;
                     return index;
                 }
 
                 int index = entitys.size();
-                entitys.push_back(entity.ToEncodedEntity());
+                entitys.push_back({ entity, true });
                 for (auto& [_, value] : components) {
                     value.AllocateData();
                 }
@@ -129,20 +121,20 @@ namespace Larry::ECS::Internal {
 
             // returns index of the new entity
             // dosent change entity.index
-            int PopEntityFromOtherArchetype(const Entity& entity, Archetype* other) {
+            int PopEntityFromOtherArchetype(Entity entity, Archetype* other, int entity_index_in_other_archtype) {
                 int index = AllocateNew(entity);
-                int old_index = entity.index;
+                int old_index = entity_index_in_other_archtype;
                 TypesBitmap intesecting = types_bitmap & other->types_bitmap;
+
                 intesecting.ForEachType([&](TypesBitmap type){
-                        other->components[type].Copy(entity.index, components[type].GetRawByIndex(index));
-                        });
-                Entity copy_entity = Entity(entity);
-                other->KillEntity(copy_entity, false);
+                    other->components[type].Copy(old_index, components[type].GetRawByIndex(index));
+                });
+                other->KillEntity(entity, false);
 
                 TypesBitmap left_on_other = (~intesecting) & other->types_bitmap;
                 if (!left_on_other.IsNull()) {
                     LA_CORE_DEBUG("There are components left on the other archetype!");
-                    other->DestructComponents(entity.index, left_on_other);
+                    other->DestructComponents(old_index, left_on_other);
                 }
 
                 return index;
@@ -160,11 +152,6 @@ namespace Larry::ECS::Internal {
                     int size = entitys.size();
                     for (int i = 0; i < size && !stop; i++) {
                         if (entitys[i].alive) {
-                            Entity entity;
-                            entity.alive = true;
-                            entity.id = entitys[i].id;
-                            entity.index = i;
-                            entity.components_types = types_bitmap;
                             system_components_queue.clear();
                             for (auto& component_type : type_queue) {
                                 TypesBitmap t = type_manager->GetTypeBitmap(component_type);
@@ -174,7 +161,7 @@ namespace Larry::ECS::Internal {
                                     system_components_queue.push_back(ECS_Any{components[t].GetRawByIndex(i), component_type});
                                 }
                             }
-                            callback(entity, system_components_queue, &stop);
+                            callback(entitys[i].entity, system_components_queue, &stop);
                         }
                     }
                 }

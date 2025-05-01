@@ -6,6 +6,7 @@
 #include "ECS/Internal/Archetype.hpp"
 #include <cassert>
 #include <cmath>
+#include <cstdint>
 #include <cstring>
 #include <optional>
 #include <unordered_set>
@@ -13,18 +14,24 @@
 #include "ECS/Internal/Utils.hpp"
 #include "ECS_C.h"
 #include "Internal/Pool.hpp"
+#include "Log.h"
+#include "TypesBitmap.hpp"
 
 namespace Larry::ECS::Internal {
 
     using TypeHashCode = ECS_TypeHashCode;
 
+    struct EntityWithArchtype {
+        Entity entity;
+        Archetype* archtype;
+        int index_in_archetype;
+    };
+
     class World {
         private:
-            UID family_uid = 0;
-
-            UID FamilyGenerate() {
-                return family_uid++;
-            }
+            std::vector<EntityWithArchtype> entitys;
+            int dead_entites_number = 0;
+            int next_dead_entity;
 
             TypeManager* type_manager;
 
@@ -39,7 +46,6 @@ namespace Larry::ECS::Internal {
             Pool<AnyQueue> any_queues;
             Pool<TypeQueue> type_queues;
 
-            struct { TypesBitmap types; } system_state;
 
             Archetype* GetArchetype(TypesBitmap types) {
                 auto res = archetypes.find(types);
@@ -57,6 +63,19 @@ namespace Larry::ECS::Internal {
                 return ptr;
             }
 
+            // returns an entity if its alive
+            std::optional<const EntityWithArchtype> GetEntity(Entity entity) {
+                Entity id = GetEntityIdentifier(entity);
+                if (id >= entitys.size()) {
+                    LA_CORE_ERROR("Entity {} id is bigger than entitys number", (int64_t)entity);
+                    return std::nullopt;
+                }
+                EntityWithArchtype r = entitys[id];
+                if (entity == r.entity) {
+                    return entitys[id];
+                }
+                return std::nullopt;
+            }
         public:
             World() {
                 type_manager = new TypeManager();
@@ -64,6 +83,10 @@ namespace Larry::ECS::Internal {
 
             ~World() {
                 delete type_manager;
+            }
+
+            inline TypeManager* GetTypeManager() {
+                return type_manager;
             }
 
             AnyQueue* InitAnyQueue() {
@@ -84,28 +107,37 @@ namespace Larry::ECS::Internal {
 
 
             Entity CreateEntity() {
-                UID id = FamilyGenerate();
-                Entity entity = Entity(id);
-                return entity;
+                if (dead_entites_number > 0) {
+                    int index = next_dead_entity;
+                    Entity res = (int32_t)next_dead_entity | ((int64_t)GetEntityVersion(entitys[index].entity) << 32);
+                    next_dead_entity = (int32_t)entitys[next_dead_entity].entity;
+                    dead_entites_number--;
+                    entitys[index] = { res, nullptr };
+                    return res;
+                }
+                Entity res = entitys.size();
+                entitys.push_back({ res, nullptr, 0 });
+                return res;
             }
             
-            // should return an entity with the given id
-            // WARNING: an expensive function avoid if possible
-            std::optional<Entity> GetEntity(UID entity_id) {
-                for (auto& archetype : archetypes) {
-                    auto res = archetype.second.GetEntityById(entity_id);
-                    if (res.has_value()) {
-                        return res;
-                    }
-                }
-                return std::nullopt;
+            bool IsEntityAlive(Entity entity) {
+                return GetEntity(entity).has_value();
             }
 
             // kills an entity
-            void KillEntity(Entity& entity) {
-                Archetype* archetype = GetArchetype(entity.components_types);
-                if (archetype->IsAlive(entity)) {
-                    archetype->KillEntity(entity);
+            void KillEntity(Entity entity) {
+                std::optional<const EntityWithArchtype> fullEntityOpt = GetEntity(entity);
+                if (fullEntityOpt.has_value()) {
+                    const EntityWithArchtype fullEntity = fullEntityOpt.value();
+                    Archetype* archetype = fullEntity.archtype;
+                    if (archetype != nullptr) {
+                        archetype->KillEntity(entity);
+                        int32_t index = GetEntityIdentifier(entity);
+                        int64_t version = GetEntityVersion(entity) + 1;
+                        entitys[index].entity = (int32_t)next_dead_entity | version << 32;
+                        next_dead_entity = index;
+                        dead_entites_number++;
+                    }
                 }
             }
 
@@ -114,9 +146,9 @@ namespace Larry::ECS::Internal {
                 TypesBitmap type = type_manager->GetTypeBitmap(singelton.type);
                 if (singeltons.find(type) == singeltons.end()) {
                     singeltons[type] = Larry::CreateScope<byte[]>(type_manager->GetTypeSize(singelton.type));
-                    singeltons_bitmap = singeltons_bitmap | type;
-                    return singeltons[type].get();
                 }
+                singeltons_bitmap = singeltons_bitmap | type;
+                return singeltons[type].get();
             }
 
             void* GetSingelton(ECS_TypeHashCode hash) {
@@ -128,82 +160,82 @@ namespace Larry::ECS::Internal {
 
             // Inserts component to entity
             // return - if completed successfully
-            bool InsertComponent(Entity& entity, const AnyQueue& components) {
-                TypesBitmap new_bitmap = entity.components_types;
-                for (auto& component : components) {
-                    new_bitmap = new_bitmap | type_manager->GetTypeBitmap(component.type);
-                }
-
-                bool type_in_singeltons = !(new_bitmap & singeltons_bitmap).IsNull();
-                if (entity.alive && !type_in_singeltons) {
-                    Archetype* new_archetype = GetArchetype(new_bitmap);
-
-                    if (!entity.components_types.IsNull()) {
-                        Archetype* old_archetype = GetArchetype(entity.components_types);
-                        if (old_archetype->IsAlive(entity)) {
-                            int index = new_archetype->PopEntityFromOtherArchetype(entity, old_archetype);
-                            new_archetype->SetComponents(index, components);
-
-                            entity.index = index;
-                        } else {
-                            entity.alive = false;
-                            return false;
-                        }
-                    } else {
-                        int index = new_archetype->AllocateNew(entity);
-                        new_archetype->SetComponents(index, components);
-
-                        entity.index = index;
+            bool InsertComponents(Entity entity, const AnyQueue& components) {
+                std::optional<const EntityWithArchtype> fullEntityOpt = GetEntity(entity);
+                if (fullEntityOpt.has_value()) {
+                    const EntityWithArchtype fullEntity = fullEntityOpt.value();
+                    TypesBitmap entity_components = fullEntity.archtype != nullptr ? fullEntity.archtype->GetTypesBitmap() : TypesBitmap();
+                    TypesBitmap new_bitmap = entity_components;
+                    for (auto& component : components) {
+                        new_bitmap = new_bitmap | type_manager->GetTypeBitmap(component.type);
                     }
 
-                    // update entity to match the new data
-                    entity.components_types = new_bitmap;
-                    return true;
+                    bool type_in_singeltons = !(new_bitmap & singeltons_bitmap).IsNull();
+                    if (!type_in_singeltons) {
+                        Archetype* new_archetype = GetArchetype(new_bitmap);
+                        int entity_index = GetEntityIdentifier(entity);
+
+                        if (!entity_components.IsNull()) {
+                            Archetype* old_archetype = fullEntity.archtype;
+                            int index = new_archetype->PopEntityFromOtherArchetype(entity, old_archetype, fullEntity.index_in_archetype);
+                            new_archetype->SetComponents(index, components);
+                            
+                            entitys[entity_index].archtype = new_archetype;
+                            entitys[entity_index].index_in_archetype = index;
+                        } else {
+                            int index = new_archetype->AllocateNew(entity);
+                            new_archetype->SetComponents(index, components);
+
+                            entitys[entity_index].archtype = new_archetype;
+                            entitys[entity_index].index_in_archetype = index;
+                        }
+
+                        // update entity to match the new data
+                        return true;
+                    }
                 }
                 return false;
             }
 
             void SetComponents(const Entity& entity, const AnyQueue& components) {
-                if (entity.alive) {
-                    Archetype* archetype = GetArchetype(entity.components_types);
-                    if (archetype->IsAlive(entity)) {
-                        archetype->SetComponents(entity.index, components);
-                    }
+                std::optional<const EntityWithArchtype> fullEntityOpt = GetEntity(entity);
+                if (fullEntityOpt.has_value()) {
+                    const EntityWithArchtype fullEntity = fullEntityOpt.value();
+                    Archetype* archetype = fullEntity.archtype;
+                    archetype->SetComponents(fullEntity.index_in_archetype, components);
                 }
             }
 
             std::optional<ECS_Any> GetComponent(const Entity& entity, ECS_TypeHashCode type_hash) {
-                if (entity.alive) {
-                    Archetype* archetype = GetArchetype(entity.components_types);
-                    if (archetype->IsAlive(entity)) {
-                        return archetype->GetComponent(entity, type_hash);
-                    }
+                std::optional<const EntityWithArchtype> fullEntityOpt = GetEntity(entity);
+                if (fullEntityOpt.has_value()) {
+                    const EntityWithArchtype fullEntity = fullEntityOpt.value();
+                    Archetype* archetype = fullEntity.archtype;
+                    return archetype->GetComponent(fullEntity.index_in_archetype, type_hash);
                 }
                 return std::nullopt;
             }
 
             void DeleteComponent(Entity& entity, ECS_TypeHashCode type_hash) {
-                if (entity.alive) {
-                    TypesBitmap new_bitmap = entity.components_types & (~type_manager->GetTypeBitmap(type_hash));
-                    Archetype* new_archetype = GetArchetype(new_bitmap);
+                std::optional<const EntityWithArchtype> fullEntityOpt = GetEntity(entity);
+                if (fullEntityOpt.has_value()) {
+                    const EntityWithArchtype fullEntity = fullEntityOpt.value();
+                    if (fullEntity.archtype != nullptr) {
+                        TypesBitmap entityTypes = fullEntity.archtype->GetTypesBitmap();
+                        TypesBitmap new_bitmap = entityTypes & (~type_manager->GetTypeBitmap(type_hash));
+                        Archetype* new_archetype = GetArchetype(new_bitmap);
 
-                    if (!entity.components_types.IsNull()) {
-                        Archetype* old_archetype = GetArchetype(entity.components_types);
-                        if (old_archetype->IsAlive(entity)) {
-                            int index = new_archetype->PopEntityFromOtherArchetype(entity, old_archetype);
+                        if (!entityTypes.IsNull()) {
+                            Archetype* old_archetype = fullEntity.archtype;
+                            int index = new_archetype->PopEntityFromOtherArchetype(entity, old_archetype, fullEntity.index_in_archetype);
 
-                            entity.index = index;
-                            entity.components_types = new_bitmap;
+                            int entity_index = GetEntityIdentifier(entity);
+
+                            entitys[entity_index].index_in_archetype = index;
                         }
-
                     }
                 }
             }
-
-        private:
-            template<typename F>
-                void LoopArchetypes(const TypesBitmap& types, const F& callback) {
-                }
 
         public:
             template<typename F>
