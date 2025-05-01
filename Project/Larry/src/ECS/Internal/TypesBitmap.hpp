@@ -7,7 +7,9 @@
 
 #define FIND_NEXT_CHUNK_SIZE 32
 
-namespace Larry::ECS {
+
+namespace Larry::ECS::Internal {
+
     /* using bitset = unsigned long long; */
     using bitset = std::bitset<256>;
 
@@ -57,7 +59,7 @@ namespace Larry::ECS {
             bool operator==(int other) const {
                 return bitmap == other;
             }
-            
+
             bool IsNull() const {
                 return bitmap == 0;
             }
@@ -114,20 +116,22 @@ namespace Larry::ECS {
             }
 
             template<typename F>
-            void ForEachType(const F& callback) const {
-                int pos = find_next(0);
-                while (pos != -1) {
-                    callback(TypeWithIndex(pos));
-                    pos = find_next(pos+1);
+                void ForEachType(const F& callback) const {
+                    int pos = find_next(0);
+                    while (pos != -1) {
+                        callback(TypeWithIndex(pos));
+                        pos = find_next(pos+1);
+                    }
                 }
-            }
     };
+
 }
 
+using namespace Larry::ECS::Internal;
 template <>
-struct std::hash<Larry::ECS::TypesBitmap>
+struct std::hash<TypesBitmap>
 {
-    std::size_t operator()(const Larry::ECS::TypesBitmap& k) const
+    std::size_t operator()(const TypesBitmap& k) const
     {
         return std::hash<bitset<256>>()(k.bitmap);;
     }

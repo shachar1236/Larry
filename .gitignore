@@ -9,6 +9,7 @@ Project/.cache
 Project/.vscode
 peda*.txt
 Project/SandboxGame/build
+Project/SandboxGame/.cache
 Project/SandboxGame/libraries
 Project/SandboxGame/LarryApi
 Project/GameOut

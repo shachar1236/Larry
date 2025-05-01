@@ -1,8 +1,9 @@
 #pragma once
 
-#include "ECS/TypesBitmap.hpp"
+#include "ECS/Internal/TypesBitmap.hpp"
 
-namespace Larry::ECS {
+namespace Larry::ECS::Internal {
+
     typedef unsigned long long UID;
 
     class World;
@@ -32,8 +33,8 @@ namespace Larry::ECS {
 
             Entity(UID id_) :
                 id(id_)
-            {
-            }
+        {
+        }
         public:
             Entity() {
                 alive = false;
@@ -53,10 +54,9 @@ namespace Larry::ECS {
             UID GetId() const {
                 return id;
             }
-            
+
             int GetIndex() {
                 return index;
             }
     };
-
 }

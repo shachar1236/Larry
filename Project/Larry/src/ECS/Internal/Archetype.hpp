@@ -1,13 +1,15 @@
 #pragma once
 /* #include "ECS.h" */
-#include "ECS.h"
-#include "ECS/Utils.hpp"
+#include "ECS/Internal/Utils.hpp"
+#include "ECS_C.h"
+#include "Internal/Queues.h"
+#include "TypesBitmap.hpp"
 #include "Utils/Log.h"
 #include "Utils/LarryMemory.h"
-#include "ECS/TypeManager.hpp"
-#include "ECS/UnknownTypeVector.hpp"
-#include "ECS/Entity.hpp"
-#include "ECS/TypesBitmap.hpp"
+#include "ECS/Internal/TypeManager.hpp"
+#include "ECS/Internal/UnknownTypeVector.hpp"
+#include "ECS/Internal/Entity.hpp"
+#include "ECS/Internal/TypesBitmap.hpp"
 #include <functional>
 #include <strings.h>
 #include <optional>
@@ -15,7 +17,7 @@
 #include <queue>
 #include <vector>
 
-namespace Larry::ECS {
+namespace Larry::ECS::Internal {
 
     class Archetype {
         private:
@@ -35,11 +37,11 @@ namespace Larry::ECS {
             Archetype(TypesBitmap types_bitmap_, TypeManager* type_manager_) :
                 types_bitmap(types_bitmap_),
                 type_manager(type_manager_)
-            {
-                types_bitmap.ForEachType([&](TypesBitmap curr){
+        {
+            types_bitmap.ForEachType([&](TypesBitmap curr){
                     components[curr] = UnknownTypeVector(type_manager->GetTypeSize(curr));
-                });
-            }
+                    });
+        }
 
             bool operator==(const Archetype& other) {
                 return this->types_bitmap == other.types_bitmap;
@@ -62,7 +64,7 @@ namespace Larry::ECS {
                 entitys[entity.index].alive = false;
                 entity.alive = false;
                 /* for (auto& [_, value] : components) { */
-                    /* value.Clear(entity.index); */
+                /* value.Clear(entity.index); */
                 /* } */
                 dead_entites.push(entity.index);
                 if (destruct) {
@@ -72,9 +74,9 @@ namespace Larry::ECS {
 
             void DestructComponents(int index, TypesBitmap types) {
                 types.ForEachType([&](TypesBitmap curr){
-                    byte* object = components[curr].GetRawByIndex(index);
-                    type_manager->DestructType(curr, object);
-                });
+                        byte* object = components[curr].GetRawByIndex(index);
+                        type_manager->DestructType(curr, object);
+                        });
             }
 
             std::optional<Entity> GetEntityById(UID id) {
@@ -89,13 +91,12 @@ namespace Larry::ECS {
                 return std::nullopt;
             }
 
-            template<typename T>
-            std::optional<const T*> GetComponent(const Entity& entity) {
-                TypesBitmap type = type_manager->GetTypeBitmap<T>();
+            std::optional<ECS_Any> GetComponent(const Entity& entity, ECS_TypeHashCode type_hash) {
+                TypesBitmap type = type_manager->GetTypeBitmap(type_hash);
                 if ((types_bitmap & type) == type) {
                     auto component = components.find(type);
                     if (component != components.end()) {
-                        return component->second.GetByIndex<T>(entity.index);
+                        return ECS_Any{component->second.GetRawByIndex(entity.index), type_hash};
                     }
                 } 
                 return std::nullopt;
@@ -120,9 +121,10 @@ namespace Larry::ECS {
                 return index;
             }
 
-            template<typename ...Types, typename F>
-            void SetComponents(int index, const F& set_callback) {
-                set_callback((Types&)(*(components[type_manager->GetTypeBitmap<Types>()].GetRawByIndex(index)))...);
+            void SetComponents(int index, const AnyQueue& values) {
+                for (auto& value : values) {
+                    memcpy(components[type_manager->GetTypeBitmap(value.type)].GetRawByIndex(index), value.value, type_manager->GetTypeSize(value.type));
+                }
             }
 
             // returns index of the new entity
@@ -132,8 +134,8 @@ namespace Larry::ECS {
                 int old_index = entity.index;
                 TypesBitmap intesecting = types_bitmap & other->types_bitmap;
                 intesecting.ForEachType([&](TypesBitmap type){
-                    other->components[type].Copy(entity.index, components[type].GetRawByIndex(index));
-                });
+                        other->components[type].Copy(entity.index, components[type].GetRawByIndex(index));
+                        });
                 Entity copy_entity = Entity(entity);
                 other->KillEntity(copy_entity, false);
 
@@ -146,60 +148,37 @@ namespace Larry::ECS {
                 return index;
             }
 
-            template<typename ...Types, typename F>
-            void CallFunctionWithComponentsImplamentation(
-                TypeWithHidden<TypesBitmap, Types>... types,
-                TypesBitmap singeltons_types,
-                std::unordered_map<TypesBitmap, Scope<byte[]>>& singeltons,
-                const F& callback) 
-            {
-                int size = entitys.size();
-                for (int i = 0; i < size; i++) {
-                    if (entitys[i].alive) {
-                        callback((Types&)(*(singeltons_types.Intersect(types.value) ? singeltons[types.value].get() : components[types.value].GetRawByIndex(i)))...);
+            template<typename F>
+                void CallFunctionWithComponents(
+                        const TypeQueue& type_queue,
+                        AnyQueue& system_components_queue,
+                        TypesBitmap singeltons_types,
+                        std::unordered_map<TypesBitmap, Larry::Scope<byte[]>>& singeltons,
+                        const F& callback) 
+                {
+                    bool stop = false;
+                    int size = entitys.size();
+                    for (int i = 0; i < size && !stop; i++) {
+                        if (entitys[i].alive) {
+                            Entity entity;
+                            entity.alive = true;
+                            entity.id = entitys[i].id;
+                            entity.index = i;
+                            entity.components_types = types_bitmap;
+                            system_components_queue.clear();
+                            for (auto& component_type : type_queue) {
+                                TypesBitmap t = type_manager->GetTypeBitmap(component_type);
+                                if (singeltons_types.Intersect(t)) {
+                                    system_components_queue.push_back(ECS_Any{singeltons[t].get(), component_type});
+                                } else {
+                                    system_components_queue.push_back(ECS_Any{components[t].GetRawByIndex(i), component_type});
+                                }
+                            }
+                            callback(entity, system_components_queue, &stop);
+                        }
                     }
                 }
-            }
 
-            template<typename ...Types, typename F>
-            void CallFunctionWithComponents(TypesBitmap singeltons_types, std::unordered_map<TypesBitmap, Scope<byte[]>>& singeltons, const F& callback) {
-                CallFunctionWithComponentsImplamentation<Types...>(
-                        { type_manager->GetTypeBitmap<Types>() }...,
-                        singeltons_types,
-                        singeltons,
-                        callback);
-            }
-
-            template<typename ...Types, typename F>
-            void CallFunctionWithComponentsAdvancedImplamentation(
-                TypeWithHidden<TypesBitmap, Types>... types,
-                TypesBitmap singeltons_types,
-                std::unordered_map<TypesBitmap, Scope<byte[]>>& singeltons,
-                const F& callback) 
-            {
-                bool stop = false;
-                BreakFunction break_func = [&](){ stop = true; };
-                int size = entitys.size();
-                for (int i = 0; i < size && !stop; i++) {
-                    if (entitys[i].alive) {
-                        Entity entity;
-                        entity.alive = true;
-                        entity.id = entitys[i].id;
-                        entity.index = i;
-                        entity.components_types = types_bitmap;
-                        callback(entity, break_func, (Types&)(*(singeltons_types.Intersect(types.value) ? singeltons[types.value].get() : components[types.value].GetRawByIndex(i)))...);
-                    }
-                }
-            }
-
-            template<typename ...Types, typename F>
-            void CallFunctionWithComponentsAdvanced(TypesBitmap singeltons_types, std::unordered_map<TypesBitmap, Scope<byte[]>>& singeltons, const F& callback) {
-                CallFunctionWithComponentsAdvancedImplamentation<Types...>(
-                        { type_manager->GetTypeBitmap<Types>() }...,
-                        singeltons_types,
-                        singeltons,
-                        callback);
-            }
     };
 
 }
