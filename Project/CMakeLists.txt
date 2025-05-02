@@ -60,6 +60,7 @@ set(HEADER_DIRECTORIES
     Larry/src/Renderer
     Larry/src/EventSystem
     Larry/src/Layers
+    Larry/src/Scripts
 )
 
 set(LarrySharedLibraries

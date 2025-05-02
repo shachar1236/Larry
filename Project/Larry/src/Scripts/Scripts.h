@@ -2,7 +2,7 @@
 
 #include "EventSystem/Event.h"
 #include "Utils/LarryMemory.h"
-#include "ECS/World.hpp"
+#include "ECS/CPPApi/World.hpp"
 #include <string>
 #include <vector>
 
