@@ -19,6 +19,7 @@ void ECS_Init();
 void* ECS_CreateWorld();
 
 void ECS_RegisterType(ECS_World, ECS_TypeHashCode type, int type_size, void(*destructor)(const void*));
+void ECS_RegisterTypeIfDosentExists(ECS_World, ECS_TypeHashCode type, int type_size, void(*destructor)(const void*));
 
 ECS_Entity ECS_CreateEntity(ECS_World);
 bool ECS_IsEntityAlive(ECS_World, ECS_Entity);
@@ -40,12 +41,14 @@ void ECS_PushToTypeQueue(ECS_TypeQueue, ECS_TypeHashCode);
 // when you are done using the state call this function and the world will take ownership of the state
 void ECS_DoneWithTypeQueue(ECS_World, ECS_TypeQueue queue);
 
-void ECS_InsertComponents(ECS_World, ECS_Entity, ECS_AnyQueue);
-void ECS_SetComponents(ECS_World, ECS_Entity, ECS_AnyQueue);
+// insert the new types and return a pointer to all of then in the resultQueue
+// returns if succesfuly inserted
+bool ECS_InsertComponents(ECS_World, ECS_Entity, ECS_TypeQueue types, ECS_AnyQueue resultQueue);
+void ECS_SetComponents(ECS_World, ECS_Entity, ECS_TypeQueue types, ECS_AnyQueue resultQueue);
 ECS_Any ECS_GetComponent(ECS_World, ECS_Entity, ECS_TypeHashCode);
 void ECS_DeleteComponent(ECS_World, ECS_Entity, ECS_TypeHashCode);
 
-void* ECS_CreateSingelton(ECS_World, ECS_Any); // returns a pointer to the singelton
+void* ECS_CreateSingelton(ECS_World, ECS_TypeHashCode); // returns a pointer to the singelton
 void* ECS_GetSingelton(ECS_World, ECS_TypeHashCode);
 
 void ECS_System(ECS_World, ECS_TypeQueue components_types, ECS_AnyQueue system_components_queue, void(*SystemFunc)(ECS_Entity, ECS_AnyQueue components, bool* stop));

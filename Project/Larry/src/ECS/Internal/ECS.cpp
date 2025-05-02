@@ -26,6 +26,11 @@ void ECS_RegisterType(ECS_World world_, ECS_TypeHashCode type, int type_size, vo
     world->GetTypeManager()->RegisterType(type, type_size, destructor);
 }
 
+void ECS_RegisterTypeIfDosentExists(ECS_World world_, ECS_TypeHashCode type, int type_size, void(*destructor)(const void*)) {
+    World* world = (World*)world_;
+    world->GetTypeManager()->RegisterTypeIfDosentExists(type, type_size, destructor);
+}
+
 ECS_Entity ECS_CreateEntity(ECS_World world_) {
     World* world = (World*)world_;
     return world->CreateEntity();
@@ -78,18 +83,20 @@ void ECS_DoneWithTypeQueue(ECS_World world_, ECS_TypeQueue queue_) {
     world->DoneWithTypeQueue(queue);
 }
 
-void ECS_InsertComponents(ECS_World world_, ECS_Entity entity, ECS_AnyQueue queue_) {
+bool ECS_InsertComponents(ECS_World world_, ECS_Entity entity, ECS_TypeQueue types_, ECS_AnyQueue resultQueue_) {
     World* world = (World*)world_;
-    AnyQueue* queue = (AnyQueue*)queue;
+    TypeQueue* types = (TypeQueue*)types;
+    AnyQueue* resultQueue = (AnyQueue*)resultQueue_;
 
-    world->InsertComponents(entity, *queue);
+    return world->InsertComponents(entity, *types, *resultQueue);
 }
 
-void ECS_SetComponents(ECS_World world_, ECS_Entity entity, ECS_AnyQueue queue_) {
+void ECS_SetComponents(ECS_World world_, ECS_Entity entity, ECS_TypeQueue types_, ECS_AnyQueue resultQueue_) {
     World* world = (World*)world_;
-    AnyQueue* queue = (AnyQueue*)queue;
+    TypeQueue* types = (TypeQueue*)types;
+    AnyQueue* resultQueue = (AnyQueue*)resultQueue_;
     
-    world->SetComponents(entity, *queue);
+    world->SetComponents(entity, *types, *resultQueue);
 }
 
 ECS_Any ECS_GetComponent(ECS_World world_, ECS_Entity entity, ECS_TypeHashCode code) {
@@ -104,16 +111,16 @@ void ECS_DeleteComponent(ECS_World world_, ECS_Entity entity, ECS_TypeHashCode c
     world->DeleteComponent(entity, code);
 }
 
-void* ECS_CreateSingelton(ECS_World world_, ECS_Any singelton) {
+void* ECS_CreateSingelton(ECS_World world_, ECS_TypeHashCode singelton_hash) {
     World* world = (World*)world_;
     
-    return world->CreateSingelton(singelton);
+    return world->CreateSingelton(singelton_hash);
 }
 
 void* ECS_GetSingelton(ECS_World world_, ECS_TypeHashCode code) {
     World* world = (World*)world_;
     
-    return world->GetSingelton(code);
+    return world->GetSingelton(code).value_or((void*)NULL);
 }
 
 

@@ -94,6 +94,7 @@ namespace Larry::ECS::Internal {
             }
 
             void DoneWithAnyQueue(AnyQueue* queue) {
+                queue->Clear();
                 any_queues.Return(queue);
             }
 
@@ -102,6 +103,7 @@ namespace Larry::ECS::Internal {
             }
 
             void DoneWithTypeQueue(TypeQueue* queue) {
+                queue->clear();
                 type_queues.Return(queue);
             }
 
@@ -142,33 +144,32 @@ namespace Larry::ECS::Internal {
             }
 
             // returns singeltom address
-            void* CreateSingelton(ECS_Any singelton) {
-                TypesBitmap type = type_manager->GetTypeBitmap(singelton.type);
+            void* CreateSingelton(ECS_TypeHashCode singelton_hash) {
+                TypesBitmap type = type_manager->GetTypeBitmap(singelton_hash);
                 if (singeltons.find(type) == singeltons.end()) {
-                    singeltons[type] = Larry::CreateScope<byte[]>(type_manager->GetTypeSize(singelton.type));
+                    singeltons[type] = Larry::CreateScope<byte[]>(type_manager->GetTypeSize(singelton_hash));
                 }
                 singeltons_bitmap = singeltons_bitmap | type;
                 return singeltons[type].get();
             }
 
-            void* GetSingelton(ECS_TypeHashCode hash) {
+            std::optional<void*> GetSingelton(ECS_TypeHashCode hash) {
                 TypesBitmap type = type_manager->GetTypeBitmap(hash);
                 auto res = singeltons.find(type) ;
-                assert(res != singeltons.end());
+                if (res == singeltons.end()) {
+                    return std::nullopt;
+                }
                 return res->second.get();
             }
 
             // Inserts component to entity
             // return - if completed successfully
-            bool InsertComponents(Entity entity, const AnyQueue& components) {
+            bool InsertComponents(Entity entity, const TypeQueue& types, AnyQueue& resultQueue) {
                 std::optional<const EntityWithArchtype> fullEntityOpt = GetEntity(entity);
                 if (fullEntityOpt.has_value()) {
                     const EntityWithArchtype fullEntity = fullEntityOpt.value();
                     TypesBitmap entity_components = fullEntity.archtype != nullptr ? fullEntity.archtype->GetTypesBitmap() : TypesBitmap();
-                    TypesBitmap new_bitmap = entity_components;
-                    for (auto& component : components.elements) {
-                        new_bitmap = new_bitmap | type_manager->GetTypeBitmap(component.type);
-                    }
+                    TypesBitmap new_bitmap = entity_components | type_manager->QueueTypes(types);
 
                     bool type_in_singeltons = !(new_bitmap & singeltons_bitmap).IsNull();
                     if (!type_in_singeltons) {
@@ -178,13 +179,13 @@ namespace Larry::ECS::Internal {
                         if (!entity_components.IsNull()) {
                             Archetype* old_archetype = fullEntity.archtype;
                             int index = new_archetype->PopEntityFromOtherArchetype(entity, old_archetype, fullEntity.index_in_archetype);
-                            new_archetype->SetComponents(index, components);
+                            new_archetype->SetComponents(index, types, resultQueue);
                             
                             entitys[entity_index].archtype = new_archetype;
                             entitys[entity_index].index_in_archetype = index;
                         } else {
                             int index = new_archetype->AllocateNew(entity);
-                            new_archetype->SetComponents(index, components);
+                            new_archetype->SetComponents(index, types, resultQueue);
 
                             entitys[entity_index].archtype = new_archetype;
                             entitys[entity_index].index_in_archetype = index;
@@ -197,16 +198,21 @@ namespace Larry::ECS::Internal {
                 return false;
             }
 
-            void SetComponents(const Entity& entity, const AnyQueue& components) {
+            void SetComponents(Entity entity, const TypeQueue& types, AnyQueue& resultQueue) {
                 std::optional<const EntityWithArchtype> fullEntityOpt = GetEntity(entity);
                 if (fullEntityOpt.has_value()) {
                     const EntityWithArchtype fullEntity = fullEntityOpt.value();
                     Archetype* archetype = fullEntity.archtype;
-                    archetype->SetComponents(fullEntity.index_in_archetype, components);
+
+                    TypesBitmap types_bitmap = type_manager->QueueTypes(types);
+                    bool has_types = (types_bitmap & archetype->GetTypesBitmap()) == types_bitmap;
+                    if (has_types) {
+                        archetype->SetComponents(fullEntity.index_in_archetype, types, resultQueue);
+                    }
                 }
             }
 
-            std::optional<ECS_Any> GetComponent(const Entity& entity, ECS_TypeHashCode type_hash) {
+            std::optional<ECS_Any> GetComponent(Entity entity, ECS_TypeHashCode type_hash) {
                 std::optional<const EntityWithArchtype> fullEntityOpt = GetEntity(entity);
                 if (fullEntityOpt.has_value()) {
                     const EntityWithArchtype fullEntity = fullEntityOpt.value();
@@ -216,7 +222,7 @@ namespace Larry::ECS::Internal {
                 return std::nullopt;
             }
 
-            void DeleteComponent(Entity& entity, ECS_TypeHashCode type_hash) {
+            void DeleteComponent(Entity entity, ECS_TypeHashCode type_hash) {
                 std::optional<const EntityWithArchtype> fullEntityOpt = GetEntity(entity);
                 if (fullEntityOpt.has_value()) {
                     const EntityWithArchtype fullEntity = fullEntityOpt.value();

@@ -2,7 +2,7 @@
 #include "Application.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "ECS/ECS.h"
+#include "ECS/CPPApi/ECS.h"
 #ifdef LARRY_ENABLE_TESTING
 #include "ECS/ecs_test.hpp"
 #endif

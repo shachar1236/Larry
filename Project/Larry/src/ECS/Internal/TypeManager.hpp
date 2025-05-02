@@ -40,6 +40,12 @@ namespace Larry::ECS::Internal {
                 }
             }
 
+            inline void RegisterTypeIfDosentExists(ECS_TypeHashCode hash, int type_size, void(*destructor)(const void*)) {
+                if (typeHash_to_TypeBitmap.find(hash) == typeHash_to_TypeBitmap.end()) {
+                    RegisterType(hash, type_size, destructor);
+                }
+            }
+
             TypesBitmap GetTypeBitmap(ECS_TypeHashCode hash)
             {
                 auto res = typeHash_to_TypeBitmap.find(hash);
@@ -66,7 +72,7 @@ namespace Larry::ECS::Internal {
 
             TypesBitmap QueueTypes(const AnyQueue& queue) {
                 TypesBitmap t;
-                for (auto& type : queue) {
+                for (auto& type : queue.elements) {
                     t = t | GetTypeBitmap(type.type);
                 }
                 return t;

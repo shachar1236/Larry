@@ -46,11 +46,13 @@ set(SOURCE_FILES
     Larry/src/Application/Systems/ButtonSystem.cpp
     Larry/src/Application/Systems/ScriptsSystem.cpp
 
-    # Larry/src/Scripts/Scripts.cpp
+    Larry/src/Scripts/Scripts.cpp
 )
 set(HEADER_DIRECTORIES
     Larry/src
     Larry/src/ECS
+    Larry/src/ECS/CPPApi
+    Larry/src/ECS/Internal
     Larry/src/Application
     Larry/src/Utils
     Larry/src/Input

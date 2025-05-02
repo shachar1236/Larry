@@ -14,8 +14,9 @@ namespace Larry::ECS::Internal {
             }
 
             ~Pool() {
-                for (int i = 0; i < elements.size(); i++) {
-                    delete elements[i];
+                while (!elements.empty()) {
+                    delete elements.back();
+                    elements.pop();
                 }
             }
 

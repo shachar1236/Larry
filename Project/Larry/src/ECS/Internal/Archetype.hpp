@@ -113,9 +113,11 @@ namespace Larry::ECS::Internal {
                 return index;
             }
 
-            void SetComponents(int index, const AnyQueue& values) {
-                for (auto& value : values.elements) {
-                    memcpy(components[type_manager->GetTypeBitmap(value.type)].GetRawByIndex(index), value.value, type_manager->GetTypeSize(value.type));
+            void SetComponents(int index, const TypeQueue& types, AnyQueue& resultQueue) {
+                resultQueue.Clear();
+
+                for (auto& type : types) {
+                    resultQueue.elements.push_back({ components[type_manager->GetTypeBitmap(type)].GetRawByIndex(index), type });
                 }
             }
 

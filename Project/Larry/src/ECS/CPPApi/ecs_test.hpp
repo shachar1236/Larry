@@ -1,6 +1,6 @@
 #pragma once
-#include "ECS/ECS.h"
-#include "ECS/World.hpp"
+#include "ECS/CPPApi/World.hpp"
+#include <set>
 #include <cassert>
 
 namespace Larry::ECS {
@@ -191,13 +191,10 @@ namespace Larry::ECS {
             });
         }
 
-        auto entity1_copy = world.GetEntity(my_entity1.GetId());
-        assert(entity1_copy.has_value());
-        assert(entity1_copy.value().GetId() == my_entity1.GetId());
+        assert(world.IsEntityAlive(my_entity1));
 
-        int my_entity1_index = my_entity1.GetIndex();
         world.KillEntity(my_entity1);
-        assert(!world.GetEntity(my_entity1.GetId()).has_value());
+        assert(!world.IsEntityAlive(my_entity1.GetId()));
 
         auto my_entity3 = world.CreateEntity();
         world.InsertComponent<_Position, _Velocity>(my_entity3, [](_Position& pos, _Velocity& vel){
