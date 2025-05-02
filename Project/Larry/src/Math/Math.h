@@ -25,5 +25,7 @@ namespace Larry {
         Mat4 ortho(const float& left, const float& right, const float& bottom, const float& top, const float& nearDist, const float& farDist); 
         Mat4 perspective(const float& fov, const float& aspectRatio, const float& near, const float& far);
         const float* value_ptr(const Mat4& mat);
+
+        Mat4 lookAt(const Vec3& position, const Vec3& target, const Vec3& up);
     }
 }

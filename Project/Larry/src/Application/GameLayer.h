@@ -4,12 +4,10 @@
 #include "Layer.h"
 #include "Math.h"
 #include "Renderer.h"
-#include "TextureObject.h"
 
 namespace Larry {
     class GameLayer : public Layer {
         private:
-            Renderer* renderer;
             Math::Vec2 viewport_size;
         public:
             GameLayer(const Ref<ECS::World>& world_);

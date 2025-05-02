@@ -1,7 +1,9 @@
-#include "ScriptsSystem.h"
-#include "ECS.h"
+#include "Application/Systems/ScriptsSystem.h"
+#include "ECS/ECS.h"
 #include "Entity.hpp"
-#include "Log.h"
+#include "EventSystem.h"
+#include "InputEvents.h"
+#include "Utils/Log.h"
 #include "Scripts/Scripts.h"
 
 namespace Larry {
@@ -12,9 +14,9 @@ namespace Larry {
 
     
     void ScriptsSystem::OnUpdate(double deltaTime) {
-        world->AdvancedSystem<Scripts::ScriptsComponent>([deltaTime](ECS::Entity entity, ECS::BreakFunction& brk, Scripts::ScriptsComponent& scripts){
+        world->AdvancedSystem<Scripts::ScriptsComponent>([deltaTime](const ECS::Entity& entity, ECS::BreakFunction& brk, Scripts::ScriptsComponent& scripts){
             for (auto& script : scripts) {
-                script->OnUpdate(deltaTime);
+                script->OnUpdate(entity, deltaTime);
             }
         });
     }
@@ -24,10 +26,26 @@ namespace Larry {
     }
 
     void ScriptsSystem::HandleEvent(const Ref<Event>& event) {
-        world->System<Scripts::ScriptsComponent>([event](Scripts::ScriptsComponent& scripts){
+        world->AdvancedSystem<Scripts::ScriptsComponent>([event](const ECS::Entity& entity, ECS::BreakFunction& brk, Scripts::ScriptsComponent& scripts) {
+
             for (int i = 0; i < scripts.size() && !event->Handeled; i++) {
-                scripts[i]->HandleEvent(event);
+                DispatchEvent<Events::KeyPressedEvent>(event, [entity, scripts, i](const Ref<Event>& e){
+                    scripts[i]->ButtonJustPressed(entity, (Events::KeyPressedEvent*)e.get());
+                });
+                DispatchEvent<Events::KeyReleasedEvent>(event, [entity, scripts, i](const Ref<Event>& e){
+                    scripts[i]->ButtonReleased(entity, (Events::KeyReleasedEvent*)e.get());
+                });
+                DispatchEvent<Events::MousePressedEvent>(event, [entity, scripts, i](const Ref<Event>& e){
+                    scripts[i]->MouseJustPressed(entity, (Events::MousePressedEvent*)e.get());
+                });
+                DispatchEvent<Events::MouseScrolledEvent>(event, [entity, scripts, i](const Ref<Event>& e){
+                    scripts[i]->MouseScrolled(entity, (Events::MouseScrolledEvent*)e.get());
+                });
+                if (!event->Handeled) {
+                    scripts[i]->HandleEvent(entity, event);
+                }
             }
+
         });
     }
 }

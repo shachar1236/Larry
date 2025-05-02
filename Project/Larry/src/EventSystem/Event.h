@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Utils/LarryMemory.h"
 #include <spdlog/fmt/bundled/format.h>
 
 namespace Larry {
@@ -30,4 +31,14 @@ namespace Larry {
 
             static EventType GetStaticType() { return EventType::None; }
     };
+
+    template<typename T, typename F>
+    bool DispatchEvent(const Ref<Event>& event, const F& func) {
+        if (event->GetEventType() == T::GetStaticType()) {
+            func(event);
+            return true;
+        }
+        return false;
+    }
+
 }

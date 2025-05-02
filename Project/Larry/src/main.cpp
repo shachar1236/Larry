@@ -1,13 +1,12 @@
-#include "Log.h"
 #include "Application.h"
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include "ECS/CPPApi/ECS.h"
+#include "Log.h"
+#include "gl.h"
 #ifdef LARRY_ENABLE_TESTING
 #include "ECS/ecs_test.hpp"
 #endif
 
-int main() {
+int main()
+{
     Larry::ECS::Init();
     Larry::Log::Init();
 

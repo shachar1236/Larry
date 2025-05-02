@@ -3,14 +3,13 @@
 #include "Layer.h"
 #include "Math.h"
 #include "Renderer.h"
-#include "TextureObject.h"
 #include "World.hpp"
 
 namespace Larry {
     class BackgroundLayer : public Layer {
         private:
-            Renderer* renderer;
             Math::Vec4 color;
+            double width, height;
         public:
             BackgroundLayer(const Ref<ECS::World>& world_);
             virtual ~BackgroundLayer();

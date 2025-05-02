@@ -4,13 +4,11 @@
 #include "TextureLoader/TextureObject.h"
 
 namespace Larry {
-    struct Quad {
-        Math::Vec3 dimentions;
+    struct Background {
         Math::Vec4 color;
         Ref<TextureObject> texture;
 
-        Quad() {
-            dimentions = Math::Vec3(0.0f);
+        Background() {
             color = Math::Vec4(1.0f);
             texture = nullptr;
         }

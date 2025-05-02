@@ -1,11 +1,10 @@
+#include "LarryApi.h"
 #include "TestScript.h"
-#include "Utils/LarryMemory.h"
-#include "Scripts/Scripts.h"
 #include <string>
 
 namespace Larry::Scripts {
 
-    void Script::Init() {
+    void Script::Init(const Ref<ECS::World>& world) {
 
     };
 

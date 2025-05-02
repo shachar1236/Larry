@@ -13,16 +13,18 @@ namespace Larry {
 
     void GUILayer::OnAttach() {
         renderer = Renderer::GetRenderer();
+        Layer::OnAttach();
     }
 
     void GUILayer::OnUpdate(const double& deltaTime) {
+        Layer::OnUpdate(deltaTime);
     }
 
     void GUILayer::OnDetach() {
-
+        Layer::OnDetach();
     }
 
     void GUILayer::HandleEvent(const Ref<Event>& event) {
-
+        Layer::HandleEvent(event);
     }
 }

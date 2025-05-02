@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Layers/Layer.h"
+#include "Layers/ILayer.h"
 #include <vector>
 
 namespace Larry {
@@ -8,16 +8,16 @@ namespace Larry {
         private:
             int last_id = 0;
         public:
-            std::vector<Ref<Layer>> layers;
+            std::vector<Ref<ILayer>> layers;
 
             LayerStack() {}
             ~LayerStack() {}
 
-            void AttachLayer(const Ref<Layer>& layer);
+            void AttachLayer(const Ref<ILayer>& layer);
             void DetachLayer(const std::string& name);
             void DetachLayer(const int& id);
-            Ref<Layer> GetLayer(const std::string& name);
-            Ref<Layer> GetLayer(const int& id);
+            Ref<ILayer> GetLayer(const std::string& name);
+            Ref<ILayer> GetLayer(const int& id);
             
             // void UpdateLayers() - run OnUpdate() on every layer from start to finish
             void UpdateLayers(const double& deltaTime);

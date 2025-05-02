@@ -1,26 +1,30 @@
-#include "Application.h"
+#include "Application/Application.h"
+#include "Components/Camera.h"
+#include "Components/Projection.h"
+#include "Math.h"
+#include "Renderer.h"
 #include "Components/Quad.h"
 #include "Components/Transform.h"
 #include "Entity.hpp"
 #include "ErrorEvents.h"
 #include "Event.h"
 #include "EventSystem/EventSystem.h"
-#include "GLFW/glfw3.h"
-#include "Input.h"
 #include "LarryMemory.h"
 #include "LarryWindow.h"
 #include "Log.h"
 #include "LayerStack.h"
 #include "BackgroundLayer.h"
 #include "GameLayer.h"
-#include "Renderer.h"
 #include "Scripts/Scripts.h"
 #include "Systems/ButtonSystem.h"
 #include "Systems/RenderQuad.h"
 #include "Systems/ScriptsSystem.h"
+#include "TextureLoader/TextureLoader.h"
 #include "UILayer.h"
 #include "GUILayer.h"
 #include "WindowEvents.h"
+#include "gl.h"
+#include "Input.h"
 #include <cstdlib>
 
 void gflw_error_callback(int code, const char* description)
@@ -63,7 +67,7 @@ namespace Larry {
         window = CreateRef<LarryWindow>(windowConfig);
         renderer = Renderer::InitRenderer(rendererConfig, window);
 
-        InitInput(window->GetWindow());
+        Input::Init(window->GetWindow());
 
         ecs_world = CreateRef<ECS::World>();
         ecs_world->CreateSingelton<Renderer*>([this](Renderer*& rend){
@@ -73,16 +77,25 @@ namespace Larry {
             win = window;
         });
 
+        ecs_world->CreateSingelton<TextureLoader>([this](TextureLoader& loader){
+            loader = TextureLoader();
+        });
+
+        ecs_world->CreateSingelton<LayerStack*>([this](LayerStack*& layer_stack){
+                layer_stack = &this->layerStack;
+        });
+
         layerStack.AttachLayer(CreateRef<BackgroundLayer>(ecs_world));
         layerStack.AttachLayer(CreateRef<GameLayer>(ecs_world));
         layerStack.AttachLayer(CreateRef<UILayer>(ecs_world));
         layerStack.AttachLayer(CreateRef<GUILayer>(ecs_world));
 
-        layerStack.GetLayer("GameLayer")->AddSystem(CreateRef<RenderQuad>(ecs_world));
-        layerStack.GetLayer("GameLayer")->AddSystem(CreateRef<ScriptsSystem>(ecs_world));
-        layerStack.GetLayer("UILayer")->AddSystem(CreateRef<ButtonSystem>(ecs_world));
+        static_cast<Layer*>(layerStack.GetLayer("GameLayer").get())->AddSystem(CreateRef<RenderQuad>(ecs_world));
+        static_cast<Layer*>(layerStack.GetLayer("GameLayer").get())->AddSystem(CreateRef<ScriptsSystem>(ecs_world));
+        static_cast<Layer*>(layerStack.GetLayer("UILayer").get())->AddSystem(CreateRef<ButtonSystem>(ecs_world));
 
         GenerateScene("test");
+        Scripts::Script::Init(ecs_world);
     }
 
     void Application::Run() {
@@ -93,13 +106,12 @@ namespace Larry {
             double deltaTime = time - lastFrameTime;
             lastFrameTime = time;
 
+            glfwPollEvents();
             EventSystem::HandleQueuedEvents();
 
             layerStack.UpdateLayers(deltaTime);
 
             renderer->UpdateFrame();
-
-            lastFrameTime = glfwGetTime();
         }
     }
 
@@ -109,33 +121,23 @@ namespace Larry {
         ECS::Entity entity1 = ecs_world->CreateEntity();
         ECS::Entity entity2 = ecs_world->CreateEntity();
 
-        ecs_world->InsertComponent<Transform, Quad, Scripts::ScriptsComponent>(entity1, [=, this](Transform& transform, Quad& quad, Scripts::ScriptsComponent& scripts){
-            transform = Transform();
-            transform.translation.x = 100;
-            transform.translation.y = 200;
-
-            quad = Quad();
-            quad.dimentions.x = 100;
-            quad.dimentions.y = 100;
-            quad.color = Math::Vec4(0.4, 0.2, 0.7, 1.0f);
-            /* quad.texture = face; */
-
-            scripts = Scripts::ScriptsComponent();
-            Ref<Scripts::Script> script = Scripts::Script::GetNewInstanceOfScript("Test", ecs_world);
-
-            script->OnCreate();
-            scripts.push_back(script);
+        ECS::Entity proj_entity = ecs_world->CreateEntity();
+        ecs_world->InsertComponent<Projection>(proj_entity, [this](Projection& proj){
+            proj = Projection();
+            proj.projection = Math::ortho(0.0f, windowConfig.window_width, 0.0f, windowConfig.window_height, 0.1f, 100.0f);
+            for (auto& layer : layerStack.layers) {
+                proj.projection_layers.insert(layer->GetId());
+            }
         });
 
-        ecs_world->InsertComponent<Transform, Quad>(entity2, [=](Transform& transform, Quad& quad){
-            transform = Transform();
-            transform.translation.x = 200;
-            transform.translation.y = 400;
-
-            quad = Quad();
-            quad.dimentions.x = 200;
-            quad.dimentions.y = 200;
-            quad.color = Math::Vec4(0.2, 0.4, 0.3, 1.0f);
+        ECS::Entity camera_entity = ecs_world->CreateEntity();
+        ecs_world->InsertComponent<Camera>(camera_entity, [this](Camera& camera){
+            camera = Camera();
+            for (auto& layer : layerStack.layers) {
+                if (layer->GetName() != "GameLayer") {
+                    camera.view_layers.insert(layer->GetId());
+                }
+            }
         });
     }
 

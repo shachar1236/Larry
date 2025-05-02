@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.26) # Set the minimum required CMake version
 
 project(GameScripts) # Set the project name
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 add_library(GameScripts SHARED
     scripts/Scripts.cpp
     scripts/TestScript.cpp)
@@ -11,10 +13,13 @@ target_include_directories(GameScripts
                            PRIVATE
                            ${CMAKE_CURRENT_SOURCE_DIR}/libraries # If you have private headers
                            ${CMAKE_CURRENT_SOURCE_DIR}/libraries/spdlog/include # If you have private headers
+                           ${CMAKE_CURRENT_SOURCE_DIR}/libraries/glm # If you have private headers
                            ${CMAKE_CURRENT_SOURCE_DIR}/LarryApi/lib # If you have private headers
                            ${CMAKE_CURRENT_SOURCE_DIR}/scripts)      # Or just the current source dir
 
 # SET(CMAKE_INSTALL_RPATH "LarryApi/lib")
+
+target_precompile_headers(GameScripts PRIVATE LarryApi/lib/LarryApi.h)
 
 target_link_directories(GameScripts PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/LarryApi/bin)
 

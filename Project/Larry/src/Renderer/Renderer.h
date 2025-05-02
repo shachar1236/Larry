@@ -1,13 +1,12 @@
 #pragma once
 #include "Log.h"
 #include "BufferObject.h"
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "gl.h"
 #include "LarryMemory.h"
 #include <vector>
 #include "RendererConfig.h"
 #include "ShaderProgram.h"
-#include "TextureObject.h"
+#include "TextureLoader/TextureObject.h"
 #include "VertexArrayObject.h"
 #include "Math.h"
 #include "LarryWindow.h"
@@ -92,6 +91,9 @@ namespace Larry {
             // initializing variables
             void InitializeOrthographicProjection(const float& left, const float& right, const float& bottom, const float& top, const float& nearDist, const float& farDist);
             void InitializePrespectiveProjection(const float& fov, const float& aspectRatio, const float& near, const float& far);
+            void ChangeProjection(const Math::Mat4& proj);
+
+            void ChangeView(const Math::Mat4 v);
 
             // Setting next draw options
             void Fill(Math::Vec4 color);

@@ -127,27 +127,29 @@ namespace Larry {
     }
 
     void Renderer::FlushBatch() {
-        quad_vertices_buffer.ChangeData(0, quad_vertices.data(), quad_vertices.size() * sizeof(Vertex));
-        // use our shader
-        quad_shader_program.Use();
-        // set textures
-        quad_shader_program.SetUniform("ourTextures", quad_texture_samplers.get(), MAX_TEXTURE_UNITS);
-        for (int i = 0; i < currentlyUsedTextures.size(); i++) {
-            currentlyUsedTextures[i]->Activate(i);
-            currentlyUsedTextures[i]->Bind();
+        if (quad_vertices.size() > 0) {
+            quad_vertices_buffer.ChangeData(0, quad_vertices.data(), quad_vertices.size() * sizeof(Vertex));
+            // use our shader
+            quad_shader_program.Use();
+            // set textures
+            quad_shader_program.SetUniform("ourTextures", quad_texture_samplers.get(), MAX_TEXTURE_UNITS);
+            for (int i = 0; i < currentlyUsedTextures.size(); i++) {
+                currentlyUsedTextures[i]->Activate(i);
+                currentlyUsedTextures[i]->Bind();
+            }
+            // set view, projection
+            quad_shader_program.SetUniform("u_View", View);
+            quad_shader_program.SetUniform("u_Projection", Projection);
+            // use our vao
+            quad_vao->Bind();
+
+            // draw the triangles
+            glDrawElements(GL_TRIANGLES, quads_number * 6, GL_UNSIGNED_INT, 0);
+
+            // resets triangles_vertices
+            quad_vertices.clear();
+            quads_number = 0;
         }
-        // set view, projection
-        quad_shader_program.SetUniform("u_View", View);
-        quad_shader_program.SetUniform("u_Projection", Projection);
-        // use our vao
-        quad_vao->Bind();
-
-        // draw the triangles
-        glDrawElements(GL_TRIANGLES, quads_number * 6, GL_UNSIGNED_INT, 0);
-
-        // resets triangles_vertices
-        quad_vertices.clear();
-        quads_number = 0;
     }
 
     void Renderer::DrawQuad(Math::Vec2 dimentions) {
@@ -220,6 +222,20 @@ namespace Larry {
 
     void Renderer::InitializePrespectiveProjection(const float& fov, const float& aspectRatio, const float& near, const float& far) {
         Projection = Math::perspective(fov, aspectRatio, near, far);
+    }
+
+    void Renderer::ChangeProjection(const Math::Mat4& proj) {
+        if (Projection != proj) {
+            FlushBatch();
+        }
+        Projection = proj;
+    }
+
+    void Renderer::ChangeView(const Math::Mat4 v) {
+        if (v != View) {
+            FlushBatch();
+        }
+        View = v;
     }
 
     void Renderer::Fill(Math::Vec4 color) {

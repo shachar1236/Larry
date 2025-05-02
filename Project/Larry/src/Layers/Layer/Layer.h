@@ -1,25 +1,25 @@
 #pragma once
 
-#include "Event.h"
-#include "LarryMemory.h"
+#include "EventSystem/Event.h"
+#include "Utils/LarryMemory.h"
 #include "Application/Systems/System.h"
+#include "Renderer.h"
 #include "World.hpp"
+#include "Layers/ILayer.h"
 #include <string>
 #include <vector>
 
 namespace Larry {
-    class Layer {
+    class Layer : public ILayer {
         protected:
-            std::string name;
-            int id;
-
             std::vector<Ref<ISystem>> systems;
             Ref<ECS::World> world;
+            Renderer* renderer;
         public:
-            Layer(const std::string& name_, const Ref<ECS::World>& world_) : name(name_), world(world_) {}
+            Layer(const std::string& name_, const Ref<ECS::World>& world_);
             virtual ~Layer() {};
 
-            virtual void OnAttach() = 0;
+            virtual void OnAttach();
             virtual void OnUpdate(const double& deltaTime);
             virtual void OnDetach();
             virtual void HandleEvent(const Ref<Event>& event);

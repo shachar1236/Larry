@@ -1,13 +1,16 @@
 #include "BackgroundLayer.h"
+#include "Components/Background.h"
 #include "Event.h"
 #include "EventSystem.h"
 #include "Layer.h"
+#include "Log.h"
+#include "Math.h"
 #include "Renderer.h"
 #include "WindowEvents.h"
 
 namespace Larry {
 
-    BackgroundLayer::BackgroundLayer(const Ref<ECS::World>& world_) : Layer("BackgroundLayer", world) {
+    BackgroundLayer::BackgroundLayer(const Ref<ECS::World>& world_) : Layer("BackgroundLayer", world_) {
     }
 
     BackgroundLayer::~BackgroundLayer() {
@@ -15,21 +18,35 @@ namespace Larry {
     }
 
     void BackgroundLayer::OnAttach() {
-        renderer = Renderer::GetRenderer();
-        color = {0.1f, 0.1f, 0.3f, 1};
+        Layer::OnAttach();
     }
 
     void BackgroundLayer::OnUpdate(const double& deltaTime) {
-        renderer->Background(color);
+        Layer::OnUpdate(deltaTime);
+        Background* bg = world->GetSingelton<Background>().value();
+        renderer->Background(bg->color);
+
+        if (bg->texture != nullptr) {
+            LA_CORE_INFO("Background layer setting textured background");
+            renderer->Translate(Math::Vec3(width/2, height/2, 0.0f));
+            renderer->Scale(Math::Vec3(1.0f));
+            renderer->Texture(bg->texture);
+            renderer->Fill(bg->color);
+            renderer->DrawQuad(Math::Vec3(width, height, 1.0f));
+        }
     }
 
     void BackgroundLayer::OnDetach() {
-
+        Layer::OnDetach();
     }
 
     void BackgroundLayer::HandleEvent(const Ref<Event>& event) {
-        bool dispatched = DispatchEvent<Events::WindowResizedEvent>(event, EVENT_LAMBDA(this, {
-            color.r += 0.05;
-        }));
+        Layer::HandleEvent(event);
+         DispatchEvent<Events::WindowResizedEvent>(event, [this](const Ref<Event> event){
+            Events::WindowResizedEvent* window_event = (Events::WindowResizedEvent*)event.get();
+            width = window_event->GetWidth();
+            height = window_event->GetHeight();
+            LA_CORE_INFO("Background layer got window resized event!, {} {}", width, height);
+         });
     }
 }

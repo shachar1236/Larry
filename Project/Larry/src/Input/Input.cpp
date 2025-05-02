@@ -1,15 +1,19 @@
+#include "gl.h"
 #include "Input.h"
-#include "InputEvents.h"
-#include "Event.h"
-#include "EventSystem.h"
-#include "GLFW/glfw3.h"
+#include "EventSystem/InputEvents.h"
+#include "EventSystem/Event.h"
+#include "EventSystem/EventSystem.h"
 #include "LarryMemory.h"
-#include "WindowEvents.h"
+#include "Math.h"
+#include "EventSystem/WindowEvents.h"
 #include <mutex>
 
 namespace Larry {
     std::mutex width_height_mtx;
     int width, height;
+
+    std::mutex mouse_mtx;
+    Math::Vec2 mousePos;
 
     void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
     {
@@ -40,6 +44,10 @@ namespace Larry {
     void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
     {
         std::lock_guard guard(width_height_mtx);
+        std::lock_guard guard2(mouse_mtx);
+        mousePos.x = xpos;
+        mousePos.y = height - ypos;
+
         Ref<Events::MouseMovedEvent> event = CreateRef<Events::MouseMovedEvent>(window, xpos, height - ypos);
         EventSystem::HandleEvent(event);
     }
@@ -70,7 +78,21 @@ namespace Larry {
         EventSystem::HandleEvent(event);
     }
 
-    void HandleEvents(const Ref<Event>& event) {
+    void* Input::void_window = nullptr;
+
+    void Input::Init(void* window_) {
+        void_window = window_;
+        GLFWwindow* window = (GLFWwindow*)void_window;
+        glfwSetKeyCallback(window, key_callback);
+        glfwSetCharCallback(window, character_callback);
+        glfwSetCursorPosCallback(window, cursor_position_callback);
+        glfwSetMouseButtonCallback(window, mouse_button_callback);
+        glfwSetScrollCallback(window, scroll_callback);
+
+        EventSystem::AddCallbackFunction(HandleEvent);
+    };
+
+    void Input::HandleEvent(const Ref<Event>& event) {
         DispatchEvent<Events::WindowResizedEvent>(event, [&](const Ref<Event>& e){
             Events::WindowResizedEvent* window_event = (Events::WindowResizedEvent*)e.get();
             std::lock_guard guard(width_height_mtx);
@@ -79,13 +101,20 @@ namespace Larry {
         });
     }
 
-    void InitInput(GLFWwindow* window) {
-        glfwSetKeyCallback(window, key_callback);
-        glfwSetCharCallback(window, character_callback);
-        glfwSetCursorPosCallback(window, cursor_position_callback);
-        glfwSetMouseButtonCallback(window, mouse_button_callback);
-        glfwSetScrollCallback(window, scroll_callback);
 
-        EventSystem::AddCallbackFunction(HandleEvents);
-    };
+    bool Input::KeyPressed(int key) {
+        return glfwGetKey((GLFWwindow*)void_window, key) == GLFW_PRESS;
+    }
+
+    int Input::MouseX() {
+        return mousePos.x;
+    }
+
+    int Input::MouseY() {
+        return mousePos.y;
+    }
+
+    Math::Vec2 Input::Mouse() {
+        return mousePos;
+    }
 }

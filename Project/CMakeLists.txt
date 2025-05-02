@@ -6,6 +6,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set (CMAKE_CXX_STANDARD 23)
 
 find_package(OpenGL REQUIRED)
+
 add_subdirectory(libraries/glfw)
 
 set(SPDLOG_BUILD_SHARED ON)
@@ -14,20 +15,19 @@ add_subdirectory(libraries/spdlog)
 add_subdirectory(Larry/LarryApi)
 
 # addd gamescripts
-add_subdirectory(SandboxGame)
+# add_subdirectory(SandboxGame)
 
 set(SOURCE_FILES
     libraries/glad/src/glad.c
 
     Larry/src/main.cpp
-    Larry/src/Layers/Layer.cpp
+    Larry/src/Layers/Layer/Layer.cpp
     Larry/src/Application/Application.cpp
     Larry/src/Application/BackgroundLayer.cpp
     Larry/src/Application/GameLayer.cpp
     Larry/src/Application/UILayer.cpp
     Larry/src/Application/GUILayer.cpp
 
-    Larry/src/Renderer/TextureObject.cpp
     Larry/src/Renderer/LarryWindow.cpp
     Larry/src/Renderer/Renderer.cpp
     Larry/src/Renderer/Shader.cpp
@@ -39,8 +39,6 @@ set(SOURCE_FILES
     Larry/src/Math/Math.cpp
 
     Larry/src/EventSystem/EventSystem.cpp
-
-    Larry/src/Layers/LayerStack.cpp
 
     Larry/src/Application/Systems/RenderQuad.cpp
     Larry/src/Application/Systems/ButtonSystem.cpp
@@ -59,6 +57,7 @@ set(HEADER_DIRECTORIES
     Larry/src/Math
     Larry/src/Renderer
     Larry/src/EventSystem
+    Larry/src/Layers/Layer
     Larry/src/Layers
     Larry/src/Scripts
 )
@@ -86,8 +85,11 @@ if(OPENGL_FOUND)
         target_compile_definitions(LarryEngine PRIVATE LARRY_ENABLE_TESTING)
     endif()
 
+    # target_precompile_headers(LarryEngine PRIVATE Larry/src/LarryApi.h)
+
     target_link_directories(LarryEngine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/SandboxGame/build)
     target_link_libraries(LarryEngine ${LarrySharedLibraries} ${OPENGL_LIBRARIES} GameScripts glfw)
+
     # target_link_libraries(LarryEngine ${LarrySharedLibraries} ${OPENGL_LIBRARIES} glfw)
 else()
     message(FATAL_ERROR "OpenGL not found")

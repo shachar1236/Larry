@@ -10,6 +10,7 @@ namespace Larry {
     }
 
     void EventSystem::HandleEvent(const Ref<Event>& event) {
+        event->Handeled = false;
         event_queue.push(event);
     }
 

@@ -3,12 +3,10 @@
 #include "Entity.hpp"
 #include "Layer.h"
 #include "Renderer.h"
-#include "TextureObject.h"
 
 namespace Larry {
     class UILayer : public Layer {
         private:
-            Renderer* renderer;
             ECS::Entity button;
         public:
             UILayer(const Ref<ECS::World>& world_);
