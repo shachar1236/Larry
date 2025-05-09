@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Event.h"
-#include "World.hpp"
+#include "ECS/CPPApi/World.hpp"
 #include "LarryMemory.h"
 
 namespace Larry {

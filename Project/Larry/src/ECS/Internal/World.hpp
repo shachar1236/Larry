@@ -11,10 +11,9 @@
 #include <optional>
 #include <unordered_set>
 #include <vector>
-#include "ECS/Internal/Utils.hpp"
-#include "ECS_C.h"
+#include "ECS/ECS_C.h"
 #include "Internal/Pool.hpp"
-#include "Log.h"
+#include "Utils/Log.h"
 #include "TypesBitmap.hpp"
 
 namespace Larry::ECS::Internal {
@@ -41,7 +40,7 @@ namespace Larry::ECS::Internal {
             std::unordered_map<TypesBitmap, std::unordered_set<Archetype*>> type_to_archetypes;
 
             TypesBitmap singeltons_bitmap;
-            std::unordered_map<TypesBitmap, Larry::Scope<byte[]>> singeltons;
+            std::unordered_map<TypesBitmap, byte*> singeltons;
 
             Pool<AnyQueue> any_queues;
             Pool<TypeQueue> type_queues;
@@ -83,6 +82,9 @@ namespace Larry::ECS::Internal {
 
             ~World() {
                 delete type_manager;
+                for (auto&& [_, singelton] : singeltons) {
+                    delete[] singelton;
+                }
             }
 
             inline TypeManager* GetTypeManager() {
@@ -147,10 +149,10 @@ namespace Larry::ECS::Internal {
             void* CreateSingelton(ECS_TypeHashCode singelton_hash) {
                 TypesBitmap type = type_manager->GetTypeBitmap(singelton_hash);
                 if (singeltons.find(type) == singeltons.end()) {
-                    singeltons[type] = Larry::CreateScope<byte[]>(type_manager->GetTypeSize(singelton_hash));
+                    singeltons[type] = new byte[type_manager->GetTypeSize(singelton_hash)];
                 }
                 singeltons_bitmap = singeltons_bitmap | type;
-                return singeltons[type].get();
+                return singeltons[type];
             }
 
             std::optional<void*> GetSingelton(ECS_TypeHashCode hash) {
@@ -159,7 +161,7 @@ namespace Larry::ECS::Internal {
                 if (res == singeltons.end()) {
                     return std::nullopt;
                 }
-                return res->second.get();
+                return res->second;
             }
 
             // Inserts component to entity

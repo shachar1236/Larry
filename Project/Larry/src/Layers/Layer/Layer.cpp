@@ -18,18 +18,18 @@ namespace Larry {
     }
 
     void Layer::OnUpdate(const double& deltaTime) {
-        world->AdvancedSystem<Projection>([this](ECS::Entity _, ECS::BreakFunction brk, Projection& proj){
+        world->AdvancedSystem<Projection>([this](ECS::Entity _, bool* stop, Projection& proj){
             if (proj.projection_layers.contains(id)) {
                 this->renderer->ChangeProjection(proj.projection);
-                brk();
+                *stop = true;
             }
         });
 
-        world->AdvancedSystem<Camera>([this](ECS::Entity _, ECS::BreakFunction brk, Camera& camera){
+        world->AdvancedSystem<Camera>([this](ECS::Entity _, bool* stop, Camera& camera){
             if (camera.view_layers.contains(id)) {
                 /* LA_CORE_WARN("Found corresponding layer"); */
                 this->renderer->ChangeView(camera.view);
-                brk();
+                *stop = true;
             }
         });
 

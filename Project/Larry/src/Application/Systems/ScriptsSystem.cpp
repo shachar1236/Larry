@@ -14,7 +14,7 @@ namespace Larry {
 
     
     void ScriptsSystem::OnUpdate(double deltaTime) {
-        world->AdvancedSystem<Scripts::ScriptsComponent>([deltaTime](const ECS::Entity& entity, ECS::BreakFunction& brk, Scripts::ScriptsComponent& scripts){
+        world->AdvancedSystem<Scripts::ScriptsComponent>([deltaTime](const ECS::Entity& entity, bool* stop, Scripts::ScriptsComponent& scripts){
             for (auto& script : scripts) {
                 script->OnUpdate(entity, deltaTime);
             }
@@ -26,7 +26,7 @@ namespace Larry {
     }
 
     void ScriptsSystem::HandleEvent(const Ref<Event>& event) {
-        world->AdvancedSystem<Scripts::ScriptsComponent>([event](const ECS::Entity& entity, ECS::BreakFunction& brk, Scripts::ScriptsComponent& scripts) {
+        world->AdvancedSystem<Scripts::ScriptsComponent>([event](const ECS::Entity& entity, bool* stop, Scripts::ScriptsComponent& scripts) {
 
             for (int i = 0; i < scripts.size() && !event->Handeled; i++) {
                 DispatchEvent<Events::KeyPressedEvent>(event, [entity, scripts, i](const Ref<Event>& e){

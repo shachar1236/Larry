@@ -1,15 +1,15 @@
-#include "ECS_C.h"
+#include "ECS/ECS_C.h"
 #include "ECS/Internal/TypesBitmap.hpp"
 #include "ECS/Internal/World.hpp"
-#include "Internal/Queues.h"
+#include "ECS/Internal/Queues.h"
 
 using namespace Larry::ECS::Internal;
 
-std::bitset<256> TypesBitmap::first32mask = 0;
+std::bitset<256> Larry::ECS::Internal::TypesBitmap::first32mask = 0;
 
-void TypesBitmap::Init() {
+void Larry::ECS::Internal::TypesBitmap::Init() {
     for (int i = 0; i < 32; i++) {
-        TypesBitmap::first32mask.set(i);
+        Larry::ECS::Internal::TypesBitmap::first32mask.set(i);
     }
 }
 

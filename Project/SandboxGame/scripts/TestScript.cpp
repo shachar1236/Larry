@@ -45,7 +45,7 @@ namespace Larry {
         } 
         if (Input::KeyPressed(KEY_R)) {
             cameraPos.x += camera_vel * deltaTime;
-            world->AdvancedSystem<Camera>([direction, this](ECS::Entity _, ECS::BreakFunction brk, Camera& camera){
+            world->AdvancedSystem<Camera>([direction, this](ECS::Entity _, bool* stop, Camera& camera){
                 for (auto& layerId : camera.view_layers) {
                     if (layerId == gameLayerId) {
                         camera.SetPos(cameraPos);
@@ -55,7 +55,7 @@ namespace Larry {
         } 
         if (Input::KeyPressed(KEY_E)) {
             cameraPos.x -= camera_vel  * deltaTime;
-            world->AdvancedSystem<Camera>([direction, this](ECS::Entity _, ECS::BreakFunction brk, Camera& camera){
+            world->AdvancedSystem<Camera>([direction, this](ECS::Entity _, bool* stop, Camera& camera){
                 for (auto& layerId : camera.view_layers) {
                     if (layerId == gameLayerId) {
                         camera.SetPos(cameraPos);

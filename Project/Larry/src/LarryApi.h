@@ -21,14 +21,9 @@
 #include "EventSystem/InputEvents.h"
 #include "EventSystem/WindowEvents.h"
 
-#include "ECS/Archetype.hpp"
-#include "ECS/ECS.h"
-#include "ECS/Entity.hpp"
-#include "ECS/TypeManager.hpp"
-#include "ECS/TypesBitmap.hpp"
-#include "ECS/UnknownTypeVector.hpp"
-#include "ECS/Utils.hpp"
-#include "ECS/World.hpp"
+#include "ECS/ECS_C.h"
+#include "ECS/CPPApi/ECS.h"
+#include "ECS/CPPApi/World.hpp"
 
 #include "Components/Button.h"
 #include "Components/Camera.h"

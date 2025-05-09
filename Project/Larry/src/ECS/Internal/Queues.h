@@ -1,7 +1,6 @@
 #pragma once
 
-#include "ECS_C.h"
-#include "Internal/TypesBitmap.hpp"
+#include "ECS/ECS_C.h"
 #include <vector>
 
 namespace Larry::ECS::Internal {

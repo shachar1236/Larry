@@ -147,7 +147,7 @@ namespace Larry::ECS::Internal {
                         const TypeQueue& type_queue,
                         AnyQueue& system_components_queue,
                         TypesBitmap singeltons_types,
-                        std::unordered_map<TypesBitmap, Larry::Scope<byte[]>>& singeltons,
+                        std::unordered_map<TypesBitmap, byte*>& singeltons,
                         const F& callback) 
                 {
                     bool stop = false;
@@ -158,7 +158,7 @@ namespace Larry::ECS::Internal {
                             for (auto& component_type : type_queue) {
                                 TypesBitmap t = type_manager->GetTypeBitmap(component_type);
                                 if (singeltons_types.Intersect(t)) {
-                                    system_components_queue.elements.push_back(ECS_Any{singeltons[t].get(), component_type});
+                                    system_components_queue.elements.push_back(ECS_Any{singeltons[t], component_type});
                                 } else {
                                     system_components_queue.elements.push_back(ECS_Any{components[t].GetRawByIndex(i), component_type});
                                 }

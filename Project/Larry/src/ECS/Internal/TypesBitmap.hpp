@@ -127,11 +127,10 @@ namespace Larry::ECS::Internal {
 
 }
 
-using namespace Larry::ECS::Internal;
 template <>
-struct std::hash<TypesBitmap>
+struct std::hash<Larry::ECS::Internal::TypesBitmap>
 {
-    std::size_t operator()(const TypesBitmap& k) const
+    std::size_t operator()(const Larry::ECS::Internal::TypesBitmap& k) const
     {
         return std::hash<bitset<256>>()(k.bitmap);;
     }

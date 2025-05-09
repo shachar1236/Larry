@@ -7,8 +7,8 @@
 
 int main()
 {
-    Larry::ECS::Init();
     Larry::Log::Init();
+    Larry::ECS::Init();
 
 #ifdef LARRY_ENABLE_TESTING
     LA_CORE_INFO("Testing ECS");

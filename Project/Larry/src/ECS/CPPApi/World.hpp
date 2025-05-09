@@ -2,6 +2,7 @@
 #include "ECS/ECS_C.h"
 #include "ECS/CPPApi/ECS.h"
 #include "ECS/Internal/World.hpp"
+#include "ECS/Internal/Queues.h"
 #include "ECS/Internal/TypeManager.hpp"
 
 #define TypeHash(T) typeid(T).hash_code()
@@ -42,12 +43,14 @@ namespace Larry::ECS {
             Internal::AnyQueue* resultQueue = world.InitAnyQueue();
             Internal::TypeQueue* types = world.InitTypeQueue();
             ForEachType(types->push_back(TypeHash(Types)));
-            world.InsertComponents(entity, *types, *resultQueue);
+            bool res = world.InsertComponents(entity, *types, *resultQueue);
             
             CallFWithAnyQueue(resultQueue);
 
             world.DoneWithAnyQueue(resultQueue);
             world.DoneWithTypeQueue(types);
+
+            return res;
         }
 
         template<typename T>
@@ -58,7 +61,7 @@ namespace Larry::ECS {
         }
 
         template<typename ...Types, typename F>
-        bool SetComponents(Entity entity, const F& set_callback) {
+        void SetComponents(Entity entity, const F& set_callback) {
             RegisterTypes(Types);
 
             Internal::AnyQueue* resultQueue = world.InitAnyQueue();
@@ -114,7 +117,7 @@ namespace Larry::ECS {
 
             Internal::AnyQueue* system_components_queue = world.InitAnyQueue();
 
-            world.System(types, *system_components_queue, [](ECS_Entity entity, AnyQueue& components, bool* stop){
+            world.System(types, *system_components_queue, [](ECS_Entity entity, Internal::AnyQueue& components, bool* stop){
                 F(((*(Types*)(components.Pop().value)))...);
             });
 
@@ -131,8 +134,8 @@ namespace Larry::ECS {
 
             Internal::AnyQueue* system_components_queue = world.InitAnyQueue();
 
-            world.System(types, *system_components_queue, [](ECS_Entity entity, AnyQueue& components, bool* stop){
-                F(entity, stop, ((*(Types*)(components.Pop().value)))...);
+            world.System(types, *system_components_queue, [](ECS_Entity entity, Internal::AnyQueue& components, bool* stop){
+                F((Entity)entity, stop, ((*(Types*)(components.Pop().value)))...);
             });
 
             world.DoneWithAnyQueue(system_components_queue);

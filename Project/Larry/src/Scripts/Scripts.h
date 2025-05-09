@@ -1,6 +1,6 @@
 #pragma once
 #include "ECS/CPPApi/World.hpp"
-#include "ECS/Entity.hpp"
+#include "ECS/ECS_C.h"
 #include "EventSystem/Event.h"
 #include "EventSystem/InputEvents.h"
 #include "Utils/LarryMemory.h"
