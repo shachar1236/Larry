@@ -1,3 +1,4 @@
+#include "common.h"
 #include "Renderer.h"
 #include "BufferObject.h"
 #include "EventSystem.h"

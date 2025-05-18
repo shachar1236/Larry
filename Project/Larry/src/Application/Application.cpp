@@ -3,6 +3,7 @@
 #include "Components/Projection.h"
 #include "Math.h"
 #include "Renderer.h"
+#include "common.h"
 #include "Components/Quad.h"
 #include "Components/Transform.h"
 #include "Entity.hpp"

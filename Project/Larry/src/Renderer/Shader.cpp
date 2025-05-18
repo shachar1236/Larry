@@ -1,3 +1,4 @@
+#include "common.h"
 #include "Shader.h"
 #include "ErrorEvents.h"
 #include "EventSystem.h"

@@ -1,4 +1,5 @@
 // !!!!! this file should not be used unless you dont have GameScripts compiled
+#include "common.h"
 #include "Utils/LarryMemory.h"
 #include "Scripts/Scripts.h"
 #include <string>

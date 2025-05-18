@@ -1,3 +1,4 @@
+#include "common.h"
 #include "Application/Components/Projection.h"
 #include "Application/Components/Camera.h"
 #include "ECS.h"

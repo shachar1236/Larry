@@ -1,3 +1,4 @@
+#include "common.h"
 #include "ECS/ECS_C.h"
 #include "ECS/Internal/TypesBitmap.hpp"
 #include "ECS/Internal/World.hpp"

@@ -1,3 +1,4 @@
+#include "common.h"
 #include "BackgroundLayer.h"
 #include "Components/Background.h"
 #include "Event.h"

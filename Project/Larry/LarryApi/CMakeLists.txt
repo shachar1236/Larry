@@ -38,5 +38,6 @@ target_include_directories(LarryApi
                )
 
 # target_precompile_headers(LarryApi PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../src/LarryApi.h)
+# target_precompile_headers(LarryApi PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../src/common.h)
 
 target_link_libraries(LarryApi PUBLIC spdlog)

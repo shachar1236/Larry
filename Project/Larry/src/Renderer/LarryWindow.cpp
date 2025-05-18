@@ -1,3 +1,4 @@
+#include "common.h"
 #include "LarryWindow.h"
 #include "ErrorEvents.h"
 #include "GLFW/glfw3.h"

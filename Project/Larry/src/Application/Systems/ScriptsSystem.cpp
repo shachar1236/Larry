@@ -1,3 +1,4 @@
+#include "common.h"
 #include "Application/Systems/ScriptsSystem.h"
 #include "Entity.hpp"
 #include "EventSystem.h"

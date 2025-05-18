@@ -1,3 +1,4 @@
+#include "common.h"
 #include "GUILayer.h"
 #include "Layer.h"
 #include "Renderer.h"

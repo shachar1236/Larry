@@ -1,3 +1,4 @@
+#include "common.h"
 #include "ECS/Internal/TypesBitmap.hpp"
 
 namespace Larry::ECS::Internal {

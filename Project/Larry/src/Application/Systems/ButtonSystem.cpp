@@ -1,3 +1,4 @@
+#include "common.h"
 #include "ButtonSystem.h"
 #include "Components/Button.h"
 #include "Components/Quad.h"

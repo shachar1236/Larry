@@ -1,3 +1,4 @@
+#include "common.h"
 #include "ShaderProgram.h"
 #include "BufferObject.h"
 #include "Log.h"

@@ -1,3 +1,4 @@
+#include "common.h"
 #include "TextureLoader/TextureObject.h"
 #include "Utils/LarryMemory.h"
 #include "Utils/Log.h"

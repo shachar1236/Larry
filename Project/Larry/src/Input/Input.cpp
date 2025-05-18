@@ -1,3 +1,4 @@
+#include "common.h"
 #include "gl.h"
 #include "Input.h"
 #include "EventSystem/InputEvents.h"

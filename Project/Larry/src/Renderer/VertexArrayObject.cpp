@@ -1,3 +1,4 @@
+#include "common.h"
 #include "VertexArrayObject.h"
 #include "Log.h"
 #include "gl.h"

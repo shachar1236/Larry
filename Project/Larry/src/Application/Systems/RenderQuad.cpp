@@ -1,3 +1,4 @@
+#include "common.h"
 #include "RenderQuad.h"
 #include "Components/Quad.h"
 #include "Components/Transform.h"

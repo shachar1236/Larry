@@ -1,3 +1,4 @@
+#include "common.h"
 #include "GameLayer.h"
 #include "Components/Quad.h"
 #include "Components/Transform.h"
