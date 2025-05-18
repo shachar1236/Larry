@@ -1,3 +1,4 @@
+#include "ECS_pch.h"
 #include "common.h"
 #include "Renderer.h"
 #include "BufferObject.h"

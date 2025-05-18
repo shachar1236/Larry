@@ -85,6 +85,7 @@ if(OPENGL_FOUND)
         target_compile_definitions(LarryEngine PRIVATE LARRY_ENABLE_TESTING)
     endif()
 
+    # target_precompile_headers(LarryEngine PRIVATE Larry/src/ECS_pch.h)
     # target_precompile_headers(LarryEngine PRIVATE Larry/src/common.h)
     # target_precompile_headers(LarryEngine PRIVATE Larry/src/LarryApi.h)
 

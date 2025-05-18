@@ -33,6 +33,8 @@ public:
     {
         RegisterTypes(Types);
 
+        LA_CORE_ERROR("Hiiii");
+
         Internal::AnyQueue* resultQueue = world.InitAnyQueue();
         Internal::TypeQueue* types = world.InitTypeQueue();
         // ForEachType(LA_CORE_DEBUG("Type hash: {}", TypeHash(Types)));

@@ -1,5 +1,5 @@
 # In my_project/core/CMakeLists.txt (or my_project/CMakeLists.txt)
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.26)
 project(LarryApi)
 
 # ---------- Larry Utils -------------
@@ -39,5 +39,6 @@ target_include_directories(LarryApi
 
 # target_precompile_headers(LarryApi PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../src/LarryApi.h)
 # target_precompile_headers(LarryApi PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../src/common.h)
+# target_precompile_headers(LarryApi PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../src/ECS_pch.h)
 
 target_link_libraries(LarryApi PUBLIC spdlog)

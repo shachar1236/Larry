@@ -1,3 +1,4 @@
+#include "ECS_pch.h"
 #include "Application/Application.h"
 #include "Components/Camera.h"
 #include "Components/Projection.h"
