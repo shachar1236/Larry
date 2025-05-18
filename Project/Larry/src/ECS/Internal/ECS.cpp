@@ -5,14 +5,6 @@
 
 using namespace Larry::ECS::Internal;
 
-std::bitset<256> Larry::ECS::Internal::TypesBitmap::first32mask = 0;
-
-void Larry::ECS::Internal::TypesBitmap::Init() {
-    for (int i = 0; i < 32; i++) {
-        Larry::ECS::Internal::TypesBitmap::first32mask.set(i);
-    }
-}
-
 void ECS_Init() {
     TypesBitmap::Init();
 }
@@ -24,11 +16,6 @@ void* ECS_CreateWorld() {
 void ECS_RegisterType(ECS_World world_, ECS_TypeHashCode type, int type_size, void(*destructor)(const void*)) {
     World* world = (World*)world_;
     world->GetTypeManager()->RegisterType(type, type_size, destructor);
-}
-
-void ECS_RegisterTypeIfDosentExists(ECS_World world_, ECS_TypeHashCode type, int type_size, void(*destructor)(const void*)) {
-    World* world = (World*)world_;
-    world->GetTypeManager()->RegisterTypeIfDosentExists(type, type_size, destructor);
 }
 
 ECS_Entity ECS_CreateEntity(ECS_World world_) {

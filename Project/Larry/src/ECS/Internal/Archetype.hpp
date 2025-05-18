@@ -1,20 +1,15 @@
 #pragma once
-/* #include "ECS.h" */
-#include "ECS/Internal/Utils.hpp"
 #include "ECS_C.h"
 #include "Internal/Queues.h"
 #include "TypesBitmap.hpp"
 #include "Utils/Log.h"
-#include "Utils/LarryMemory.h"
 #include "ECS/Internal/TypeManager.hpp"
 #include "ECS/Internal/UnknownTypeVector.hpp"
 #include "ECS/Internal/Entity.hpp"
 #include "ECS/Internal/TypesBitmap.hpp"
-#include <functional>
 #include <strings.h>
 #include <optional>
 #include <unordered_map>
-#include <queue>
 #include <vector>
 
 namespace Larry::ECS::Internal {
@@ -116,7 +111,7 @@ namespace Larry::ECS::Internal {
             void SetComponents(int index, const TypeQueue& types, AnyQueue& resultQueue) {
                 resultQueue.Clear();
 
-                for (auto& type : types) {
+                for (auto& type : types.elements) {
                     resultQueue.elements.push_back({ components[type_manager->GetTypeBitmap(type)].GetRawByIndex(index), type });
                 }
             }
@@ -131,7 +126,7 @@ namespace Larry::ECS::Internal {
                 intesecting.ForEachType([&](TypesBitmap type){
                     other->components[type].Copy(old_index, components[type].GetRawByIndex(index));
                 });
-                other->KillEntity(entity, false);
+                other->KillEntity(entity_index_in_other_archtype, false);
 
                 TypesBitmap left_on_other = (~intesecting) & other->types_bitmap;
                 if (!left_on_other.IsNull()) {
@@ -155,7 +150,7 @@ namespace Larry::ECS::Internal {
                     for (int i = 0; i < size && !stop; i++) {
                         if (entitys[i].alive) {
                             system_components_queue.Clear();
-                            for (auto& component_type : type_queue) {
+                            for (auto& component_type : type_queue.elements) {
                                 TypesBitmap t = type_manager->GetTypeBitmap(component_type);
                                 if (singeltons_types.Intersect(t)) {
                                     system_components_queue.elements.push_back(ECS_Any{singeltons[t], component_type});

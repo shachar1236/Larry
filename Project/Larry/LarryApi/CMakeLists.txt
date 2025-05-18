@@ -7,6 +7,9 @@ add_library(LarryApi SHARED
             ${CMAKE_CURRENT_SOURCE_DIR}/../src/Layers/LayerStack.cpp
             ${CMAKE_CURRENT_SOURCE_DIR}/../src/Utils/Log.cpp
             ${CMAKE_CURRENT_SOURCE_DIR}/../src/ECS/Internal/ECS.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/../src/ECS/Internal/TypesBitmap.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/../src/ECS/CPPApi/ECS.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/../src/ECS/CPPApi/ecs_test.cpp
             ${CMAKE_CURRENT_SOURCE_DIR}/../src/Math/Math.cpp
             ${CMAKE_CURRENT_SOURCE_DIR}/../src/TextureLoader/TextureObject.cpp
             ${CMAKE_CURRENT_SOURCE_DIR}/../src/TextureLoader/TextureLoader.cpp

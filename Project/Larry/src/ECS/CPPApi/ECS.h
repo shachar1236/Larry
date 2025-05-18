@@ -5,7 +5,5 @@ namespace Larry::ECS {
     using Entity = ECS_Entity;
     using Any = ECS_Any;
 
-    void Init() {
-        ECS_Init();
-    }
+    void Init();
 }

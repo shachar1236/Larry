@@ -1,5 +1,4 @@
 #include "Application/Systems/ScriptsSystem.h"
-#include "ECS/ECS.h"
 #include "Entity.hpp"
 #include "EventSystem.h"
 #include "InputEvents.h"

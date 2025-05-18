@@ -19,6 +19,8 @@ check_dir SandboxGame/LarryApi/bin
 check_dir SandboxGame/LarryApi/lib
 check_dir SandboxGame/LarryApi/lib/Utils
 check_dir SandboxGame/LarryApi/lib/ECS
+check_dir SandboxGame/LarryApi/lib/ECS/CPPApi
+check_dir SandboxGame/LarryApi/lib/ECS/Internal
 check_dir SandboxGame/LarryApi/lib/Math
 check_dir SandboxGame/LarryApi/lib/EventSystem
 check_dir SandboxGame/LarryApi/lib/Components
@@ -37,8 +39,16 @@ cp build/Larry/LarryApi/*.so SandboxGame/LarryApi/bin
 
 echo "Copying headers from Larry/src/ to SandboxGame/LarryApi/lib/"
 cp Larry/src/Utils/*.h SandboxGame/LarryApi/lib/Utils
+
 cp Larry/src/ECS/*.h SandboxGame/LarryApi/lib/ECS
 cp Larry/src/ECS/*.hpp SandboxGame/LarryApi/lib/ECS
+
+cp Larry/src/ECS/CPPApi/*.h SandboxGame/LarryApi/lib/ECS/CPPApi
+cp Larry/src/ECS/CPPApi/*.hpp SandboxGame/LarryApi/lib/ECS/CPPApi
+
+cp Larry/src/ECS/Internal/*.h SandboxGame/LarryApi/lib/ECS/Internal
+cp Larry/src/ECS/Internal/*.hpp SandboxGame/LarryApi/lib/ECS/Internal
+
 cp Larry/src/Math/*.h SandboxGame/LarryApi/lib/Math
 cp Larry/src/TextureLoader/*.h SandboxGame/LarryApi/lib/TextureLoader
 cp Larry/src/Input/*.h SandboxGame/LarryApi/lib/Input

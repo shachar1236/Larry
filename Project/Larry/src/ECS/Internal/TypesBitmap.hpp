@@ -25,6 +25,7 @@ namespace Larry::ECS::Internal {
             static std::bitset<256> first32mask;
 
             static void Init();
+
             bitset bitmap;
             static const int MAX_TYPE_NUMBER = 256;
 

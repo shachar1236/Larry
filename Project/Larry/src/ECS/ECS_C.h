@@ -18,8 +18,7 @@ void ECS_Init();
 
 void* ECS_CreateWorld();
 
-void ECS_RegisterType(ECS_World, ECS_TypeHashCode type, int type_size, void(*destructor)(const void*));
-void ECS_RegisterTypeIfDosentExists(ECS_World, ECS_TypeHashCode type, int type_size, void(*destructor)(const void*));
+void ECS_RegisterType(ECS_World, ECS_TypeHashCode type, int type_size, void(*destructor)(const void*)); // register the type if it dosent already exists
 
 ECS_Entity ECS_CreateEntity(ECS_World);
 bool ECS_IsEntityAlive(ECS_World, ECS_Entity);

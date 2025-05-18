@@ -27,22 +27,18 @@ namespace Larry::ECS::Internal {
             TypeManager() { }
 
             void RegisterType(ECS_TypeHashCode hash, int type_size, void(*destructor)(const void*)) {
-                // new type
-                TypesBitmap type = TypesBitmap::TypeWithIndex(last_type_index);
-                last_type_index++;
-
-                typeHash_to_TypeBitmap[hash] = type;
-
-                typeBitmap_to_size[type] = type_size;
-
-                if (destructor != NULL) {
-                    type_to_destructor[type] = destructor;
-                }
-            }
-
-            inline void RegisterTypeIfDosentExists(ECS_TypeHashCode hash, int type_size, void(*destructor)(const void*)) {
                 if (typeHash_to_TypeBitmap.find(hash) == typeHash_to_TypeBitmap.end()) {
-                    RegisterType(hash, type_size, destructor);
+                    // new type
+                    TypesBitmap type = TypesBitmap::TypeWithIndex(last_type_index);
+                    last_type_index++;
+
+                    typeHash_to_TypeBitmap[hash] = type;
+
+                    typeBitmap_to_size[type] = type_size;
+
+                    if (destructor != NULL) {
+                        type_to_destructor[type] = destructor;
+                    }
                 }
             }
 
@@ -80,7 +76,7 @@ namespace Larry::ECS::Internal {
 
             TypesBitmap QueueTypes(const TypeQueue& queue) {
                 TypesBitmap t;
-                for (auto& type : queue) {
+                for (auto& type : queue.elements) {
                     t = t | GetTypeBitmap(type);
                 }
                 return t;

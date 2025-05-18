@@ -3,7 +3,7 @@
 #include "Event.h"
 #include "Renderer.h"
 #include "Systems/System.h"
-#include "World.hpp"
+#include "ECS/CPPApi/World.hpp"
 
 namespace Larry {
     class ScriptsSystem : public ISystem {

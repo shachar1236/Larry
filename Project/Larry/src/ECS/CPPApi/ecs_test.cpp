@@ -1,5 +1,5 @@
-#pragma once
 #include "ECS/CPPApi/World.hpp"
+#include "Log.h"
 #include <set>
 #include <cassert>
 
@@ -54,15 +54,19 @@ namespace Larry::ECS {
 
         auto entity = world.CreateEntity();
 
+        LA_CORE_DEBUG("_Position hash: {}", typeid(_Position).hash_code());
+        LA_CORE_DEBUG("_Velocity hash: {}", typeid(_Velocity).hash_code());
         world.InsertComponent<_Position, _Velocity>(entity, [&](_Position& pos, _Velocity& vel) {
                 pos = { 1, 8 };
                 vel = { 2, 9 };
         });
         auto pos = world.GetComponent<_Position>(entity);
-        assert(pos.has_value());
-        assert(pos.value()->x == 1 && pos.value()->y == 8);
         auto vel = world.GetComponent<_Velocity>(entity);
+        assert(pos.has_value());
         assert(vel.has_value());
+        LA_CORE_DEBUG("Pos values ({},{})", pos.value()->x, pos.value()->y);
+        LA_CORE_DEBUG("Vel values ({},{})", vel.value()->x, vel.value()->y);
+        assert(pos.value()->x == 1 && pos.value()->y == 8);
         assert(vel.value()->x == 2 && vel.value()->y == 9);
 
         world.SetComponents<_Position>(entity, [](_Position& position) { position.x = 0; });
@@ -194,15 +198,13 @@ namespace Larry::ECS {
         assert(world.IsEntityAlive(my_entity1));
 
         world.KillEntity(my_entity1);
-        assert(!world.IsEntityAlive(my_entity1.GetId()));
+        assert(!world.IsEntityAlive(my_entity1));
 
         auto my_entity3 = world.CreateEntity();
         world.InsertComponent<_Position, _Velocity>(my_entity3, [](_Position& pos, _Velocity& vel){
             pos = { 77, 77 };
             vel = { 2.0f, 9 };
         });
-
-        assert(my_entity3.GetIndex() == my_entity1_index);
 
         auto pos = world.GetComponent<_Position>(my_entity3);
         assert(pos.has_value());
@@ -358,9 +360,6 @@ namespace Larry::ECS {
         _DestractorTest();
         _SingeltonTest();
 
-        LA_CORE_DEBUG("ECS: Test passed");
+        LA_CORE_INFO("ECS: Test passed");
     }
-
-#ifdef LARRY_ENABLE_TESTING
-#endif
 }

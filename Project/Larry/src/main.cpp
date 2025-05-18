@@ -2,7 +2,7 @@
 #include "Log.h"
 #include "gl.h"
 #ifdef LARRY_ENABLE_TESTING
-#include "ECS/ecs_test.hpp"
+#include "ECS/CPPApi/ecs_test.h"
 #endif
 
 int main()

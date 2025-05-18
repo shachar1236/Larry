@@ -105,7 +105,7 @@ namespace Larry::ECS::Internal {
             }
 
             void DoneWithTypeQueue(TypeQueue* queue) {
-                queue->clear();
+                queue->elements.clear();
                 type_queues.Return(queue);
             }
 
@@ -200,7 +200,8 @@ namespace Larry::ECS::Internal {
                 return false;
             }
 
-            void SetComponents(Entity entity, const TypeQueue& types, AnyQueue& resultQueue) {
+            // returns if completed succesfully
+            bool SetComponents(Entity entity, const TypeQueue& types, AnyQueue& resultQueue) {
                 std::optional<const EntityWithArchtype> fullEntityOpt = GetEntity(entity);
                 if (fullEntityOpt.has_value()) {
                     const EntityWithArchtype fullEntity = fullEntityOpt.value();
@@ -210,8 +211,10 @@ namespace Larry::ECS::Internal {
                     bool has_types = (types_bitmap & archetype->GetTypesBitmap()) == types_bitmap;
                     if (has_types) {
                         archetype->SetComponents(fullEntity.index_in_archetype, types, resultQueue);
+                        return true;
                     }
                 }
+                return false;
             }
 
             std::optional<ECS_Any> GetComponent(Entity entity, ECS_TypeHashCode type_hash) {
@@ -236,10 +239,10 @@ namespace Larry::ECS::Internal {
                         if (!entityTypes.IsNull()) {
                             Archetype* old_archetype = fullEntity.archtype;
                             int index = new_archetype->PopEntityFromOtherArchetype(entity, old_archetype, fullEntity.index_in_archetype);
-
                             int entity_index = GetEntityIdentifier(entity);
 
                             entitys[entity_index].index_in_archetype = index;
+                            entitys[entity_index].archtype = new_archetype;
                         }
                     }
                 }
@@ -247,7 +250,7 @@ namespace Larry::ECS::Internal {
 
         public:
             template<typename F>
-                void System(TypeQueue type_queue, AnyQueue& system_components_queue, const F& callback) {
+                void System(const TypeQueue& type_queue, AnyQueue& system_components_queue, const F& callback) {
                     // TODO: optimize this
                     TypesBitmap types = (~singeltons_bitmap) & (type_manager->QueueTypes(type_queue));
                     int shortest = -1;
