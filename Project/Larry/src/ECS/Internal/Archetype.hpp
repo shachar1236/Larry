@@ -1,7 +1,7 @@
 #pragma once
-#include "ECS_C.h"
-#include "Internal/Queues.h"
-#include "TypesBitmap.hpp"
+#include "ECS/ECS_C.h"
+#include "ECS/Internal/Queues.h"
+#include "ECS/Internal/TypesBitmap.hpp"
 #include "Utils/Log.h"
 #include "ECS/Internal/TypeManager.hpp"
 #include "ECS/Internal/UnknownTypeVector.hpp"

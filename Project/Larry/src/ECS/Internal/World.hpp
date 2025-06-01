@@ -12,9 +12,9 @@
 #include <unordered_set>
 #include <vector>
 #include "ECS/ECS_C.h"
-#include "Internal/Pool.hpp"
+#include "ECS/Internal/Pool.hpp"
 #include "Utils/Log.h"
-#include "TypesBitmap.hpp"
+#include "ECS/Internal/TypesBitmap.hpp"
 
 namespace Larry::ECS::Internal {
 

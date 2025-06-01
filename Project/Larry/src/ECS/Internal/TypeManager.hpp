@@ -1,8 +1,8 @@
 #pragma once
 
 #include "ECS/Internal/TypesBitmap.hpp"
-#include "ECS_C.h"
-#include "Internal/Queues.h"
+#include "ECS/ECS_C.h"
+#include "ECS/Internal/Queues.h"
 #include <cassert>
 #include <cstddef>
 #include <cstdio>

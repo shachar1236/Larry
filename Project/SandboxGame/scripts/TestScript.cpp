@@ -1,5 +1,5 @@
-#include "ECS_pch.h"
 #include "LarryApi.h"
+#include "Components/Background.h"
 #include "TestScript.h"
 
 namespace Larry {
@@ -13,19 +13,25 @@ namespace Larry {
     }
 
     void TestScript::OnCreate(const ECS::Entity& entity) {
-        LA_INFO("TestScript OnCreate!!!!!");
+        LA_INFO("TestScript OnCreate!!!!! aaaaa");
         texture_loader = world->GetSingelton<TextureLoader>();
         face_texture = texture_loader->LoadTexture("media/textures/awesomeface.png", TextureConfig{});
         world->SetComponents<Quad>(entity, [this](Quad& quad){
             quad.texture = face_texture;
+            quad.color.r = 0.1;
+            quad.color.g = 0.1;
+            quad.color.b = 0.7;
         });
-        cameraPos.x = 0.0f;
-        cameraPos.y = 0.0f;
-        cameraPos.z = 3.0f;
 
         LayerStack* lstack = *world->GetSingelton<LayerStack*>();
         gameLayerId = lstack->GetLayer("GameLayer")->GetId();
         LA_INFO("GameLayer id: {}", gameLayerId);
+
+        Background* bg = world->GetSingelton<Background>();
+        bg->color.r = 0.3;
+        bg->color.g = 0.7;
+        bg->color.b = 0.1;
+        bg->color.a = 1.0;
     }
 
     void TestScript::OnUpdate(const ECS::Entity& entity, double deltaTime) {
@@ -43,26 +49,6 @@ namespace Larry {
         } 
         if (Input::KeyPressed(KEY_A)) {
             direction.x -= vel;
-        } 
-        if (Input::KeyPressed(KEY_R)) {
-            cameraPos.x += camera_vel * deltaTime;
-            world->AdvancedSystem<Camera>([direction, this](ECS::Entity _, bool* stop, Camera& camera){
-                for (auto& layerId : camera.view_layers) {
-                    if (layerId == gameLayerId) {
-                        camera.SetPos(cameraPos);
-                    }
-                }
-            });
-        } 
-        if (Input::KeyPressed(KEY_E)) {
-            cameraPos.x -= camera_vel  * deltaTime;
-            world->AdvancedSystem<Camera>([direction, this](ECS::Entity _, bool* stop, Camera& camera){
-                for (auto& layerId : camera.view_layers) {
-                    if (layerId == gameLayerId) {
-                        camera.SetPos(cameraPos);
-                    }
-                }
-            });
         } 
         world->SetComponents<Transform>(entity, [direction, deltaTime](Transform& transform){
             /* LA_INFO("Setting transform!"); */

@@ -4,7 +4,7 @@
 #include "ECS/Internal/Queues.h"
 #include "ECS/Internal/TypeManager.hpp"
 #include "ECS/Internal/World.hpp"
-#include "Log.h"
+#include "Utils/Log.h"
 #include <optional>
 #include <type_traits> // For std::is_default_constructible, std::enable_if
 

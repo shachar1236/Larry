@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ECS_C.h"
+#include "ECS/ECS_C.h"
 #include <cstdint>
 
 namespace Larry::ECS::Internal {

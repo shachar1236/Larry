@@ -1,3 +1,4 @@
+#include "ECS.h"
 #include "ECS_pch.h"
 #include "Application/Application.h"
 #include "Components/Camera.h"
@@ -79,10 +80,6 @@ namespace Larry {
             win = window;
         });
 
-        ecs_world->SetSingelton<TextureLoader>([this](TextureLoader& loader){
-            new (&loader) TextureLoader(); // setting the tex
-        });
-
         ecs_world->SetSingelton<LayerStack*>([this](LayerStack*& layer_stack){
             layer_stack = &this->layerStack;
         });
@@ -121,6 +118,19 @@ namespace Larry {
     void Application::GenerateScene(const std::string& scene_file_path) {
         // TODO: load file and generate scene
         ECS::Entity entity1 = ecs_world->CreateEntity();
+        ecs_world->InsertComponent<Transform, Quad>(entity1, [](Transform& transform, Quad& quad){
+            transform.translation.x = 100;
+            transform.translation.y = 100;
+
+            quad.dimentions.x = 200;
+            quad.dimentions.y = 200;
+        });
+        ecs_world->InsertComponent<Scripts::ScriptsComponent>(entity1, [this, entity1](Scripts::ScriptsComponent& scripts){
+            Ref<Scripts::Script> testScript = Scripts::Script::GetNewInstanceOfScript("TestScript", ecs_world);
+            scripts.push_back(testScript);
+            testScript->OnCreate(entity1);
+        });
+
         ECS::Entity entity2 = ecs_world->CreateEntity();
 
         ECS::Entity proj_entity = ecs_world->CreateEntity();

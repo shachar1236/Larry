@@ -8,8 +8,6 @@ namespace Larry {
             TextureLoader* texture_loader;
             Ref<TextureObject> face_texture;
             float vel = 400;
-            float camera_vel = 100;
-            Math::Vec3 cameraPos;
             int gameLayerId;
         public:
             TestScript(const Ref<ECS::World>& world_);
