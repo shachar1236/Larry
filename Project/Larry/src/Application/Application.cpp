@@ -72,19 +72,19 @@ namespace Larry {
         Input::Init(window->GetWindow());
 
         ecs_world = CreateRef<ECS::World>();
-        ecs_world->CreateSingelton<Renderer*>([this](Renderer*& rend){
+        ecs_world->SetSingelton<Renderer*>([this](Renderer*& rend){
             rend = renderer;
         });
-        ecs_world->CreateSingelton<Ref<LarryWindow>>([this](Ref<LarryWindow>& win){
+        ecs_world->SetSingelton<Ref<LarryWindow>>([this](Ref<LarryWindow>& win){
             win = window;
         });
 
-        ecs_world->CreateSingelton<TextureLoader>([this](TextureLoader& loader){
-            loader = TextureLoader();
+        ecs_world->SetSingelton<TextureLoader>([this](TextureLoader& loader){
+            new (&loader) TextureLoader(); // setting the tex
         });
 
-        ecs_world->CreateSingelton<LayerStack*>([this](LayerStack*& layer_stack){
-                layer_stack = &this->layerStack;
+        ecs_world->SetSingelton<LayerStack*>([this](LayerStack*& layer_stack){
+            layer_stack = &this->layerStack;
         });
 
         layerStack.AttachLayer(CreateRef<BackgroundLayer>(ecs_world));

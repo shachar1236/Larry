@@ -16,7 +16,6 @@ namespace Larry {
     }
 
     BackgroundLayer::~BackgroundLayer() {
-
     }
 
     void BackgroundLayer::OnAttach() {
@@ -25,7 +24,7 @@ namespace Larry {
 
     void BackgroundLayer::OnUpdate(const double& deltaTime) {
         Layer::OnUpdate(deltaTime);
-        Background* bg = world->GetSingelton<Background>().value();
+        Background* bg = world->GetSingelton<Background>();
         renderer->Background(bg->color);
 
         if (bg->texture != nullptr) {

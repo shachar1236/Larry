@@ -111,26 +111,20 @@ namespace Larry::ECS {
                 world.DeleteComponent(entity, TypeHash(T));
             }
 
-            template <typename T, typename F>
-            void CreateSingelton(const F& set_callback)
-            {
-                ECS_RegisterType(&world, TypeHash(T), sizeof(T), DESTRUCTOR_LAMBDA(T));
-
-                T* res = (T*)world.CreateSingelton(TypeHash(T));
-                CallDefaultConstractorIfAvailable(res);
-                set_callback(*res);
-            }
-
-            template <typename T> std::optional<T*> 
-            GetSingelton()
+            template <typename T> 
+            T* GetSingelton()
             {
                 ECS_RegisterType(&world, TypeHash(T), sizeof(T), DESTRUCTOR_LAMBDA(T));
 
                 std::optional<void*> res = world.GetSingelton(TypeHash(T));
-                if (res.has_value()) {
-                    return (T*)res.value();
+                void* res_val;
+                if (!res.has_value()) {
+                    res_val = world.CreateSingelton(TypeHash(T));
+                    CallDefaultConstractorIfAvailable((T*)res_val);
+                } else {
+                    res_val = res.value();
                 }
-                return std::nullopt;
+                return (T*)res_val;
             }
 
             template <typename T, typename F> 
@@ -139,9 +133,14 @@ namespace Larry::ECS {
                 ECS_RegisterType(&world, TypeHash(T), sizeof(T), DESTRUCTOR_LAMBDA(T));
 
                 std::optional<void*> res = world.GetSingelton(TypeHash(T));
-                if (res.has_value()) {
-                    set_callback(*(T*)res.value());
+                void* res_val;
+                if (!res.has_value()) {
+                    res_val = world.CreateSingelton(TypeHash(T));
+                    CallDefaultConstractorIfAvailable((T*)res_val);
+                } else {
+                    res_val = res.value();
                 }
+                set_callback(*(T*)res_val);
             }
 
             template <typename... Types, typename F> 

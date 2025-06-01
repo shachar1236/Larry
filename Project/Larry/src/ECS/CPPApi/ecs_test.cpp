@@ -297,7 +297,7 @@ namespace Larry::ECS {
     void _SingeltonTest() {
         World world;
 
-        world.CreateSingelton<_TestComponentChild>([](_TestComponentChild& child){
+        world.SetSingelton<_TestComponentChild>([](_TestComponentChild& child){
             child.temp = 99;
         });
 

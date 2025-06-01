@@ -9,7 +9,7 @@
 namespace Larry {
 
     void RenderQuad::OnCreate() {
-        renderer = *world->GetSingelton<Renderer*>().value();
+        renderer = *world->GetSingelton<Renderer*>();
     }
 
     void RenderQuad::OnUpdate(double deltaTime) {

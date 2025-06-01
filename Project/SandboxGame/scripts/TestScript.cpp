@@ -14,7 +14,7 @@ namespace Larry {
 
     void TestScript::OnCreate(const ECS::Entity& entity) {
         LA_INFO("TestScript OnCreate!!!!!");
-        texture_loader = world->GetSingelton<TextureLoader>().value();
+        texture_loader = world->GetSingelton<TextureLoader>();
         face_texture = texture_loader->LoadTexture("media/textures/awesomeface.png", TextureConfig{});
         world->SetComponents<Quad>(entity, [this](Quad& quad){
             quad.texture = face_texture;
@@ -23,7 +23,7 @@ namespace Larry {
         cameraPos.y = 0.0f;
         cameraPos.z = 3.0f;
 
-        LayerStack* lstack = *world->GetSingelton<LayerStack*>().value();
+        LayerStack* lstack = *world->GetSingelton<LayerStack*>();
         gameLayerId = lstack->GetLayer("GameLayer")->GetId();
         LA_INFO("GameLayer id: {}", gameLayerId);
     }

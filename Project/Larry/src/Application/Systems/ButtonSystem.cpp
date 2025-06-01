@@ -13,7 +13,7 @@
 namespace Larry {
 
     void ButtonSystem::OnCreate() {
-        renderer = *world->GetSingelton<Renderer*>().value();
+        renderer = *world->GetSingelton<Renderer*>();
     }
 
     void ButtonSystem::OnUpdate(double deltaTime) {
