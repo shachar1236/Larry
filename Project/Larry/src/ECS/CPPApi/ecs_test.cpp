@@ -142,6 +142,7 @@ namespace Larry::ECS {
                 assert(pos.y == 8);
                 assert(vel.x == 2 && vel.y == 9);
             });
+        LA_CORE_INFO("SystemTest count == {}", count);
         assert(count == 3);
         assert(pos_x.empty());
 
