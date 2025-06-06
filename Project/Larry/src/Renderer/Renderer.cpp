@@ -42,6 +42,7 @@ namespace Larry {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+        glEnable(GL_DEPTH_TEST);  
         // getting max texuters units
         glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &MAX_TEXTURE_UNITS);
         LA_CORE_INFO("MAX_TEXTURE_UNITS = {}", MAX_TEXTURE_UNITS);
@@ -117,7 +118,7 @@ namespace Larry {
 
     void Renderer::Background(const Math::Vec4& color) {
         glClearColor(color.r, color.g, color.b, color.a);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
     void Renderer::UpdateFrame() {

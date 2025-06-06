@@ -139,7 +139,6 @@ namespace Larry {
         ecs_world->InsertComponent<Transform, Quad>(entity2, [](Transform& transform, Quad& quad){
             transform.translation.x = 100;
             transform.translation.y = 100;
-            transform.translation.z = -1.0f;
 
             quad.dimentions.x = 100;
             quad.dimentions.y = 100;
