@@ -17,6 +17,7 @@
 template <typename T,
           typename std::enable_if<std::is_default_constructible<T>::value, int>::type = 0>
 void CallDefaultConstractorIfAvailable(T* obj) {
+    // LA_CORE_INFO("Calling default constractor of type {}", typeid(T).name());
     // Call the default constructor using placement new.
     // Be cautious if 'obj' was already a valid object and manages resources,
     // as the old object's destructor won't be called automatically.
@@ -48,7 +49,7 @@ namespace Larry::ECS {
             void KillEntity(Entity entity) { world.KillEntity(entity); }
 
             template <typename... Types, typename F> 
-            bool InsertComponent(Entity entity, F set_callback)
+            bool InsertComponent(Entity entity, const F& set_callback)
             {
                 RegisterTypes(Types);
 
@@ -59,8 +60,7 @@ namespace Larry::ECS {
                 bool success = world.InsertComponents(entity, *types, *resultQueue);
 
                 if (success) {
-                    resultQueue->InitPopBack();
-                    ForEachType(CallDefaultConstractorIfAvailable((Types*)(resultQueue->PopBack().value)));
+                    ForEachType(CallDefaultConstractorIfAvailable((Types*)(resultQueue->Pop().value)));
                     resultQueue->InitPopBack();
                     set_callback((Types&)(*(Types*)(resultQueue->PopBack().value))...);
                 }
@@ -72,7 +72,7 @@ namespace Larry::ECS {
             }
 
             template<typename T>
-            std::optional<const T*> GetComponent(Entity entity)
+            std::optional<T*> GetComponent(Entity entity)
             {
                 ECS_RegisterType(&world, TypeHash(T), sizeof(T), DESTRUCTOR_LAMBDA(T));
                 std::optional<ECS_Any> res = world.GetComponent(entity, TypeHash(T));
@@ -109,6 +109,19 @@ namespace Larry::ECS {
                 ECS_RegisterType(&world, TypeHash(T), sizeof(T), DESTRUCTOR_LAMBDA(T));
 
                 world.DeleteComponent(entity, TypeHash(T));
+            }
+
+            template<typename T, typename F>
+            inline bool InsertOrSetComponent(Entity entity, const F& callback) {
+                ECS_RegisterType(&world, TypeHash(T), sizeof(T), DESTRUCTOR_LAMBDA(T));
+                
+                std::optional<T*> res = GetComponent<T>(entity);
+                if (res.has_value()) {
+                    callback(*res.value());
+                    return true;
+                } else {
+                    return InsertComponent<T>(entity, callback);
+                }
             }
 
             template <typename T> 
