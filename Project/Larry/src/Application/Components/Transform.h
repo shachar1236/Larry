@@ -9,6 +9,9 @@ namespace Larry {
         Math::Vec3 rotation_axis;
         float rotation_size;
 
+        Math::Vec3 _realTranslation; // the current translation plus parent realTranslation
+        int _realTranslationTimestemp = -1; // the loop timestemp when the realTranslation was calculated
+
         Transform() {
             translation = Math::Vec3(0.0f);
             scale = Math::Vec3(1.0f);

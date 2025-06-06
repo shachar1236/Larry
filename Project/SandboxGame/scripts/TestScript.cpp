@@ -1,5 +1,6 @@
 #include "LarryApi.h"
 #include "Components/Background.h"
+#include "Math/Math.h"
 #include "TestScript.h"
 
 namespace Larry {
@@ -17,10 +18,13 @@ namespace Larry {
         texture_loader = world->GetSingelton<TextureLoader>();
         face_texture = texture_loader->LoadTexture("media/textures/awesomeface.png", TextureConfig{});
         world->SetComponents<Quad>(entity, [this](Quad& quad){
-            quad.texture = face_texture;
+            // quad.texture = face_texture;
+            LA_INFO("In test script callback!!!!!!!!!!");
+            quad.texture = nullptr;
             quad.color.r = 0.1;
             quad.color.g = 0.1;
             quad.color.b = 0.7;
+            quad.color.a = 1.0;
         });
 
         LayerStack* lstack = *world->GetSingelton<LayerStack*>();
@@ -32,6 +36,8 @@ namespace Larry {
         bg->color.g = 0.7;
         bg->color.b = 0.1;
         bg->color.a = 1.0;
+        
+        bg->color = Math::Vec4(1.0f);
     }
 
     void TestScript::OnUpdate(const ECS::Entity& entity, double deltaTime) {

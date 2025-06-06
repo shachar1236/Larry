@@ -1,4 +1,5 @@
 #include "ECS_pch.h"
+#include "Math.h"
 #include "common.h"
 #include "RenderQuad.h"
 #include "Components/Quad.h"
@@ -14,7 +15,9 @@ namespace Larry {
 
     void RenderQuad::OnUpdate(double deltaTime) {
         world->System<Transform, Quad>([this](Transform& transform, Quad& quad){
-            renderer->Translate(transform.translation);
+            // LA_CORE_TRACE("In render quad");
+            Math::Vec3 translation = transform._realTranslation;
+            renderer->Translate(transform._realTranslation);
             renderer->Rotate(transform.rotation_size, transform.rotation_axis);
             renderer->Scale(transform.scale);
             renderer->Fill(quad.color);

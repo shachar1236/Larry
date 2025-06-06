@@ -5,6 +5,7 @@
 #include "Components/Projection.h"
 #include "Math.h"
 #include "Renderer.h"
+#include "Systems/RelationsSystem.h"
 #include "common.h"
 #include "Components/Quad.h"
 #include "Components/Transform.h"
@@ -22,6 +23,7 @@
 #include "Systems/ButtonSystem.h"
 #include "Systems/RenderQuad.h"
 #include "Systems/ScriptsSystem.h"
+#include "Components/Relationship.h"
 #include "TextureLoader/TextureLoader.h"
 #include "UILayer.h"
 #include "GUILayer.h"
@@ -89,6 +91,7 @@ namespace Larry {
         layerStack.AttachLayer(CreateRef<UILayer>(ecs_world));
         layerStack.AttachLayer(CreateRef<GUILayer>(ecs_world));
 
+        static_cast<Layer*>(layerStack.GetLayer("GameLayer").get())->AddSystem(CreateRef<RelationSystem>(ecs_world));
         static_cast<Layer*>(layerStack.GetLayer("GameLayer").get())->AddSystem(CreateRef<RenderQuad>(ecs_world));
         static_cast<Layer*>(layerStack.GetLayer("GameLayer").get())->AddSystem(CreateRef<ScriptsSystem>(ecs_world));
         static_cast<Layer*>(layerStack.GetLayer("UILayer").get())->AddSystem(CreateRef<ButtonSystem>(ecs_world));
@@ -119,12 +122,13 @@ namespace Larry {
         // TODO: load file and generate scene
         ECS::Entity entity1 = ecs_world->CreateEntity();
         ecs_world->InsertComponent<Transform, Quad>(entity1, [](Transform& transform, Quad& quad){
-            transform.translation.x = 100;
-            transform.translation.y = 100;
+            transform.translation.x = 400;
+            transform.translation.y = 300;
 
             quad.dimentions.x = 200;
             quad.dimentions.y = 200;
         });
+
         ecs_world->InsertComponent<Scripts::ScriptsComponent>(entity1, [this, entity1](Scripts::ScriptsComponent& scripts){
             Ref<Scripts::Script> testScript = Scripts::Script::GetNewInstanceOfScript("TestScript", ecs_world);
             scripts.push_back(testScript);
@@ -132,6 +136,40 @@ namespace Larry {
         });
 
         ECS::Entity entity2 = ecs_world->CreateEntity();
+        ecs_world->InsertComponent<Transform, Quad>(entity2, [](Transform& transform, Quad& quad){
+            transform.translation.x = 100;
+            transform.translation.y = 100;
+            transform.translation.z = -1.0f;
+
+            quad.dimentions.x = 100;
+            quad.dimentions.y = 100;
+
+            quad.color = Math::Vec4(0.3f, 0.8f, 0.4f, 1.0f);
+        });
+        AddChild(ecs_world, entity1, entity2);
+
+        ECS::Entity entity3 = ecs_world->CreateEntity();
+        ecs_world->InsertComponent<Transform, Quad>(entity3, [](Transform& transform, Quad& quad){
+            transform.translation.x = 0;
+            transform.translation.y = 0;
+
+            quad.dimentions.x = 100;
+            quad.dimentions.y = 100;
+
+            quad.color = Math::Vec4(0.3f, 0.8f, 0.4f, 1.0f);
+        });
+        AddChild(ecs_world, entity1, entity3);
+
+        ECS::Entity entity4 = ecs_world->CreateEntity();
+        ecs_world->InsertComponent<Transform, Quad>(entity4, [](Transform& transform, Quad& quad){
+            transform.translation.x = 100;
+            transform.translation.y = 100;
+
+            quad.dimentions.x = 50;
+            quad.dimentions.y = 50;
+
+            quad.color = Math::Vec4(0.3f, 0.8f, 0.4f, 1.0f);
+        });
 
         ECS::Entity proj_entity = ecs_world->CreateEntity();
         ecs_world->InsertComponent<Projection>(proj_entity, [this](Projection& proj){

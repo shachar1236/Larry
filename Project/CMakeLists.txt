@@ -43,6 +43,7 @@ set(SOURCE_FILES
     Larry/src/Application/Systems/RenderQuad.cpp
     Larry/src/Application/Systems/ButtonSystem.cpp
     Larry/src/Application/Systems/ScriptsSystem.cpp
+    Larry/src/Application/Systems/RelationsSystem.cpp
 
     # Larry/src/Scripts/Scripts.cpp
 )
