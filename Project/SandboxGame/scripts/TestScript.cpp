@@ -5,6 +5,8 @@
 
 namespace Larry {
 
+    DEFINE_SCRIPT(TestScript, "GameLayer");
+
     TestScript::TestScript(const Ref<ECS::World>& world_) : Scripts::Script(world_) {
         
     }
