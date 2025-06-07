@@ -5,6 +5,7 @@
 #include "Components/Projection.h"
 #include "Math.h"
 #include "Renderer.h"
+#include "ScriptsManager.h"
 #include "Systems/RelationsSystem.h"
 #include "common.h"
 #include "Components/Quad.h"
@@ -91,9 +92,10 @@ namespace Larry {
         layerStack.AttachLayer(CreateRef<UILayer>(ecs_world));
         layerStack.AttachLayer(CreateRef<GUILayer>(ecs_world));
 
+        Scripts::RegisterScripts(ecs_world, layerStack);
+
         static_cast<Layer*>(layerStack.GetLayer("GameLayer").get())->AddSystem(CreateRef<RelationSystem>(ecs_world));
         static_cast<Layer*>(layerStack.GetLayer("GameLayer").get())->AddSystem(CreateRef<RenderQuad>(ecs_world));
-        static_cast<Layer*>(layerStack.GetLayer("GameLayer").get())->AddSystem(CreateRef<ScriptsSystem>(ecs_world));
         static_cast<Layer*>(layerStack.GetLayer("UILayer").get())->AddSystem(CreateRef<ButtonSystem>(ecs_world));
 
         GenerateScene("test");
@@ -129,11 +131,12 @@ namespace Larry {
             quad.dimentions.y = 200;
         });
 
-        ecs_world->InsertComponent<Scripts::ScriptsComponent>(entity1, [this, entity1](Scripts::ScriptsComponent& scripts){
+        /* ecs_world->InsertComponent<Scripts::ScriptsComponent>(entity1, [this, entity1](Scripts::ScriptsComponent& scripts){
             Ref<Scripts::Script> testScript = Scripts::Script::GetNewInstanceOfScript("TestScript", ecs_world);
             scripts.push_back(testScript);
             testScript->OnCreate(entity1);
-        });
+        }); */
+        Scripts::AddScriptToEntity(entity1, "TestScript", ecs_world);
 
         ECS::Entity entity2 = ecs_world->CreateEntity();
         ecs_world->InsertComponent<Transform, Quad>(entity2, [](Transform& transform, Quad& quad){

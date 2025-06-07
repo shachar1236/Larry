@@ -42,6 +42,10 @@ namespace Larry::ECS {
 
             ~World() { }
 
+            Internal::World* GetInternalWorld() {
+                return &world;
+            }
+
             Entity CreateEntity() { return ECS_CreateEntity(&world); }
 
             bool IsEntityAlive(Entity entity) { return world.IsEntityAlive(entity); }

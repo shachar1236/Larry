@@ -42,6 +42,10 @@ namespace Larry::ECS::Internal {
         ECS_TypeHashCode& operator[](int i) {
             return elements[i];
         }
+
+        void Clear() {
+            elements.clear();
+        }
     };
 
 }

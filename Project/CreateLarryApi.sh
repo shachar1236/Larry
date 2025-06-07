@@ -63,7 +63,7 @@ rm SandboxGame/LarryApi/lib/EventSystem/EventSystem.h
 
 cp Larry/src/Application/Components/*.h SandboxGame/LarryApi/lib/Components
 
-cp Larry/src/Scripts/*.h SandboxGame/LarryApi/lib/Scripts
+cp Larry/src/Scripts/Scripts.h SandboxGame/LarryApi/lib/Scripts/Scripts.h
 
 # copying libraries
 cp -r libraries/spdlog SandboxGame/libraries

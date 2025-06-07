@@ -12,17 +12,19 @@
 // #define SCRIPT_TYPE(T) static ECS_TypeHashCode GetType() { return typeid(T).hash_code(); }
 // #define SCRIPT_LAYER(name) static char* GetScriptLayer() { return #name; }
 
-
 #define DEFINE_SCRIPT(T, layer) \
     Ref<Larry::Scripts::Script> CreateScript##T(const Ref<Larry::ECS::World>& world) \
     { \
         return Larry::CreateRef<T>(world); \
     } \
+    void DestractorForScript##T(const void* x) \
+    { \
+        static_cast<const Ref<T>*>(x)->~Ref<T>(); \
+    } \
     struct AutoCall##T \
     { \
         AutoCall##T() { \
-            Larry::Scripts::Script::scriptType_to_layerName[typeid(T).hash_code()] = layer; \
-            Larry::Scripts::Script::scriptName_to_CreateFunction[#T] = CreateScript##T; \
+            Larry::Scripts::Script::scriptName_to_detailes[#T] = { typeid(Ref<T>).hash_code(), CreateScript##T, DestractorForScript##T, layer }; \
         } \
     }; \
     AutoCall##T autoCallObject##T;
@@ -60,17 +62,16 @@ namespace Larry::Scripts {
             // static char* GetScriptLayer() { return nullptr; };
 
             using CreateScriptFunction = Ref<Script>(*)(const Ref<ECS::World>&);
+            using DestructorScriptFunction = void(*)(const void*);
 
-            static std::unordered_map<ECS_TypeHashCode, char*> scriptType_to_layerName;
-            static std::unordered_map<std::string, CreateScriptFunction> scriptName_to_CreateFunction;
+            struct scriptDetails {
+                ECS_TypeHashCode hash_code;
+                CreateScriptFunction create_function;
+                DestructorScriptFunction destractor_function;
+                char* layer_name;
+            };
+            static std::unordered_map<std::string, scriptDetails> scriptName_to_detailes;
 
             static void Init(const Ref<ECS::World>& world);
-            static void RegisterScripts(LayerStack&);
-
-            static Ref<Script> GetNewInstanceOfScript(const std::string& name, const Ref<ECS::World>& world) {
-                return (scriptName_to_CreateFunction[name])(world);
-            }
         };
-
-    using ScriptsComponent = std::vector<Ref<Script>>;
 }

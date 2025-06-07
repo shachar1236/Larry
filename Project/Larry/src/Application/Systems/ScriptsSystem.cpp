@@ -8,6 +8,7 @@
 #include "Scripts/Scripts.h"
 
 namespace Larry {
+    using namespace Scripts;
 
     void ScriptsSystem::OnCreate() {
         
@@ -15,11 +16,23 @@ namespace Larry {
 
     
     void ScriptsSystem::OnUpdate(double deltaTime) {
-        world->AdvancedSystem<Scripts::ScriptsComponent>([deltaTime](const ECS::Entity& entity, bool* stop, Scripts::ScriptsComponent& scripts){
-            for (auto& script : scripts) {
-                script->OnUpdate(entity, deltaTime);
-            }
-        });
+        ECS::Internal::AnyQueue* any_queue = iworld->InitAnyQueue();
+        ECS::Internal::TypeQueue* type_queue = iworld->InitTypeQueue();
+        for (auto&& hash_code : scripts_types) {
+            any_queue->Clear();
+            type_queue->Clear();
+
+            type_queue->push_back(hash_code);
+
+            iworld->System(*type_queue, *any_queue, [deltaTime](ECS_Entity entity, ECS::Internal::AnyQueue& components, bool* stop){
+                ECS_Any res = components.Pop();
+                Ref<Script>* script_ptr = (Ref<Script>*)res.value;
+
+                (*script_ptr)->OnUpdate(entity, deltaTime);
+            });
+
+        }
+
     }
 
     void ScriptsSystem::OnDelete() {
@@ -27,26 +40,37 @@ namespace Larry {
     }
 
     void ScriptsSystem::HandleEvent(const Ref<Event>& event) {
-        world->AdvancedSystem<Scripts::ScriptsComponent>([event](const ECS::Entity& entity, bool* stop, Scripts::ScriptsComponent& scripts) {
+        ECS::Internal::AnyQueue* any_queue = iworld->InitAnyQueue();
+        ECS::Internal::TypeQueue* type_queue = iworld->InitTypeQueue();
 
-            for (int i = 0; i < scripts.size() && !event->Handeled; i++) {
-                DispatchEvent<Events::KeyPressedEvent>(event, [entity, scripts, i](const Ref<Event>& e){
-                    scripts[i]->ButtonJustPressed(entity, (Events::KeyPressedEvent*)e.get());
+        for (auto&& hash_code : scripts_types) {
+            any_queue->Clear();
+            type_queue->Clear();
+
+            type_queue->push_back(hash_code);
+
+            iworld->System(*type_queue, *any_queue, [event](ECS_Entity entity, ECS::Internal::AnyQueue& components, bool* stop){
+                ECS_Any res = components.Pop();
+                Ref<Script>* script_ptr = (Ref<Script>*)res.value;
+
+                DispatchEvent<Events::KeyPressedEvent>(event, [entity, script_ptr](const Ref<Event>& e){
+                    (*script_ptr)->ButtonJustPressed(entity, (Events::KeyPressedEvent*)e.get());
                 });
-                DispatchEvent<Events::KeyReleasedEvent>(event, [entity, scripts, i](const Ref<Event>& e){
-                    scripts[i]->ButtonReleased(entity, (Events::KeyReleasedEvent*)e.get());
+                DispatchEvent<Events::KeyReleasedEvent>(event, [entity, script_ptr](const Ref<Event>& e){
+                    (*script_ptr)->ButtonReleased(entity, (Events::KeyReleasedEvent*)e.get());
                 });
-                DispatchEvent<Events::MousePressedEvent>(event, [entity, scripts, i](const Ref<Event>& e){
-                    scripts[i]->MouseJustPressed(entity, (Events::MousePressedEvent*)e.get());
+                DispatchEvent<Events::MousePressedEvent>(event, [entity, script_ptr](const Ref<Event>& e){
+                    (*script_ptr)->MouseJustPressed(entity, (Events::MousePressedEvent*)e.get());
                 });
-                DispatchEvent<Events::MouseScrolledEvent>(event, [entity, scripts, i](const Ref<Event>& e){
-                    scripts[i]->MouseScrolled(entity, (Events::MouseScrolledEvent*)e.get());
+                DispatchEvent<Events::MouseScrolledEvent>(event, [entity, script_ptr](const Ref<Event>& e){
+                    (*script_ptr)->MouseScrolled(entity, (Events::MouseScrolledEvent*)e.get());
                 });
                 if (!event->Handeled) {
-                    scripts[i]->HandleEvent(entity, event);
+                    (*script_ptr)->HandleEvent(entity, event);
                 }
-            }
+            });
 
-        });
+        }
+
     }
 }
