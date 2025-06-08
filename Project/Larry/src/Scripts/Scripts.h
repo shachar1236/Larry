@@ -3,28 +3,31 @@
 #include "ECS/ECS_C.h"
 #include "EventSystem/Event.h"
 #include "EventSystem/InputEvents.h"
-#include "Layers/LayerStack.h"
 #include "Utils/LarryMemory.h"
-#include <functional>
 #include <string>
-#include <vector>
 
 // #define SCRIPT_TYPE(T) static ECS_TypeHashCode GetType() { return typeid(T).hash_code(); }
 // #define SCRIPT_LAYER(name) static char* GetScriptLayer() { return #name; }
 
 #define DEFINE_SCRIPT(T, layer) \
-    Ref<Larry::Scripts::Script> CreateScript##T(const Ref<Larry::ECS::World>& world) \
+    void CreateScript##T(void* ptr, const Ref<Larry::ECS::World>& world) \
     { \
-        return Larry::CreateRef<T>(world); \
+        T* a = (T*)ptr; \
+        new (a) T(world); \
     } \
     void DestractorForScript##T(const void* x) \
     { \
-        static_cast<const Ref<T>*>(x)->~Ref<T>(); \
+        static_cast<const T*>(x)->~T(); \
     } \
     struct AutoCall##T \
     { \
         AutoCall##T() { \
-            Larry::Scripts::Script::scriptName_to_detailes[#T] = { typeid(Ref<T>).hash_code(), CreateScript##T, DestractorForScript##T, layer }; \
+            Larry::Scripts::Script::scriptName_to_detailes[#T] = {}; \
+            Larry::Scripts::Script::scriptName_to_detailes[#T].hash_code = typeid(T).hash_code(); \
+            Larry::Scripts::Script::scriptName_to_detailes[#T].size = sizeof(T); \
+            Larry::Scripts::Script::scriptName_to_detailes[#T].create_function = CreateScript##T; \
+            Larry::Scripts::Script::scriptName_to_detailes[#T].destractor_function = DestractorForScript##T; \
+            Larry::Scripts::Script::scriptName_to_detailes[#T].layer_name = layer; \
         } \
     }; \
     AutoCall##T autoCallObject##T;
@@ -61,11 +64,12 @@ namespace Larry::Scripts {
             // static ECS_TypeHashCode GetType() { return 0; };
             // static char* GetScriptLayer() { return nullptr; };
 
-            using CreateScriptFunction = Ref<Script>(*)(const Ref<ECS::World>&);
+            using CreateScriptFunction = void(*)(void*, const Ref<ECS::World>&);
             using DestructorScriptFunction = void(*)(const void*);
 
             struct scriptDetails {
                 ECS_TypeHashCode hash_code;
+                int size;
                 CreateScriptFunction create_function;
                 DestructorScriptFunction destractor_function;
                 char* layer_name;

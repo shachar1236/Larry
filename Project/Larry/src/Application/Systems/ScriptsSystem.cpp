@@ -26,9 +26,9 @@ namespace Larry {
 
             iworld->System(*type_queue, *any_queue, [deltaTime](ECS_Entity entity, ECS::Internal::AnyQueue& components, bool* stop){
                 ECS_Any res = components.Pop();
-                Ref<Script>* script_ptr = (Ref<Script>*)res.value;
+                Script* script_ptr = (Script*)res.value;
 
-                (*script_ptr)->OnUpdate(entity, deltaTime);
+                script_ptr->OnUpdate(entity, deltaTime);
             });
 
         }
@@ -51,22 +51,22 @@ namespace Larry {
 
             iworld->System(*type_queue, *any_queue, [event](ECS_Entity entity, ECS::Internal::AnyQueue& components, bool* stop){
                 ECS_Any res = components.Pop();
-                Ref<Script>* script_ptr = (Ref<Script>*)res.value;
+                Script* script_ptr = (Script*)res.value;
 
                 DispatchEvent<Events::KeyPressedEvent>(event, [entity, script_ptr](const Ref<Event>& e){
-                    (*script_ptr)->ButtonJustPressed(entity, (Events::KeyPressedEvent*)e.get());
+                    script_ptr->ButtonJustPressed(entity, (Events::KeyPressedEvent*)e.get());
                 });
                 DispatchEvent<Events::KeyReleasedEvent>(event, [entity, script_ptr](const Ref<Event>& e){
-                    (*script_ptr)->ButtonReleased(entity, (Events::KeyReleasedEvent*)e.get());
+                    script_ptr->ButtonReleased(entity, (Events::KeyReleasedEvent*)e.get());
                 });
                 DispatchEvent<Events::MousePressedEvent>(event, [entity, script_ptr](const Ref<Event>& e){
-                    (*script_ptr)->MouseJustPressed(entity, (Events::MousePressedEvent*)e.get());
+                    script_ptr->MouseJustPressed(entity, (Events::MousePressedEvent*)e.get());
                 });
                 DispatchEvent<Events::MouseScrolledEvent>(event, [entity, script_ptr](const Ref<Event>& e){
-                    (*script_ptr)->MouseScrolled(entity, (Events::MouseScrolledEvent*)e.get());
+                    script_ptr->MouseScrolled(entity, (Events::MouseScrolledEvent*)e.get());
                 });
                 if (!event->Handeled) {
-                    (*script_ptr)->HandleEvent(entity, event);
+                    script_ptr->HandleEvent(entity, event);
                 }
             });
 

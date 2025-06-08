@@ -3,6 +3,7 @@
 #include "ECS/Internal/TypesBitmap.hpp"
 #include "ECS/ECS_C.h"
 #include "ECS/Internal/Queues.h"
+#include "Utils/Log.h"
 #include <cassert>
 #include <cstddef>
 #include <cstdio>
@@ -28,6 +29,7 @@ namespace Larry::ECS::Internal {
 
             void RegisterType(ECS_TypeHashCode hash, int type_size, void(*destructor)(const void*)) {
                 if (typeHash_to_TypeBitmap.find(hash) == typeHash_to_TypeBitmap.end()) {
+                    LA_CORE_INFO("Registering new type ({}, {}) to ECS", hash, type_size);
                     // new type
                     TypesBitmap type = TypesBitmap::TypeWithIndex(last_type_index);
                     last_type_index++;
