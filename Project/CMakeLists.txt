@@ -9,12 +9,26 @@ find_package(OpenGL REQUIRED)
 
 add_subdirectory(libraries/glfw)
 
+# Include FetchContent
+include(FetchContent)
+
+# Define yaml-cpp content
+FetchContent_Declare(
+  yaml-cpp
+  GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
+  GIT_TAG        0.8.0 # Use a specific tag/version for stability
+  # You can also use a commit hash: GIT_REV <commit_hash>
+)
+
+# Populate yaml-cpp (download and configure)
+FetchContent_MakeAvailable(yaml-cpp)
+
 set(SPDLOG_BUILD_SHARED ON)
 add_subdirectory(libraries/spdlog)
 
 add_subdirectory(Larry/LarryApi)
 
-# addd gamescripts
+# add gamescripts
 add_subdirectory(SandboxGame)
 
 set(SOURCE_FILES
@@ -72,6 +86,7 @@ if(OPENGL_FOUND)
     include_directories(${OPENGL_INCLUDE_DIRS}) # OpenGL
     include_directories(${GLFW_INCLUDE_DIR}) # Add GLFW include directory
     include_directories(libraries/glad/include) # GLAD
+    include_directories(libraries/yaml-cpp/include)
     include_directories(libraries/stb_image)
     include_directories(libraries)
 
@@ -93,7 +108,7 @@ if(OPENGL_FOUND)
 
     # target_link_directories(LarryEngine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/SandboxGame/build)
 
-    target_link_libraries(LarryEngine ${LarrySharedLibraries} ${OPENGL_LIBRARIES} GameScripts glfw)
+    target_link_libraries(LarryEngine ${LarrySharedLibraries} ${OPENGL_LIBRARIES} GameScripts glfw yaml-cpp)
     # target_link_libraries(LarryEngine ${LarrySharedLibraries} ${OPENGL_LIBRARIES} glfw)
 else()
     message(FATAL_ERROR "OpenGL not found")

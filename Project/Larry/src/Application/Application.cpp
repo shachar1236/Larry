@@ -1,4 +1,4 @@
-#include "ECS.h"
+#include "ECS/CPPApi/ECS.h"
 #include "ECS_pch.h"
 #include "Application/Application.h"
 #include "Components/Camera.h"
@@ -121,6 +121,13 @@ namespace Larry {
 
 
     void Application::GenerateScene(const std::string& scene_file_path) {
+        YAML::Node config = YAML::LoadFile(scene_file_path);
+        TextureLoader* texture_loader = ecs_world->GetSingelton<TextureLoader>();
+        if (config["textures"] && config["textures"].IsMap()) {
+            *texture_loader = config["textures"].as<TextureLoader>();
+        }
+
+
         // TODO: load file and generate scene
         ECS::Entity entity1 = ecs_world->CreateEntity();
         ecs_world->InsertComponent<Transform, Quad>(entity1, [](Transform& transform, Quad& quad){
@@ -131,11 +138,6 @@ namespace Larry {
             quad.dimentions.y = 200;
         });
 
-        /* ecs_world->InsertComponent<Scripts::ScriptsComponent>(entity1, [this, entity1](Scripts::ScriptsComponent& scripts){
-            Ref<Scripts::Script> testScript = Scripts::Script::GetNewInstanceOfScript("TestScript", ecs_world);
-            scripts.push_back(testScript);
-            testScript->OnCreate(entity1);
-        }); */
         Scripts::AddScriptToEntity(entity1, "TestScript", ecs_world);
 
         ECS::Entity entity2 = ecs_world->CreateEntity();

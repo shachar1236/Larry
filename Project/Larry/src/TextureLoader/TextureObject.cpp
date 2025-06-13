@@ -3,6 +3,7 @@
 #include "Utils/LarryMemory.h"
 #include "Utils/Log.h"
 #include <cstdlib>
+#include <string>
 #include "gl.h"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -10,7 +11,9 @@
 
 namespace Larry {
 
-    TextureObject::TextureObject(const std::string& path, const TextureConfig& config) {
+    TextureObject::TextureObject(const std::string& path_, const TextureConfig& config_) {
+        this->config = config_;
+        path = path_;
         glGenTextures(1, &texture); 
         Bind();
 
@@ -46,6 +49,8 @@ namespace Larry {
 
         stbi_image_free(data);
 
+        std::string base_filename = path.substr(path.find_last_of("/\\") + 1);
+        identifier = base_filename + std::to_string(std::hash<TextureConfig>{}(config));
         LA_CORE_INFO("Created texture from: {}, ({}, {}, {})", path, width, height, nrChannels);
     }
 

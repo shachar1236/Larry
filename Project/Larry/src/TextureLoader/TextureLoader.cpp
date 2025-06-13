@@ -4,6 +4,7 @@
 #include "TextureLoader/TextureObject.h"
 #include <cstddef>
 #include <functional>
+#include <optional>
 #include <string>
 
 namespace Larry {
@@ -22,7 +23,21 @@ namespace Larry {
             return texture_it->second;
         }
         
-        textures[hs] = CreateRef<TextureObject>(path, config);
-        return textures[hs];
+        Ref<TextureObject> t = CreateRef<TextureObject>(path, config);
+        textures[hs]  = t;
+        return t;
     }
+
+    void TextureLoader::SetTextureIdentifier(const Ref<TextureObject>& texture, const std::string& identifier) {
+        identifier_to_texture[identifier] = texture;
+    }
+
+    std::optional<Ref<TextureObject>> TextureLoader::LoadTextureByIdentifier(const std::string& identifier) {
+        auto res = identifier_to_texture.find(identifier);
+        if (res == identifier_to_texture.end()) {
+            return std::nullopt;
+        }
+        return res->second;
+    }
+
 }
