@@ -52,6 +52,10 @@ namespace Larry::ECS {
 
             void KillEntity(Entity entity) { world.KillEntity(entity); }
 
+            std::optional<std::string> GetEntityName(Entity entity) {
+                return world.GetEntityName(entity);
+            }
+
             template <typename... Types, typename F> 
             bool InsertComponent(Entity entity, const F& set_callback)
             {
