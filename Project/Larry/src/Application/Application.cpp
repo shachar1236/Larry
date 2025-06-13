@@ -72,6 +72,8 @@ namespace Larry {
         // setting error callback
         glfwSetErrorCallback(gflw_error_callback);
 
+        GenerateScene("test");
+
         /* windowConfig.maximized = true; */
         window = CreateRef<LarryWindow>(windowConfig);
         renderer = Renderer::InitRenderer(rendererConfig, window);
@@ -101,7 +103,6 @@ namespace Larry {
         static_cast<Layer*>(layerStack.GetLayer("GameLayer").get())->AddSystem(CreateRef<RenderQuad>(ecs_world));
         static_cast<Layer*>(layerStack.GetLayer("UILayer").get())->AddSystem(CreateRef<ButtonSystem>(ecs_world));
 
-        GenerateScene("test");
         Scripts::Script::Init(ecs_world);
     }
 
@@ -167,6 +168,7 @@ namespace Larry {
             *texture_loader = config["textures"].as<TextureLoader>();
         }
 
+        windowConfig = config["options"]["window"].as<WindowConfig>();
 
         // TODO: load file and generate scene
         ECS::Entity entity1 = ecs_world->CreateEntity();

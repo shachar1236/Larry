@@ -2,6 +2,7 @@
 
 #include "GLFW/glfw3.h"
 #include <string>
+#include <yaml-cpp/yaml.h>
 
 namespace Larry {
     struct WindowConfig {
@@ -44,5 +45,32 @@ namespace Larry {
             void Unmaximize();
 
             void SetCursorMode(CursorMode mode);
+    };
+}
+
+namespace YAML {
+
+    template<>
+    struct convert<Larry::WindowConfig> {
+        static Node encode(const Larry::WindowConfig& rhs) {
+            Node node;
+            node["title"] = rhs.title;
+            node["width"] = rhs.window_width;
+            node["height"] = rhs.window_height;
+            node["fullscreen"] = rhs.fullscreen;
+            node["maximized"] = rhs.maximized;
+            return node;
+        }
+
+        static bool decode(const Node& node, Larry::WindowConfig& rhs) {
+            if(!node.IsMap()) {
+                return false;
+            }
+            rhs.title = node["title"].as<std::string>();
+            rhs.window_width = node["width"].as<int>();
+            rhs.window_height = node["height"].as<int>();
+            rhs.fullscreen = node["fullscreen"].as<bool>();
+            rhs.maximized = node["maximized"].as<bool>();
+        }
     };
 }
