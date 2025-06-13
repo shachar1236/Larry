@@ -86,7 +86,11 @@ namespace Larry {
         enum MipmapFilterOptions MipmapFilterMin = MipmapFilterOptions::LINEAR_MIPMAP_LINEAR;
     };
 
+    class TextureLoader;
+
     class TextureObject {
+        friend TextureLoader;
+
         private:
             unsigned int texture;
             int width, height, nrChannels;

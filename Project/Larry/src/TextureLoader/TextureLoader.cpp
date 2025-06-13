@@ -30,6 +30,7 @@ namespace Larry {
 
     void TextureLoader::SetTextureIdentifier(const Ref<TextureObject>& texture, const std::string& identifier) {
         identifier_to_texture[identifier] = texture;
+        texture->identifier = identifier;
     }
 
     std::optional<Ref<TextureObject>> TextureLoader::LoadTextureByIdentifier(const std::string& identifier) {
