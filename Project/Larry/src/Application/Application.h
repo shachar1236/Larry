@@ -30,6 +30,7 @@ namespace Larry {
             void OnCreate();
             void Run();
 
+            void SaveScene();
             void GenerateScene(const std::string& scene_file_path);
 
             static void HandleEvent(const Ref<Event>&);

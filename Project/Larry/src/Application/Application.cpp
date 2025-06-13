@@ -1,3 +1,4 @@
+#include "Components/Background.h"
 #include "ECS/CPPApi/ECS.h"
 #include "ECS_pch.h"
 #include "Application/Application.h"
@@ -31,7 +32,9 @@
 #include "WindowEvents.h"
 #include "gl.h"
 #include "Input.h"
+#include "yaml-cpp/include/yaml-cpp/emitterdef.h"
 #include <cstdlib>
+#include <string>
 
 void gflw_error_callback(int code, const char* description)
 {
@@ -119,6 +122,43 @@ namespace Larry {
         }
     }
 
+    void Application::SaveScene() {
+        YAML::Emitter out;
+
+        YAML::Node config;
+        config["textures"] = ecs_world->GetSingelton<TextureLoader>();
+        
+        YAML::Node world;
+        ecs_world->AdvancedSystem<Background>([this, &world](ECS::Entity entity, bool* stop, Background& bg){
+            std::string name = ecs_world->GetEntityName(entity).value();
+            world[name]["Background"] = bg;
+        });
+
+        ecs_world->AdvancedSystem<Button>([this, &world](ECS::Entity entity, bool* stop, Button& button){
+            std::string name = ecs_world->GetEntityName(entity).value();
+            world[name]["Button"] = button;
+        });
+
+        ecs_world->AdvancedSystem<Camera>([this, &world](ECS::Entity entity, bool* stop, Camera& camera){
+            std::string name = ecs_world->GetEntityName(entity).value();
+            world[name]["Camera"] = camera;
+        });
+        
+        ecs_world->AdvancedSystem<Projection>([this, &world](ECS::Entity entity, bool* stop, Projection& projection){
+            std::string name = ecs_world->GetEntityName(entity).value();
+            world[name]["Projection"] = projection;
+        });
+
+        ecs_world->AdvancedSystem<Quad>([this, &world](ECS::Entity entity, bool* stop, Quad& quad){
+            std::string name = ecs_world->GetEntityName(entity).value();
+            world[name]["Quad"] = quad;
+        });
+
+        ecs_world->AdvancedSystem<Transform>([this, &world](ECS::Entity entity, bool* stop, Transform& transform){
+            std::string name = ecs_world->GetEntityName(entity).value();
+            world[name]["Transform"] = transform;
+        });
+    }
 
     void Application::GenerateScene(const std::string& scene_file_path) {
         YAML::Node config = YAML::LoadFile(scene_file_path);
