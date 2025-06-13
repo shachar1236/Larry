@@ -3,6 +3,9 @@
 #include "ECS/Internal/TypesBitmap.hpp"
 #include "ECS/Internal/World.hpp"
 #include "ECS/Internal/Queues.h"
+#include <cstdlib>
+#include <cstring>
+#include <optional>
 
 using namespace Larry::ECS::Internal;
 
@@ -19,9 +22,9 @@ void ECS_RegisterType(ECS_World world_, ECS_TypeHashCode type, int type_size, vo
     world->GetTypeManager()->RegisterType(type, type_size, destructor);
 }
 
-ECS_Entity ECS_CreateEntity(ECS_World world_) {
+ECS_Entity ECS_CreateEntity(ECS_World world_, char* name) {
     World* world = (World*)world_;
-    return world->CreateEntity();
+    return world->CreateEntity(name);
 }
 
 bool ECS_IsEntityAlive(ECS_World world_, ECS_Entity entity) {
@@ -32,6 +35,17 @@ bool ECS_IsEntityAlive(ECS_World world_, ECS_Entity entity) {
 void ECS_KillEntity(ECS_World world_, ECS_Entity entity) {
     World* world = (World*)world_;
     world->KillEntity(entity);
+}
+
+char* GetEntityName(ECS_World world_, ECS_Entity entity) {
+    World* world = (World*)world_;
+    std::optional<std::string> name = world->GetEntityName(entity);
+    if (name.has_value()) {
+        char* str = (char*)malloc(name->size()+1);
+        memcpy(str, name->c_str(), name->size()+1);
+        return str;
+    }
+    return NULL;
 }
 
 ECS_AnyQueue ECS_InitAnyQueue(ECS_World world_) {

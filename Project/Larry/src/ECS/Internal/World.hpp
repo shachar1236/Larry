@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <cstring>
 #include <optional>
+#include <unordered_map>
 #include <unordered_set>
 #include <vector>
 #include "ECS/ECS_C.h"
@@ -20,15 +21,16 @@ namespace Larry::ECS::Internal {
 
     using TypeHashCode = ECS_TypeHashCode;
 
-    struct EntityWithArchtype {
+    struct EntityData {
         Entity entity;
+        std::string name;
         Archetype* archtype;
         int index_in_archetype;
     };
 
     class World {
         private:
-            std::vector<EntityWithArchtype> entitys;
+            std::vector<EntityData> entitys;
             int dead_entites_number = 0;
             int next_dead_entity;
 
@@ -63,13 +65,13 @@ namespace Larry::ECS::Internal {
             }
 
             // returns an entity if its alive
-            std::optional<const EntityWithArchtype> GetEntity(Entity entity) {
+            std::optional<const EntityData> GetEntity(Entity entity) {
                 Entity id = GetEntityIdentifier(entity);
                 if (id >= entitys.size()) {
                     LA_CORE_ERROR("Entity {} id is bigger than entitys number", (int64_t)entity);
                     return std::nullopt;
                 }
-                EntityWithArchtype r = entitys[id];
+                EntityData r = entitys[id];
                 if (entity == r.entity) {
                     return entitys[id];
                 }
@@ -110,18 +112,27 @@ namespace Larry::ECS::Internal {
             }
 
 
-            Entity CreateEntity() {
+            Entity CreateEntity(const std::string& name) {
                 if (dead_entites_number > 0) {
                     int index = next_dead_entity;
                     Entity res = (int32_t)next_dead_entity | ((int64_t)GetEntityVersion(entitys[index].entity) << 32);
                     next_dead_entity = (int32_t)entitys[next_dead_entity].entity;
                     dead_entites_number--;
-                    entitys[index] = { res, nullptr };
+                    entitys[index] = { res, name, nullptr };
                     return res;
                 }
                 Entity res = entitys.size();
-                entitys.push_back({ res, nullptr, 0 });
+                entitys.push_back({ res, name, nullptr, 0 });
                 return res;
+            }
+
+            std::optional<std::string> GetEntityName(Entity entity) {
+                std::optional<const EntityData> fullEntityOpt = GetEntity(entity);
+                if (fullEntityOpt.has_value()) {
+                    return fullEntityOpt->name;
+                }
+
+                return std::nullopt;
             }
             
             bool IsEntityAlive(Entity entity) {
@@ -130,9 +141,9 @@ namespace Larry::ECS::Internal {
 
             // kills an entity
             void KillEntity(Entity entity) {
-                std::optional<const EntityWithArchtype> fullEntityOpt = GetEntity(entity);
+                std::optional<const EntityData> fullEntityOpt = GetEntity(entity);
                 if (fullEntityOpt.has_value()) {
-                    const EntityWithArchtype fullEntity = fullEntityOpt.value();
+                    const EntityData fullEntity = fullEntityOpt.value();
                     Archetype* archetype = fullEntity.archtype;
                     if (archetype != nullptr) {
                         archetype->KillEntity(entity);
@@ -167,9 +178,9 @@ namespace Larry::ECS::Internal {
             // Inserts component to entity
             // return - if completed successfully
             bool InsertComponents(Entity entity, const TypeQueue& types, AnyQueue& resultQueue) {
-                std::optional<const EntityWithArchtype> fullEntityOpt = GetEntity(entity);
+                std::optional<const EntityData> fullEntityOpt = GetEntity(entity);
                 if (fullEntityOpt.has_value()) {
-                    const EntityWithArchtype fullEntity = fullEntityOpt.value();
+                    const EntityData fullEntity = fullEntityOpt.value();
                     TypesBitmap entity_components = fullEntity.archtype != nullptr ? fullEntity.archtype->GetTypesBitmap() : TypesBitmap();
                     TypesBitmap new_bitmap = entity_components | type_manager->QueueTypes(types);
 
@@ -202,9 +213,9 @@ namespace Larry::ECS::Internal {
 
             // returns if completed succesfully
             bool SetComponents(Entity entity, const TypeQueue& types, AnyQueue& resultQueue) {
-                std::optional<const EntityWithArchtype> fullEntityOpt = GetEntity(entity);
+                std::optional<const EntityData> fullEntityOpt = GetEntity(entity);
                 if (fullEntityOpt.has_value()) {
-                    const EntityWithArchtype fullEntity = fullEntityOpt.value();
+                    const EntityData fullEntity = fullEntityOpt.value();
                     Archetype* archetype = fullEntity.archtype;
 
                     TypesBitmap types_bitmap = type_manager->QueueTypes(types);
@@ -218,9 +229,9 @@ namespace Larry::ECS::Internal {
             }
 
             std::optional<ECS_Any> GetComponent(Entity entity, ECS_TypeHashCode type_hash) {
-                std::optional<const EntityWithArchtype> fullEntityOpt = GetEntity(entity);
+                std::optional<const EntityData> fullEntityOpt = GetEntity(entity);
                 if (fullEntityOpt.has_value()) {
-                    const EntityWithArchtype fullEntity = fullEntityOpt.value();
+                    const EntityData fullEntity = fullEntityOpt.value();
                     Archetype* archetype = fullEntity.archtype;
                     return archetype->GetComponent(fullEntity.index_in_archetype, type_hash);
                 }
@@ -228,9 +239,9 @@ namespace Larry::ECS::Internal {
             }
 
             void DeleteComponent(Entity entity, ECS_TypeHashCode type_hash) {
-                std::optional<const EntityWithArchtype> fullEntityOpt = GetEntity(entity);
+                std::optional<const EntityData> fullEntityOpt = GetEntity(entity);
                 if (fullEntityOpt.has_value()) {
-                    const EntityWithArchtype fullEntity = fullEntityOpt.value();
+                    const EntityData fullEntity = fullEntityOpt.value();
                     if (fullEntity.archtype != nullptr) {
                         TypesBitmap entityTypes = fullEntity.archtype->GetTypesBitmap();
                         TypesBitmap new_bitmap = entityTypes & (~type_manager->GetTypeBitmap(type_hash));

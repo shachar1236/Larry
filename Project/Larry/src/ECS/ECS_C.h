@@ -20,9 +20,12 @@ void* ECS_CreateWorld();
 
 void ECS_RegisterType(ECS_World, ECS_TypeHashCode type, int type_size, void(*destructor)(const void*)); // register the type if it dosent already exists
 
-ECS_Entity ECS_CreateEntity(ECS_World);
+ECS_Entity ECS_CreateEntity(ECS_World, char* name);
 bool ECS_IsEntityAlive(ECS_World, ECS_Entity);
 void ECS_KillEntity(ECS_World, ECS_Entity);
+
+// its the user responsability to free this memory
+char* GetEntityName(ECS_World world_, ECS_Entity);
 
 // gives you a queue to work with
 ECS_AnyQueue ECS_InitAnyQueue(ECS_World);

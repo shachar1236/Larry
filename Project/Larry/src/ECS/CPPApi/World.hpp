@@ -46,7 +46,7 @@ namespace Larry::ECS {
                 return &world;
             }
 
-            Entity CreateEntity() { return ECS_CreateEntity(&world); }
+            Entity CreateEntity(const std::string& name) { return world.CreateEntity(name); }
 
             bool IsEntityAlive(Entity entity) { return world.IsEntityAlive(entity); }
 
