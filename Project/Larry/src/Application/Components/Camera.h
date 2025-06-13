@@ -17,5 +17,17 @@ namespace Larry {
             view = Math::lookAt(pos, Math::Vec3(pos.x, pos.y, 1.0f), Math::Vec3(0.0f, 1.0f, 0.0f));
         }
 
+        YAML::Node EncodeYAML() {
+            YAML::Node node;
+            node["view"] = view;
+            node["view_layers"] = view_layers;
+            return node;
+        }
+
+        bool DecodeYAML(const YAML::Node& node) {
+            view = node["view"].as<Math::Mat4>();
+            view_layers = node["view_layers"].as<std::unordered_set<int>>();
+            return true;
+        }
     };
 }

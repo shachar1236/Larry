@@ -13,5 +13,17 @@ namespace Larry {
             projection_layers = std::unordered_set<int>();
         }
 
+        YAML::Node EncodeYAML() {
+            YAML::Node node;
+            node["projection"] = projection;
+            node["projection_layers"] = projection_layers;
+            return node;
+        }
+
+        bool DecodeYAML(const YAML::Node& node) {
+            projection = node["projection"].as<Math::Mat4>();
+            projection_layers = node["projection_layers"].as<std::unordered_set<int>>();
+            return true;
+        }
     };
 }

@@ -19,5 +19,21 @@ namespace Larry {
             rotation_size = 0;
         }
 
+        YAML::Node EncodeYAML() {
+            YAML::Node node;
+            node["translation"] = translation;
+            node["scale"] = scale;
+            node["rotation_axis"] = rotation_axis;
+            node["rotation_size"] = rotation_size;
+            return node;
+        }
+
+        bool DecodeYAML(const YAML::Node& node) {
+            translation = node["translation"].as<Math::Vec3>();
+            scale = node["scale"].as<Math::Vec3>();
+            rotation_axis = node["rotation_axis"].as<Math::Vec3>();
+            rotation_size = node["rotation_size"].as<float>();
+            return true;
+        }
     };
 }

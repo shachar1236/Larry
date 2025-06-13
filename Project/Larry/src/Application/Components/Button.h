@@ -11,5 +11,18 @@ namespace Larry {
             dimentions = Math::Vec2(0.0f);
             color = Math::Vec4(1.0f);
         }
+
+        YAML::Node EncodeYAML() {
+            YAML::Node node;
+            node["dimentions"] = dimentions;
+            node["color"] = color;
+            return node;
+        }
+
+        bool DecodeYAML(const YAML::Node& node) {
+            dimentions = node["dimentions"].as<Math::Vec2>();
+            color = node["color"].as<Math::Vec4>();
+            return true;
+        }
     };
 }
