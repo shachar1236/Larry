@@ -14,7 +14,6 @@
 namespace Larry {
 
     GameLayer::GameLayer(const Ref<ECS::World>& world_) : Layer("GameLayer", world_) {
-        viewport_size = renderer->GetViewportSize();
     }
 
     GameLayer::~GameLayer() {

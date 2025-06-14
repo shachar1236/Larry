@@ -118,7 +118,7 @@ namespace Larry::ECS::Internal {
                     Entity res = (int32_t)next_dead_entity | ((int64_t)GetEntityVersion(entitys[index].entity) << 32);
                     next_dead_entity = (int32_t)entitys[next_dead_entity].entity;
                     dead_entites_number--;
-                    entitys[index] = { res, name, nullptr };
+                    entitys[index] = { res, name, nullptr, 0 };
                     return res;
                 }
                 Entity res = entitys.size();

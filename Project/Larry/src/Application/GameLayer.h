@@ -8,7 +8,6 @@
 namespace Larry {
     class GameLayer : public Layer {
         private:
-            Math::Vec2 viewport_size;
         public:
             GameLayer(const Ref<ECS::World>& world_);
             virtual ~GameLayer();

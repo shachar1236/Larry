@@ -1,0 +1,22 @@
+options:
+  window:
+    width: 800
+    height: 600
+  ...
+
+Textures:
+  AwsomeFace: ../media/awsomeFace.png
+
+world:
+  entity1:
+    Transform:
+      translation: [1, 1, 1]
+    Quad:
+      texture: AwsomeFace
+      dimentions: [300, 300]
+    Scripts:
+      - TestScript
+      - script2
+    Childrens:
+      - entity2
+      - entity3

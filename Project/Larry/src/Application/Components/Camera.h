@@ -20,13 +20,18 @@ namespace Larry {
         YAML::Node EncodeYAML() {
             YAML::Node node;
             node["view"] = view;
-            node["view_layers"] = view_layers;
+            for (auto&& num : view_layers) {
+                node["view_layers"].push_back(num);
+            }
             return node;
         }
 
         bool DecodeYAML(const YAML::Node& node) {
             view = node["view"].as<Math::Mat4>();
-            view_layers = node["view_layers"].as<std::unordered_set<int>>();
+            YAML::Node view_layers_node = node["view_layers"];
+            for (int i = 0; i < view_layers_node.size(); i++) {
+                view_layers.insert(view_layers_node[i].as<int>());
+            }
             return true;
         }
     };

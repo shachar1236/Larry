@@ -17,7 +17,7 @@ namespace Larry {
     }
 
     void UILayer::OnAttach() {
-        button = world->CreateEntity();
+        button = world->CreateEntity("button1");
 
         Layer::OnAttach();
     }

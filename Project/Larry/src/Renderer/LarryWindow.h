@@ -71,6 +71,7 @@ namespace YAML {
             rhs.window_height = node["height"].as<int>();
             rhs.fullscreen = node["fullscreen"].as<bool>();
             rhs.maximized = node["maximized"].as<bool>();
+            return true;
         }
     };
 }

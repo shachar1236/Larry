@@ -56,5 +56,8 @@ namespace Larry::Scripts {
         details.create_function(res.value, world);
         // *script_ptr = details.create_function(world);
         script_ptr->OnCreate(entity);
+
+        iworld->DoneWithTypeQueue(type_queue);
+        iworld->DoneWithAnyQueue(result_queue);
     }
 }

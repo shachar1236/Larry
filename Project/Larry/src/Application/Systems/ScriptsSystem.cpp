@@ -33,6 +33,9 @@ namespace Larry {
 
         }
 
+        iworld->DoneWithAnyQueue(any_queue);
+        iworld->DoneWithTypeQueue(type_queue);
+
     }
 
     void ScriptsSystem::OnDelete() {
@@ -72,5 +75,7 @@ namespace Larry {
 
         }
 
+        iworld->DoneWithAnyQueue(any_queue);
+        iworld->DoneWithTypeQueue(type_queue);
     }
 }

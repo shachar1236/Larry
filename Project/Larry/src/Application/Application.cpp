@@ -8,6 +8,7 @@
 #include "Renderer.h"
 #include "ScriptsManager.h"
 #include "Systems/RelationsSystem.h"
+#include "World.hpp"
 #include "common.h"
 #include "Components/Quad.h"
 #include "Components/Transform.h"
@@ -32,9 +33,24 @@
 #include "WindowEvents.h"
 #include "gl.h"
 #include "Input.h"
-#include "yaml-cpp/include/yaml-cpp/emitterdef.h"
+#include "yaml-cpp/node/node.h"
 #include <cstdlib>
+#include <fstream>
 #include <string>
+#include <unordered_map>
+
+#define SetComponentIfExists(component, ...) \
+    if (entity_componenets[#component]) { \
+        ecs_world->InsertComponent<component>(ecs_entity, [&](component& comp){ \
+            comp.DecodeYAML(entity_componenets[#component] __VA_OPT__(,) __VA_ARGS__); \
+        }); \
+    } \
+
+#define InsertComponentToEntites(component, ...) \
+    ecs_world->AdvancedSystem<component>([this, &world](ECS::Entity entity, bool* stop, component& comp){ \
+        std::string name = ecs_world->GetEntityName(entity).value(); \
+        world[name][#component] = comp.EncodeYAML(__VA_ARGS__); \
+    }); \
 
 void gflw_error_callback(int code, const char* description)
 {
@@ -72,15 +88,11 @@ namespace Larry {
         // setting error callback
         glfwSetErrorCallback(gflw_error_callback);
 
-        GenerateScene("test");
+        ecs_world = CreateRef<ECS::World>();
 
-        /* windowConfig.maximized = true; */
         window = CreateRef<LarryWindow>(windowConfig);
         renderer = Renderer::InitRenderer(rendererConfig, window);
 
-        Input::Init(window->GetWindow());
-
-        ecs_world = CreateRef<ECS::World>();
         ecs_world->SetSingelton<Renderer*>([this](Renderer*& rend){
             rend = renderer;
         });
@@ -97,13 +109,19 @@ namespace Larry {
         layerStack.AttachLayer(CreateRef<UILayer>(ecs_world));
         layerStack.AttachLayer(CreateRef<GUILayer>(ecs_world));
 
-        Scripts::RegisterScripts(ecs_world, layerStack);
-
         static_cast<Layer*>(layerStack.GetLayer("GameLayer").get())->AddSystem(CreateRef<RelationSystem>(ecs_world));
         static_cast<Layer*>(layerStack.GetLayer("GameLayer").get())->AddSystem(CreateRef<RenderQuad>(ecs_world));
         static_cast<Layer*>(layerStack.GetLayer("UILayer").get())->AddSystem(CreateRef<ButtonSystem>(ecs_world));
 
+        Scripts::RegisterScripts(ecs_world, layerStack);
+
+        Input::Init(window->GetWindow());
+
         Scripts::Script::Init(ecs_world);
+
+        GenerateScene("config.yaml");
+
+        SaveScene();
     }
 
     void Application::Run() {
@@ -127,38 +145,61 @@ namespace Larry {
         YAML::Emitter out;
 
         YAML::Node config;
-        config["textures"] = ecs_world->GetSingelton<TextureLoader>();
+        config["options"]["window"] = windowConfig;
+
+        config["textures"] = *ecs_world->GetSingelton<TextureLoader>();
         
         YAML::Node world;
-        ecs_world->AdvancedSystem<Background>([this, &world](ECS::Entity entity, bool* stop, Background& bg){
+
+        InsertComponentToEntites(Transform);
+        InsertComponentToEntites(Quad);
+        InsertComponentToEntites(Background);
+        InsertComponentToEntites(Button);
+        InsertComponentToEntites(Camera);
+        InsertComponentToEntites(Projection);
+
+        ecs_world->AdvancedSystem<Parent>([this, &world](ECS::Entity entity, bool* stop, Parent& p){ 
             std::string name = ecs_world->GetEntityName(entity).value();
-            world[name]["Background"] = bg;
+            std::optional<ECS::Entity> child = p.firstChild;
+            while (child.has_value()) {
+                std::string child_name = ecs_world->GetEntityName(child.value()).value();
+
+                world[name]["Childrens"].push_back(child_name);
+
+                ecs_world->SetComponents<Child>(child.value(), [&child](Child& c){
+                    child = c.nextChild;
+                });
+            }
         });
 
-        ecs_world->AdvancedSystem<Button>([this, &world](ECS::Entity entity, bool* stop, Button& button){
-            std::string name = ecs_world->GetEntityName(entity).value();
-            world[name]["Button"] = button;
-        });
+        ECS::Internal::World* iworld = ecs_world->GetInternalWorld();
 
-        ecs_world->AdvancedSystem<Camera>([this, &world](ECS::Entity entity, bool* stop, Camera& camera){
-            std::string name = ecs_world->GetEntityName(entity).value();
-            world[name]["Camera"] = camera;
-        });
-        
-        ecs_world->AdvancedSystem<Projection>([this, &world](ECS::Entity entity, bool* stop, Projection& projection){
-            std::string name = ecs_world->GetEntityName(entity).value();
-            world[name]["Projection"] = projection;
-        });
+        ECS::Internal::AnyQueue* any_queue = iworld->InitAnyQueue();
+        ECS::Internal::TypeQueue* type_queue = iworld->InitTypeQueue();
 
-        ecs_world->AdvancedSystem<Quad>([this, &world](ECS::Entity entity, bool* stop, Quad& quad){
-            std::string name = ecs_world->GetEntityName(entity).value();
-            world[name]["Quad"] = quad;
-        });
+        for (auto&& s : Scripts::Script::scriptName_to_detailes) {
+            ECS_TypeHashCode hash_code = s.second.hash_code;
 
-        ecs_world->AdvancedSystem<Transform>([this, &world](ECS::Entity entity, bool* stop, Transform& transform){
-            std::string name = ecs_world->GetEntityName(entity).value();
-            world[name]["Transform"] = transform;
-        });
+            any_queue->Clear();
+            type_queue->Clear();
+
+            type_queue->push_back(hash_code);
+
+            iworld->System(*type_queue, *any_queue, [this, &world, &s](ECS_Entity entity, ECS::Internal::AnyQueue& components, bool* stop){
+                std::string name = ecs_world->GetEntityName(entity).value();
+                world[name]["Scripts"].push_back(s.first);
+            });
+        }
+
+        iworld->DoneWithAnyQueue(any_queue);
+        iworld->DoneWithTypeQueue(type_queue);
+
+        config["world"] = world;
+
+        out << config;
+
+        std::ofstream save_file("config.yaml");
+        save_file << out.c_str();
     }
 
     void Application::GenerateScene(const std::string& scene_file_path) {
@@ -170,71 +211,52 @@ namespace Larry {
 
         windowConfig = config["options"]["window"].as<WindowConfig>();
 
-        // TODO: load file and generate scene
-        ECS::Entity entity1 = ecs_world->CreateEntity();
-        ecs_world->InsertComponent<Transform, Quad>(entity1, [](Transform& transform, Quad& quad){
-            transform.translation.x = 400;
-            transform.translation.y = 300;
+        std::unordered_map<std::string, ECS::Entity> entites;
 
-            quad.dimentions.x = 200;
-            quad.dimentions.y = 200;
-        });
+        YAML::Node world = config["world"];
+        if (world.IsMap()) {
+            for (auto&& entity : world) {
+                std::string entity_name = entity.first.as<std::string>();
+                ECS::Entity ecs_entity = ecs_world->CreateEntity(entity_name);
 
-        Scripts::AddScriptToEntity(entity1, "TestScript", ecs_world);
+                entites[entity_name] = ecs_entity;
 
-        ECS::Entity entity2 = ecs_world->CreateEntity();
-        ecs_world->InsertComponent<Transform, Quad>(entity2, [](Transform& transform, Quad& quad){
-            transform.translation.x = 100;
-            transform.translation.y = 100;
+                YAML::Node entity_componenets = entity.second;
+                if (entity_componenets.IsMap()) {
+                    SetComponentIfExists(Transform);
+                    SetComponentIfExists(Quad, *texture_loader);
+                    SetComponentIfExists(Background, *texture_loader);
+                    SetComponentIfExists(Button);
+                    SetComponentIfExists(Camera);
+                    SetComponentIfExists(Projection);
 
-            quad.dimentions.x = 100;
-            quad.dimentions.y = 100;
-
-            quad.color = Math::Vec4(0.3f, 0.8f, 0.4f, 1.0f);
-        });
-        AddChild(ecs_world, entity1, entity2);
-
-        ECS::Entity entity3 = ecs_world->CreateEntity();
-        ecs_world->InsertComponent<Transform, Quad>(entity3, [](Transform& transform, Quad& quad){
-            transform.translation.x = 0;
-            transform.translation.y = 0;
-
-            quad.dimentions.x = 100;
-            quad.dimentions.y = 100;
-
-            quad.color = Math::Vec4(0.3f, 0.8f, 0.4f, 1.0f);
-        });
-        AddChild(ecs_world, entity1, entity3);
-
-        ECS::Entity entity4 = ecs_world->CreateEntity();
-        ecs_world->InsertComponent<Transform, Quad>(entity4, [](Transform& transform, Quad& quad){
-            transform.translation.x = 100;
-            transform.translation.y = 100;
-
-            quad.dimentions.x = 50;
-            quad.dimentions.y = 50;
-
-            quad.color = Math::Vec4(0.3f, 0.8f, 0.4f, 1.0f);
-        });
-
-        ECS::Entity proj_entity = ecs_world->CreateEntity();
-        ecs_world->InsertComponent<Projection>(proj_entity, [this](Projection& proj){
-            proj = Projection();
-            proj.projection = Math::ortho(0.0f, windowConfig.window_width, 0.0f, windowConfig.window_height, 0.1f, 100.0f);
-            for (auto& layer : layerStack.layers) {
-                proj.projection_layers.insert(layer->GetId());
-            }
-        });
-
-        ECS::Entity camera_entity = ecs_world->CreateEntity();
-        ecs_world->InsertComponent<Camera>(camera_entity, [this](Camera& camera){
-            camera = Camera();
-            for (auto& layer : layerStack.layers) {
-                if (layer->GetName() != "GameLayer") {
-                    camera.view_layers.insert(layer->GetId());
+                    if (entity_componenets["Scripts"]) {
+                        YAML::Node scripts = entity_componenets["Scripts"];
+                        for (int i = 0; i < scripts.size(); i++) {
+                            Scripts::AddScriptToEntity(ecs_entity, scripts[i].as<std::string>(), ecs_world);
+                        }
+                    }
                 }
             }
-        });
+
+            for (auto&& entity : world) {
+                std::string entity_name = entity.first.as<std::string>();
+                ECS::Entity ecs_entity = entites[entity_name];
+
+                YAML::Node entity_componenets = entity.second;
+                if (entity_componenets.IsMap() && entity_componenets["Childrens"]) {
+                    YAML::Node childrens = entity_componenets["Childrens"];
+                    if (childrens.IsSequence()) {
+                        for (int i = 0; i < childrens.size(); i++) {
+                            auto res = entites.find(childrens[i].as<std::string>());
+                            if (res != entites.end()) {
+                                AddChild(ecs_world, ecs_entity, res->second);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     void Application::handleEvent(const Ref<Event>& event) {

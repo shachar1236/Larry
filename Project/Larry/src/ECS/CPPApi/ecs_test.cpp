@@ -53,7 +53,7 @@ namespace Larry::ECS {
     void _InsertAndSetTest() {
         World world;
 
-        auto entity = world.CreateEntity();
+        auto entity = world.CreateEntity("Entity1");
 
         LA_CORE_DEBUG("_Position hash: {}", typeid(_Position).hash_code());
         LA_CORE_DEBUG("_Velocity hash: {}", typeid(_Velocity).hash_code());
@@ -108,26 +108,26 @@ namespace Larry::ECS {
     void _SystemTest() {
         World world;
 
-        auto entity1 = world.CreateEntity();
+        auto entity1 = world.CreateEntity("Entity12");
         world.InsertComponent<_Position, _Velocity>(entity1, [](_Position& pos, _Velocity& vel){
             pos = { 1, 8 };
             vel = { 2, 9 };
         });
 
-        auto entity2 = world.CreateEntity();
+        auto entity2 = world.CreateEntity("Entity13");
         world.InsertComponent<_Position, _Velocity>(entity2, [](_Position& pos, _Velocity& vel){
             pos = { 1 * 2, 8 };
             vel = { 2, 9 };
         });
 
-        auto entity3 = world.CreateEntity();
+        auto entity3 = world.CreateEntity("Entity14");
         world.InsertComponent<_Position, _Velocity, _Transform>(entity3, [](_Position& pos, _Velocity& vel, _Transform& trans){
             pos = { 1 * 3, 8 };
             vel = { 2, 9 };
             trans = { 1, 2, 3 };
         });
 
-        auto entity4 = world.CreateEntity();
+        auto entity4 = world.CreateEntity("Entity15");
         world.InsertComponent<_Position>(entity4, [](_Position& pos){
             pos = { 1 * 4, 8 };
         });
@@ -169,27 +169,27 @@ namespace Larry::ECS {
         World world;
 
         for (int i = 0; i < 10; i++) {
-            auto entity1 = world.CreateEntity();
+            auto entity1 = world.CreateEntity("Entity16");
             world.InsertComponent<_Position, _Velocity>(entity1, [=](_Position& pos, _Velocity& vel){
                 pos = { (float)i, 8 };
                 vel = { 2.0f * i, 9 };
             });
         }
 
-        auto my_entity1 = world.CreateEntity();
+        auto my_entity1 = world.CreateEntity("Entity17");
         world.InsertComponent<_Position, _Velocity>(my_entity1, [](_Position& pos, _Velocity& vel){
             pos = { 49, 49 };
             vel = { 2.0f, 9 };
         });
 
-        auto my_entity2 = world.CreateEntity();
+        auto my_entity2 = world.CreateEntity("Entity18");
         world.InsertComponent<_Position, _Velocity>(my_entity2, [](_Position& pos, _Velocity& vel){
             pos = { 50, 50 };
             vel = { 2.0f, 9 };
         });
 
         for (int i = 0; i < 20; i++) {
-            auto entity1 = world.CreateEntity();
+            auto entity1 = world.CreateEntity("Entity19");
             world.InsertComponent<_Position, _Velocity>(entity1, [=](_Position& pos, _Velocity& vel){
                 pos = { (float)i, 8 };
                 vel = { 2.0f * i, 9 };
@@ -201,7 +201,7 @@ namespace Larry::ECS {
         world.KillEntity(my_entity1);
         assert(!world.IsEntityAlive(my_entity1));
 
-        auto my_entity3 = world.CreateEntity();
+        auto my_entity3 = world.CreateEntity("Entity2");
         world.InsertComponent<_Position, _Velocity>(my_entity3, [](_Position& pos, _Velocity& vel){
             pos = { 77, 77 };
             vel = { 2.0f, 9 };
@@ -217,13 +217,13 @@ namespace Larry::ECS {
     void _DeleteComponentTest() {
         World world;
 
-        auto entity1 = world.CreateEntity();
+        auto entity1 = world.CreateEntity("Entity21");
         world.InsertComponent<_Position, _Velocity>(entity1, [](_Position& pos, _Velocity& vel){
             pos = { 1, 8 };
             vel = { 2, 9 };
         });
 
-        auto entity2 = world.CreateEntity();
+        auto entity2 = world.CreateEntity("Entity22");
         world.InsertComponent<_Position, _Velocity>(entity2, [](_Position& pos, _Velocity& vel){
             pos = { 1, 8 };
             vel = { 2, 9 };
@@ -239,7 +239,7 @@ namespace Larry::ECS {
     void _DestractorTest() {
         World world;
         
-        auto entity = world.CreateEntity();
+        auto entity = world.CreateEntity("Entity23");
         world.InsertComponent<_TestComponentFather, _TestComponentOutside>(entity, [](_TestComponentFather& father, _TestComponentOutside& outside){
             father.x = 10;
             father.child.temp = 9;
@@ -274,7 +274,7 @@ namespace Larry::ECS {
         assert(_testComponentChildDestructed == 1);
         assert(_testComponentOutsideDestructed == 1);
 
-        auto entity2 = world.CreateEntity();
+        auto entity2 = world.CreateEntity("Entity24");
         world.InsertComponent<_TestComponentFather>(entity2, [](_TestComponentFather& father){
             father.x = 10;
             father.child.temp = 9;
@@ -315,25 +315,25 @@ namespace Larry::ECS {
         sing = sing_opt.value();
         assert(sing->temp == 100);
 
-        auto entity = world.CreateEntity();
+        auto entity = world.CreateEntity("Entity25");
         bool succes = world.InsertComponent<_TestComponentChild>(entity, [](_TestComponentChild& child){
             assert(false);
         });
         assert(!succes);
 
-        auto entity1 = world.CreateEntity();
+        auto entity1 = world.CreateEntity("Entity26");
         world.InsertComponent<_Position, _Velocity>(entity1, [](_Position& pos, _Velocity& vel){
             pos = { 1, 8 };
             vel = { 2, 9 };
         });
 
-        auto entity2 = world.CreateEntity();
+        auto entity2 = world.CreateEntity("Entity27");
         world.InsertComponent<_Position, _Velocity>(entity2, [](_Position& pos, _Velocity& vel){
             pos = { 1 * 2, 8 };
             vel = { 2, 9 };
         });
 
-        auto entity3 = world.CreateEntity();
+        auto entity3 = world.CreateEntity("Entity28");
         world.InsertComponent<_Position, _Velocity, _Transform>(entity3, [](_Position& pos, _Velocity& vel, _Transform& trans){
             pos = { 1 * 3, 8 };
             vel = { 2, 9 };
