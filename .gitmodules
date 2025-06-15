@@ -7,3 +7,6 @@
 [submodule "Project/libraries/spdlog"]
 	path = Project/libraries/spdlog
 	url = https://github.com/gabime/spdlog.git
+[submodule "Project/libraries/luajit"]
+	path = Project/libraries/luajit
+	url = https://luajit.org/git/luajit.git

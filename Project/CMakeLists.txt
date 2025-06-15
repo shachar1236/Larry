@@ -28,6 +28,15 @@ add_subdirectory(libraries/spdlog)
 
 add_subdirectory(Larry/LarryApi)
 
+find_library(LUAJIT_LIBRARY
+             NAMES luajit-5.1 luajit-5.1.a luajit # Common library names
+             HINTS
+                 $ENV{LUAJIT_HOME}/lib
+                 /usr/local/lib
+                 /usr/lib
+                 /opt/local/lib
+             DOC "Path to LuaJIT library file")
+
 # add gamescripts
 add_subdirectory(SandboxGame)
 
@@ -60,6 +69,7 @@ set(SOURCE_FILES
     Larry/src/Application/Systems/RelationsSystem.cpp
 
     Larry/src/Scripts/ScriptsManager.cpp
+    Larry/src/Scripts/LuaScripts.cpp
     # Larry/src/Scripts/Scripts.cpp
 )
 set(HEADER_DIRECTORIES
@@ -88,6 +98,7 @@ if(OPENGL_FOUND)
     include_directories(libraries/glad/include) # GLAD
     include_directories(libraries/yaml-cpp/include)
     include_directories(libraries/stb_image)
+    include_directories(libraries/luajit/src)
     include_directories(libraries)
 
     include_directories(${HEADER_DIRECTORIES}) # My Headers
@@ -108,7 +119,7 @@ if(OPENGL_FOUND)
 
     # target_link_directories(LarryEngine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/SandboxGame/build)
 
-    target_link_libraries(LarryEngine ${LarrySharedLibraries} ${OPENGL_LIBRARIES} GameScripts glfw yaml-cpp)
+    target_link_libraries(LarryEngine ${LarrySharedLibraries} ${OPENGL_LIBRARIES} ${LUAJIT_LIBRARY} GameScripts glfw yaml-cpp)
     # target_link_libraries(LarryEngine ${LarrySharedLibraries} ${OPENGL_LIBRARIES} glfw)
 else()
     message(FATAL_ERROR "OpenGL not found")

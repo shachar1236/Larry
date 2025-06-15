@@ -4,6 +4,7 @@
 #include "Application/Application.h"
 #include "Components/Camera.h"
 #include "Components/Projection.h"
+#include "LuaScripts.h"
 #include "Math.h"
 #include "Renderer.h"
 #include "ScriptsManager.h"
@@ -119,9 +120,11 @@ namespace Larry {
 
         Scripts::Script::Init(ecs_world);
 
+        Scripts::LuaScript::Init();
+
         GenerateScene("config.yaml");
 
-        SaveScene();
+        // SaveScene();
     }
 
     void Application::Run() {
