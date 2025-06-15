@@ -120,9 +120,15 @@ namespace Larry {
 
         Scripts::Script::Init(ecs_world);
 
-        Scripts::LuaScript::Init();
-
         GenerateScene("config.yaml");
+
+        Scripts::LuaScript::Init(ecs_world->GetInternalWorld(), TypeHash(Transform));
+        ecs_world->SetComponents<Transform>(3, [](Transform& transform){
+            LA_CORE_INFO("Entity transform translation ({}, {}, {})", transform.translation.x, transform.translation.y, transform.translation.z);
+            LA_CORE_INFO("Entity transform scale ({}, {}, {})", transform.scale.x, transform.scale.y, transform.scale.z);
+            LA_CORE_INFO("Entity rotation axis scale ({}, {}, {})", transform.rotation_axis.x, transform.rotation_axis.y, transform.rotation_axis.z);
+            LA_CORE_INFO("Entity rotation size {}", transform.rotation_size);
+        });
 
         // SaveScene();
     }
