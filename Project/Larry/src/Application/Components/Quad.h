@@ -9,7 +9,7 @@ namespace Larry {
     struct Quad {
         Math::Vec3 dimentions;
         Math::Vec4 color;
-        Ref<TextureObject> texture = nullptr;
+        TextureObject* texture = nullptr;
 
         Quad() {
             dimentions = Math::Vec3(0.0f);

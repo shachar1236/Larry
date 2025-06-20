@@ -10,15 +10,15 @@
 namespace Larry {
     class TextureLoader {
     public:
-        std::unordered_map<std::size_t, Ref<TextureObject>> textures;
-        std::unordered_map<std::string, Ref<TextureObject>> identifier_to_texture;
+        std::unordered_map<std::size_t, TextureObject*> textures;
+        std::unordered_map<std::string, TextureObject*> identifier_to_texture;
 
         TextureLoader();
         ~TextureLoader();
 
-        Ref<TextureObject> LoadTexture(const std::string& path, const TextureConfig& config);
-        void SetTextureIdentifier(const Ref<TextureObject>& texture, const std::string& identifier);
-        std::optional<Ref<TextureObject>> LoadTextureByIdentifier(const std::string& identifier);
+        TextureObject* LoadTexture(const std::string& path, const TextureConfig& config);
+        void SetTextureIdentifier(TextureObject* texture, const std::string& identifier);
+        std::optional<TextureObject*> LoadTextureByIdentifier(const std::string& identifier);
 
     };
 }

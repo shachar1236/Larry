@@ -67,8 +67,8 @@ namespace Larry {
         glActiveTexture(GL_TEXTURE0 + slot);
     }
 
-    Ref<TextureObject> TextureObject::CreateWhiteTexture() {
-        Ref<TextureObject> white = CreateRef<TextureObject>();
+    TextureObject* TextureObject::CreateWhiteTexture() {
+        TextureObject* white = new TextureObject();
         glGenTextures(1, &white->texture); 
         white->Bind();
 

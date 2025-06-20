@@ -119,7 +119,7 @@ namespace Larry {
                 return this->texture == other.texture;
             }
 
-            static Ref<TextureObject> CreateWhiteTexture();
+            static TextureObject* CreateWhiteTexture();
     };
 }
 

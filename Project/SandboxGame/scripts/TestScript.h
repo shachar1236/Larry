@@ -6,7 +6,7 @@ namespace Larry {
     class TestScript : public Scripts::Script {
         private:
             TextureLoader* texture_loader;
-            Ref<TextureObject> face_texture;
+            TextureObject* face_texture;
             float vel = 400;
             int gameLayerId;
         public:

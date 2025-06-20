@@ -59,8 +59,8 @@ namespace Larry {
             Scope<unsigned int[]> quad_indices;
             BufferObject<unsigned int> quad_indices_buffer;
 
-            Ref<TextureObject> white_texture;
-            std::vector<Ref<TextureObject>> currentlyUsedTextures;
+            TextureObject* white_texture;
+            std::vector<TextureObject*> currentlyUsedTextures;
 
             Math::Vec2 viewport_size;
             static Renderer* renderer;
@@ -97,7 +97,7 @@ namespace Larry {
 
             // Setting next draw options
             void Fill(Math::Vec4 color);
-            void Texture(const Ref<TextureObject>& texture);
+            void Texture(TextureObject* texture);
             void TextureCords(const float cords[4][2]);
             void Translate(const Math::Vec3& amount);
             void Scale(const Math::Vec3& amount);

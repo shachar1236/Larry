@@ -245,7 +245,7 @@ namespace Larry {
         CurrentShapeOptions.FillColors = color;
     }
 
-    void Renderer::Texture(const Ref<TextureObject>& texture) {
+    void Renderer::Texture(TextureObject* texture) {
         auto found = std::find(currentlyUsedTextures.begin(), currentlyUsedTextures.end(), texture);
         if (found != currentlyUsedTextures.end()) {
             int index = found - currentlyUsedTextures.begin();
