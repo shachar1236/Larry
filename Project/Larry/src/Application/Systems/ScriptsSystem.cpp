@@ -1,4 +1,5 @@
 #include "ECS_pch.h"
+#include "SystemEvents.h"
 #include "common.h"
 #include "Application/Systems/ScriptsSystem.h"
 #include "Entity.hpp"
@@ -46,7 +47,7 @@ namespace Larry {
         ECS::Internal::AnyQueue* any_queue = iworld->InitAnyQueue();
         ECS::Internal::TypeQueue* type_queue = iworld->InitTypeQueue();
 
-        DispatchEvent<Events::SystemInit>(event, [this, &any_queue, &type_queue](const Ref<Event>& e){
+        DispatchEvent<Events::SystemInitEvent>(event, [this, &any_queue, &type_queue](const Ref<Event>& e){
             for (auto&& hash_code : scripts_types) {
                 any_queue->Clear();
                 type_queue->Clear();
