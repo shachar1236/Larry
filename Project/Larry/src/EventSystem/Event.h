@@ -8,6 +8,7 @@ namespace Larry {
         Error,
         Input,
         Window,
+        System,
     };
     inline auto format_as(enum EventCategory f) { return fmt::underlying(f); }
 
@@ -17,7 +18,8 @@ namespace Larry {
 
         WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved,
         KeyPressed, KeyReleased, KeyTyped,
-		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
+		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled,
+        SystemInit,
     };
     inline auto format_as(enum EventType f) { return fmt::underlying(f); }
 

@@ -8,6 +8,7 @@
 #include "Math.h"
 #include "Renderer.h"
 #include "ScriptsManager.h"
+#include "SystemEvents.h"
 #include "Systems/RelationsSystem.h"
 #include "World.hpp"
 #include "common.h"
@@ -130,6 +131,7 @@ namespace Larry {
             LA_CORE_INFO("Entity rotation size {}", transform.rotation_size);
         });
 
+        EventSystem::HandleEvent(CreateRef<Events::SystemInitEvent>());
         // SaveScene();
     }
 
