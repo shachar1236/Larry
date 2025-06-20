@@ -45,7 +45,7 @@ namespace YAML {
 
             for (auto&& texture : node) {
                 Larry::TextureConfig config = texture.second.as<Larry::TextureConfig>();
-                Larry::Ref<Larry::TextureObject> t = rhs.LoadTexture(texture.second["path"].as<std::string>(), config);
+                Larry::TextureObject* t = rhs.LoadTexture(texture.second["path"].as<std::string>(), config);
                 rhs.SetTextureIdentifier(t, texture.first.as<std::string>());
             }
             return true;

@@ -1,89 +1,34 @@
 local ffi = require("ffi")
-ffi.cdef[[
-typedef unsigned long ECS_TypeHashCode;
-typedef long int64_t;
+local cdef = require("CDef")
 
-typedef struct {
-    void* value;
-    ECS_TypeHashCode type;
-} ECS_Any;
+ffi.cdef(cdef)
 
-typedef void* ECS_World;
-typedef int64_t ECS_Entity;
-typedef void* ECS_AnyQueue;
-typedef void* ECS_TypeQueue;
-
-void ECS_Init();
-
-void* ECS_CreateWorld();
-
-void ECS_RegisterType(ECS_World, ECS_TypeHashCode type, int type_size, void(*destructor)(const void*)); // register the type if it dosent already exists
-
-ECS_Entity ECS_CreateEntity(ECS_World, char* name);
-bool ECS_IsEntityAlive(ECS_World, ECS_Entity);
-void ECS_KillEntity(ECS_World, ECS_Entity);
-
-// its the user responsability to free this memory
-char* GetEntityName(ECS_World world_, ECS_Entity);
-
-// gives you a queue to work with
-ECS_AnyQueue ECS_InitAnyQueue(ECS_World);
-// pushes a value to queue
-void ECS_PushToAnyQueue(ECS_AnyQueue, ECS_Any);
-// pops a value to queue
-ECS_Any ECS_PopFromAnyQueue(ECS_AnyQueue queue);
-// when you are done using the queue call this function and the world will take ownership of the state
-void ECS_DoneWithAnyQueue(ECS_World, ECS_AnyQueue queue);
-
-// gives you a state to work with
-ECS_TypeQueue ECS_InitTypeQueue(ECS_World);
-// pushes a value to state
-void ECS_PushToTypeQueue(ECS_TypeQueue, ECS_TypeHashCode);
-// when you are done using the state call this function and the world will take ownership of the state
-void ECS_DoneWithTypeQueue(ECS_World, ECS_TypeQueue queue);
-
-// insert the new types and return a pointer to all of then in the resultQueue
-// returns if succesfuly inserted
-bool ECS_InsertComponents(ECS_World, ECS_Entity, ECS_TypeQueue types, ECS_AnyQueue resultQueue);
-void ECS_SetComponents(ECS_World, ECS_Entity, ECS_TypeQueue types, ECS_AnyQueue resultQueue);
-ECS_Any ECS_GetComponent(ECS_World, ECS_Entity, ECS_TypeHashCode);
-void ECS_DeleteComponent(ECS_World, ECS_Entity, ECS_TypeHashCode);
-
-void* ECS_CreateSingelton(ECS_World, ECS_TypeHashCode); // returns a pointer to the singelton
-void* ECS_GetSingelton(ECS_World, ECS_TypeHashCode);
-
-void ECS_System(ECS_World, ECS_TypeQueue components_types, ECS_AnyQueue system_components_queue, void(*SystemFunc)(ECS_Entity, ECS_AnyQueue components, bool* stop));
-
-typedef struct Vec3 {
-    float x, y, z;
-} Vec3;
-
-typedef struct Transform {
-    Vec3 translation;
-    Vec3 scale;
-    Vec3 rotation_axis;
-    float rotation_size;
-
-    Vec3 _realTranslation; // the current translation plus parent realTranslation
-    int _realTranslationTimestemp; // the loop timestemp when the realTranslation was calculated
-} Transform;
-]]
-
-function GetComponent(world, entity_as_ptr, component_type_hash_as_ptr)
-    -- print("Lua (before cast): component_type_hash_as_ptr type:", ffi.typeof(component_type_hash_as_ptr))
+ComponentNamesToHash = {}
+function AddComponentHash(name, component_type_hash_as_ptr)
     -- Cast the incoming void* back to ECS_TypeHashCode (unsigned long)
     local component_type_hash = ffi.cast("ECS_TypeHashCode", component_type_hash_as_ptr)
-    local entity = ffi.cast("int64_t", entity_as_ptr);
-    -- print("Lua (after cast): component_type_hash value:", component_type_hash)
-    -- print("Lua: GetComponent called with world:", world, "entity:", entity, "type_hash:", component_type_hash)
+    ComponentNamesToHash[name] = component_type_hash;
+end
 
-    local res = ffi.C.ECS_GetComponent(world, entity, component_type_hash)
-    -- print("Lua: ECS_GetComponent returned. Value:", res.value, "Type:", res.type)
-    local asTr = ffi.cast("struct Transform*", res.value)
+
+function GetComponent(world, entity, componentName)
+    -- Cast the incoming void* back to ECS_TypeHashCode (unsigned long)
+    -- local component_type_hash = ffi.cast("ECS_TypeHashCode", component_type_hash_as_ptr)
+
+    if ComponentNamesToHash[componentName] then
+        local res = ffi.C.ECS_GetComponent(world, entity, ComponentNamesToHash[componentName])
+        local comp = ffi.cast("struct " .. componentName .. "*", res.value)
+        return comp
+        -- print("Lua: ECS_GetComponent returned. Value:", res.value, "Type:", res.type)
+    end
+end
+
+function Test(world, entity_as_ptr)
+    local entity = ffi.cast("int64_t", entity_as_ptr);
+
+    local asTr = GetComponent(world, entity, "Transform")
     print(asTr.translation.x .. " " .. asTr.translation.y .. " " .. asTr.translation.z)
     print(asTr.scale.x .. " " .. asTr.scale.y .. " " .. asTr.scale.z)
     print(asTr.rotation_axis.x .. " " .. asTr.rotation_axis.y .. " " .. asTr.rotation_axis.z)
     print(asTr.rotation_size)
 end
-
-

@@ -1,4 +1,5 @@
 #pragma once
+#include "LuaScripts.h"
 #include "Renderer/Renderer.h"
 #include "EventSystem/Event.h"
 #include "LarryWindow.h"
@@ -20,6 +21,7 @@ namespace Larry {
             Renderer* renderer;
             LayerStack layerStack;
             Ref<ECS::World> ecs_world;
+            Scripts::LuaScripts* lua_scripts;
 
             static Application* application;
         public:

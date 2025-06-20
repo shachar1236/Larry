@@ -1,4 +1,5 @@
 #include "Components/Background.h"
+#include "Components/Button.h"
 #include "ECS/CPPApi/ECS.h"
 #include "ECS_pch.h"
 #include "Application/Application.h"
@@ -53,6 +54,8 @@
         std::string name = ecs_world->GetEntityName(entity).value(); \
         world[name][#component] = comp.EncodeYAML(__VA_ARGS__); \
     }); \
+
+#define RegisterComponentOnLuaScripts(type) lua_scripts->RegisterComponent(#type, TypeHash(type))
 
 void gflw_error_callback(int code, const char* description)
 {
@@ -117,13 +120,26 @@ namespace Larry {
 
         Scripts::RegisterScripts(ecs_world, layerStack);
 
-        Input::Init(window->GetWindow());
+        lua_scripts = ecs_world->GetSingelton<Scripts::LuaScripts>();
+        new (lua_scripts) Scripts::LuaScripts(ecs_world->GetInternalWorld());
 
-        Scripts::Script::Init(ecs_world);
+        RegisterComponentOnLuaScripts(Background);
+        RegisterComponentOnLuaScripts(Button);
+        RegisterComponentOnLuaScripts(Camera);
+        RegisterComponentOnLuaScripts(Projection);
+        RegisterComponentOnLuaScripts(Quad);
+        RegisterComponentOnLuaScripts(Parent);
+        RegisterComponentOnLuaScripts(Child);
+        RegisterComponentOnLuaScripts(Transform);
+
+        Input::Init(window->GetWindow());
 
         GenerateScene("config.yaml");
 
-        Scripts::LuaScript::Init(ecs_world->GetInternalWorld(), TypeHash(Transform));
+        Scripts::Script::Init(ecs_world);
+
+        lua_scripts->test(ecs_world->GetInternalWorld());
+
         ecs_world->SetComponents<Transform>(3, [](Transform& transform){
             LA_CORE_INFO("Entity transform translation ({}, {}, {})", transform.translation.x, transform.translation.y, transform.translation.z);
             LA_CORE_INFO("Entity transform scale ({}, {}, {})", transform.scale.x, transform.scale.y, transform.scale.z);
