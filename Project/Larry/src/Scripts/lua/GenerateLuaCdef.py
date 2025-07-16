@@ -7,6 +7,56 @@ import re
 # Input system
 # Events
 
+def extract_namespace_content(cxx_code: str, namespace_name: str) -> str:
+    """
+    Extracts all content within a specified C++ namespace block
+    by performing a character-by-character scan and tracking brace depth.
+    This is generally more robust for nested structures than line-based regex.
+
+    Args:
+        cxx_code: A string containing the C++ code.
+        namespace_name: The name of the namespace to extract (e.g., "Larry").
+
+    Returns:
+        A string containing all the content found within the specified
+        namespace block, or an empty string if the namespace is not found.
+    """
+    # 1. Find the exact start position of the namespace's opening brace
+    #    We need to make sure we're finding the '{' that directly follows the namespace declaration.
+    namespace_start_pattern = re.compile(
+        rf'namespace\s+{re.escape(namespace_name)}\s*{{',
+        re.DOTALL
+    )
+    match = namespace_start_pattern.search(cxx_code)
+
+    if not match:
+        return "" # Namespace opening not found
+
+    # Get the index immediately after the opening brace '{' of the namespace
+    start_index = match.end()
+
+    brace_depth = 1  # We just passed one opening brace
+    content_chars = []
+    
+    # Iterate through the code character by character starting from after the opening brace
+    i = start_index
+    while i < len(cxx_code):
+        char = cxx_code[i]
+
+        if char == '{':
+            brace_depth += 1
+        elif char == '}':
+            brace_depth -= 1
+
+        # If brace_depth returns to 0, we found the matching closing brace for the namespace
+        if brace_depth == 0:
+            break # Stop scanning
+        
+        content_chars.append(char)
+        i += 1
+
+    return "".join(content_chars).strip()
+
 def extract_extern_c_declarations_as_string(c_code: str) -> str:
     """
     Extracts all declarations within an 'extern "C"' block from C code
@@ -71,6 +121,33 @@ def extract_struct_members_strictly(cxx_code: str, struct_name: str) -> str:
 
     return f"typedef struct {struct_name} {'{\n    ' + '\n    '.join(data.splitlines()) + '\n}'} {struct_name};"
 
+def struct_to_typedef(code : str) -> str:
+    found = False
+    braces_count = 0
+    struct_name = ""
+    res = ""
+    for line in code.splitlines(True):
+        if not found and "struct" in line:
+            found = True
+            index = line.index("struct")
+            line = line[:index] + " typedef " + line[index:]
+            words = line.split(" ")
+            struct_name = words[words.index("struct") + 1]
+
+        if found and "{" in line:
+            braces_count += 1
+        if found and "}" in line:
+            braces_count -= 1
+
+            if braces_count == 0:
+                index = line.index("}")
+                line = line[:index+1] + " " + struct_name + " " + line[index+1:]
+
+        res += line
+
+    return res
+
+
 lua_code = """
 return [[
 typedef struct Vec1 {
@@ -94,6 +171,26 @@ lua_end_code = "]]"
 
 with open("Larry/src/ECS/ECS_C.h", "r") as file:
     code = file.read()
+    lua_code += extract_extern_c_declarations_as_string(code) + "\n\n"
+
+with open("Larry/src/TextureLoader/TextureConfig.h", "r") as file:
+    code = file.read()
+    texture_loader = extract_namespace_content(code, "Larry")
+    code = ""
+
+    can_change = False
+    for line in texture_loader.splitlines():
+        if "TextureConfig" in line:
+            can_change = True
+        if can_change and "=" in line:
+            line = line[:line.index("=")] + ";"
+        code += line + "\n"
+
+    lua_code += struct_to_typedef(code) + "\n\n"
+
+with open("Larry/src/Scripts/lua/LarryApiFunctions.h", "r") as file:
+    code = file.read()
+    code = code.replace("Larry::", "")
     lua_code += extract_extern_c_declarations_as_string(code) + "\n\n"
 
 components_files = [

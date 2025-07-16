@@ -71,6 +71,39 @@ typedef struct Vec4 {
 
 
 
+enum TextureWrappingOptions {
+        REPEAT = 0x2901,
+        MIRRORED_REPEAT  = 0x8370,
+        CLAMP_TO_EDGE = 0x812F,
+        CLAMP_TO_BORDER = 0x812D
+    };
+
+    enum TextureFilterOptions {
+        NEAREST = 0x2600,
+        LINEAR = 0x2601
+    };
+
+    enum MipmapFilterOptions {
+        NEAREST_MIPMAP_NEAREST = 0x2700,
+        LINEAR_MIPMAP_NEAREST = 0x2701,
+        NEAREST_MIPMAP_LINEAR = 0x2702,
+        LINEAR_MIPMAP_LINEAR = 0x2703
+    };
+
+     typedef struct TextureConfig {
+        bool CreateMipmap ;
+        enum TextureWrappingOptions TextureWrappingS ;
+        enum TextureWrappingOptions TextureWrappingT ;
+        enum TextureFilterOptions TextureFilterMin ;
+        enum TextureFilterOptions TextureFilterMag ;
+        enum MipmapFilterOptions MipmapFilterMin ;
+    } TextureConfig ;
+
+
+
+    void* LuaLoadTexture(void* world, const char* path, TextureConfig config);
+
+
 typedef struct Background {
     Vec4 color;
     void* texture;

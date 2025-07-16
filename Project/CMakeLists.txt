@@ -69,6 +69,7 @@ set(SOURCE_FILES
     Larry/src/Application/Systems/RelationsSystem.cpp
 
     Larry/src/Scripts/ScriptsManager.cpp
+
     Larry/src/Scripts/lua/LuaScripts.cpp
     # Larry/src/Scripts/Scripts.cpp
 )
@@ -82,6 +83,7 @@ set(HEADER_DIRECTORIES
     Larry/src/Input
     Larry/src/Math
     Larry/src/Renderer
+    Larry/src/TextureLoader
     Larry/src/EventSystem
     Larry/src/Layers/Layer
     Larry/src/Layers

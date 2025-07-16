@@ -121,7 +121,7 @@ namespace Larry {
         Scripts::RegisterScripts(ecs_world, layerStack);
 
         lua_scripts = ecs_world->GetSingelton<Scripts::LuaScripts>();
-        new (lua_scripts) Scripts::LuaScripts(ecs_world->GetInternalWorld());
+        new (lua_scripts) Scripts::LuaScripts(ecs_world);
 
         RegisterComponentOnLuaScripts(Background);
         RegisterComponentOnLuaScripts(Button);
@@ -140,11 +140,12 @@ namespace Larry {
 
         lua_scripts->test(ecs_world->GetInternalWorld());
 
-        ecs_world->SetComponents<Transform>(3, [](Transform& transform){
+        ecs_world->SetComponents<Transform, Quad>(3, [](Transform& transform, Quad& quad){
             LA_CORE_INFO("Entity transform translation ({}, {}, {})", transform.translation.x, transform.translation.y, transform.translation.z);
             LA_CORE_INFO("Entity transform scale ({}, {}, {})", transform.scale.x, transform.scale.y, transform.scale.z);
             LA_CORE_INFO("Entity rotation axis scale ({}, {}, {})", transform.rotation_axis.x, transform.rotation_axis.y, transform.rotation_axis.z);
             LA_CORE_INFO("Entity rotation size {}", transform.rotation_size);
+            LA_CORE_INFO("Entity texture {}", (void*)quad.texture);
         });
 
         EventSystem::HandleEvent(CreateRef<Events::SystemInitEvent>());
@@ -298,7 +299,7 @@ namespace Larry {
                 HandleWindowEvent(event);
                 break;
             default:
-                LA_CORE_INFO("Got an event of category {} and type {} and I dont know how to handle it.", event->GetEventCategory(), event->GetEventType());
+                LA_CORE_WARN("Got an event of category {} and type {} and I dont know how to handle it.", event->GetEventCategory(), event->GetEventType());
                 break;
         }
 

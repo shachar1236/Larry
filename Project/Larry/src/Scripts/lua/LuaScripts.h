@@ -4,6 +4,7 @@
 #include <lualib.h>
 #include <lauxlib.h>
 #include "ECS_C.h"
+#include "LarryMemory.h"
 #include "World.hpp"
 #include <string>
 
@@ -12,7 +13,7 @@ namespace Larry::Scripts {
         private:
             lua_State *L;
         public:
-            LuaScripts(ECS::Internal::World*);
+            LuaScripts(const Ref<ECS::World>&);
             ~LuaScripts();
 
             void test(ECS::Internal::World*);

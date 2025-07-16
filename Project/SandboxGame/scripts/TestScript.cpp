@@ -22,7 +22,6 @@ namespace Larry {
         world->SetComponents<Quad>(entity, [this](Quad& quad){
             // quad.texture = face_texture;
             LA_INFO("In test script callback!!!!!!!!!!");
-            quad.texture = nullptr;
             quad.color.r = 0.1;
             quad.color.g = 0.1;
             quad.color.b = 0.7;

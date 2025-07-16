@@ -2,19 +2,13 @@
 
 #include <yaml-cpp/yaml.h>
 #include "Utils/LarryMemory.h"
+#include "TextureLoader/TextureConfig.h"
 #include <string>
 
 #define CASE_VALUE(x) case x: return #x;
 #define RETURN_IF_EQUAL(x) if (str == #x) { return x; }
 
 namespace Larry {
-    enum TextureWrappingOptions {
-        REPEAT = 0x2901,
-        MIRRORED_REPEAT  = 0x8370,
-        CLAMP_TO_EDGE = 0x812F,
-        CLAMP_TO_BORDER = 0x812D
-    };
-
     inline std::string EncodeTextureWrappingOptions(enum TextureWrappingOptions value) {
         switch (value) {
             CASE_VALUE(REPEAT);
@@ -34,11 +28,6 @@ namespace Larry {
         return REPEAT;
     }
 
-    enum TextureFilterOptions {
-        NEAREST = 0x2600,
-        LINEAR = 0x2601
-    };
-
     inline std::string EncodeTextureFilterOptions(enum TextureFilterOptions value) {
         switch (value) {
             CASE_VALUE(NEAREST);
@@ -53,13 +42,6 @@ namespace Larry {
 
         return NEAREST;
     }
-
-    enum MipmapFilterOptions {
-        NEAREST_MIPMAP_NEAREST = 0x2700,
-        LINEAR_MIPMAP_NEAREST = 0x2701,
-        NEAREST_MIPMAP_LINEAR = 0x2702,
-        LINEAR_MIPMAP_LINEAR = 0x2703
-    };
 
     inline std::string EncodeMipmapFilterOptions(enum MipmapFilterOptions value) {
         switch (value) {
@@ -79,15 +61,6 @@ namespace Larry {
 
         return LINEAR_MIPMAP_LINEAR;
     }
-
-    struct TextureConfig {
-        bool CreateMipmap = true;
-        enum TextureWrappingOptions TextureWrappingS = TextureWrappingOptions::REPEAT;
-        enum TextureWrappingOptions TextureWrappingT = TextureWrappingOptions::REPEAT;
-        enum TextureFilterOptions TextureFilterMin = TextureFilterOptions::LINEAR;
-        enum TextureFilterOptions TextureFilterMag = TextureFilterOptions::LINEAR;
-        enum MipmapFilterOptions MipmapFilterMin = MipmapFilterOptions::LINEAR_MIPMAP_LINEAR;
-    };
 
     class TextureLoader;
 

@@ -14,6 +14,7 @@ add_library(LarryApi SHARED
             ${CMAKE_CURRENT_SOURCE_DIR}/../src/TextureLoader/TextureObject.cpp
             ${CMAKE_CURRENT_SOURCE_DIR}/../src/TextureLoader/TextureLoader.cpp
             ${CMAKE_CURRENT_SOURCE_DIR}/../src/Input/Input.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/../src/Scripts/lua/LarryApiFunctions.cpp
             )
 
 target_include_directories(LarryApi PRIVATE 
@@ -36,6 +37,7 @@ target_include_directories(LarryApi
                ${CMAKE_CURRENT_SOURCE_DIR}/../src/TextureLoader/
                ${CMAKE_CURRENT_SOURCE_DIR}/../src/Input/
                ${CMAKE_CURRENT_SOURCE_DIR}/../src/Layers/
+               ${CMAKE_CURRENT_SOURCE_DIR}/../src/Scripts/lua
                )
 
 # target_precompile_headers(LarryApi PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../src/LarryApi.h)
