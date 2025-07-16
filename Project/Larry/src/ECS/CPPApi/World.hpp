@@ -9,7 +9,7 @@
 #include <type_traits> // For std::is_default_constructible, std::enable_if
 
 #define TypeHash(T) typeid(T).hash_code()
-#define RegisterTypes(Ts) (ECS_RegisterType(&world, TypeHash(Ts), sizeof(Ts), DESTRUCTOR_LAMBDA(Ts)), ...);
+#define RegisterTypes(Ts) (ECS_RegisterType(world, TypeHash(Ts), sizeof(Ts), DESTRUCTOR_LAMBDA(Ts)), ...);
 #define ForEachType(x) (x, ...)
 // #define CallFWithAnyQueue(queue) F((Types&)(*(Types*)(queue->Pop().value))...)
 
@@ -35,25 +35,32 @@ void CallDefaultConstractorIfAvailable(T* obj) {
 namespace Larry::ECS {
     class World {
         private:
-            Internal::World world;
+            Internal::World _world;
+            Internal::World* world;
 
         public:
-            World() { }
+            World() {
+                world = &_world;
+            }
+
+            World(Internal::World* init_world) {
+                world = init_world;
+            }
 
             ~World() { }
 
             Internal::World* GetInternalWorld() {
-                return &world;
+                return world;
             }
 
-            Entity CreateEntity(const std::string& name) { return world.CreateEntity(name); }
+            Entity CreateEntity(const std::string& name) { return world->CreateEntity(name); }
 
-            bool IsEntityAlive(Entity entity) { return world.IsEntityAlive(entity); }
+            bool IsEntityAlive(Entity entity) { return world->IsEntityAlive(entity); }
 
-            void KillEntity(Entity entity) { world.KillEntity(entity); }
+            void KillEntity(Entity entity) { world->KillEntity(entity); }
 
             std::optional<std::string> GetEntityName(Entity entity) {
-                return world.GetEntityName(entity);
+                return world->GetEntityName(entity);
             }
 
             template <typename... Types, typename F> 
@@ -61,11 +68,11 @@ namespace Larry::ECS {
             {
                 RegisterTypes(Types);
 
-                Internal::AnyQueue* resultQueue = world.InitAnyQueue();
-                Internal::TypeQueue* types = world.InitTypeQueue();
+                Internal::AnyQueue* resultQueue = world->InitAnyQueue();
+                Internal::TypeQueue* types = world->InitTypeQueue();
                 // ForEachType(LA_CORE_DEBUG("Type hash: {}", TypeHash(Types)));
                 ForEachType(types->push_back(TypeHash(Types)));
-                bool success = world.InsertComponents(entity, *types, *resultQueue);
+                bool success = world->InsertComponents(entity, *types, *resultQueue);
 
                 if (success) {
                     ForEachType(CallDefaultConstractorIfAvailable((Types*)(resultQueue->Pop().value)));
@@ -73,8 +80,8 @@ namespace Larry::ECS {
                     set_callback((Types&)(*(Types*)(resultQueue->PopBack().value))...);
                 }
 
-                world.DoneWithAnyQueue(resultQueue);
-                world.DoneWithTypeQueue(types);
+                world->DoneWithAnyQueue(resultQueue);
+                world->DoneWithTypeQueue(types);
 
                 return success;
             }
@@ -82,8 +89,8 @@ namespace Larry::ECS {
             template<typename T>
             std::optional<T*> GetComponent(Entity entity)
             {
-                ECS_RegisterType(&world, TypeHash(T), sizeof(T), DESTRUCTOR_LAMBDA(T));
-                std::optional<ECS_Any> res = world.GetComponent(entity, TypeHash(T));
+                ECS_RegisterType(world, TypeHash(T), sizeof(T), DESTRUCTOR_LAMBDA(T));
+                std::optional<ECS_Any> res = world->GetComponent(entity, TypeHash(T));
                 if (res.has_value()) {
                     return (T*)res->value;
                 }
@@ -95,18 +102,18 @@ namespace Larry::ECS {
             {
                 RegisterTypes(Types);
 
-                Internal::AnyQueue* resultQueue = world.InitAnyQueue();
-                Internal::TypeQueue* types = world.InitTypeQueue();
+                Internal::AnyQueue* resultQueue = world->InitAnyQueue();
+                Internal::TypeQueue* types = world->InitTypeQueue();
                 ForEachType(types->push_back(TypeHash(Types)));
-                bool succeded = world.SetComponents(entity, *types, *resultQueue);
+                bool succeded = world->SetComponents(entity, *types, *resultQueue);
 
                 if (succeded) {
                     resultQueue->InitPopBack();
                     set_callback((Types&)(*(Types*)(resultQueue->PopBack().value))...);
                 }
 
-                world.DoneWithAnyQueue(resultQueue);
-                world.DoneWithTypeQueue(types);
+                world->DoneWithAnyQueue(resultQueue);
+                world->DoneWithTypeQueue(types);
 
                 return succeded;
             }
@@ -114,14 +121,14 @@ namespace Larry::ECS {
             template <typename T>
             void DeleteComponent(Entity entity)
             {
-                ECS_RegisterType(&world, TypeHash(T), sizeof(T), DESTRUCTOR_LAMBDA(T));
+                ECS_RegisterType(world, TypeHash(T), sizeof(T), DESTRUCTOR_LAMBDA(T));
 
-                world.DeleteComponent(entity, TypeHash(T));
+                world->DeleteComponent(entity, TypeHash(T));
             }
 
             template<typename T, typename F>
             inline bool InsertOrSetComponent(Entity entity, const F& callback) {
-                ECS_RegisterType(&world, TypeHash(T), sizeof(T), DESTRUCTOR_LAMBDA(T));
+                ECS_RegisterType(world, TypeHash(T), sizeof(T), DESTRUCTOR_LAMBDA(T));
                 
                 std::optional<T*> res = GetComponent<T>(entity);
                 if (res.has_value()) {
@@ -135,12 +142,12 @@ namespace Larry::ECS {
             template <typename T> 
             T* GetSingelton()
             {
-                ECS_RegisterType(&world, TypeHash(T), sizeof(T), DESTRUCTOR_LAMBDA(T));
+                ECS_RegisterType(world, TypeHash(T), sizeof(T), DESTRUCTOR_LAMBDA(T));
 
-                std::optional<void*> res = world.GetSingelton(TypeHash(T));
+                std::optional<void*> res = world->GetSingelton(TypeHash(T));
                 void* res_val;
                 if (!res.has_value()) {
-                    res_val = world.CreateSingelton(TypeHash(T));
+                    res_val = world->CreateSingelton(TypeHash(T));
                     CallDefaultConstractorIfAvailable((T*)res_val);
                 } else {
                     res_val = res.value();
@@ -151,12 +158,12 @@ namespace Larry::ECS {
             template <typename T, typename F> 
             void SetSingelton(const F& set_callback)
             {
-                ECS_RegisterType(&world, TypeHash(T), sizeof(T), DESTRUCTOR_LAMBDA(T));
+                ECS_RegisterType(world, TypeHash(T), sizeof(T), DESTRUCTOR_LAMBDA(T));
 
-                std::optional<void*> res = world.GetSingelton(TypeHash(T));
+                std::optional<void*> res = world->GetSingelton(TypeHash(T));
                 void* res_val;
                 if (!res.has_value()) {
-                    res_val = world.CreateSingelton(TypeHash(T));
+                    res_val = world->CreateSingelton(TypeHash(T));
                     CallDefaultConstractorIfAvailable((T*)res_val);
                 } else {
                     res_val = res.value();
@@ -169,19 +176,19 @@ namespace Larry::ECS {
             {
                 RegisterTypes(Types);
 
-                Internal::TypeQueue* types = world.InitTypeQueue();
+                Internal::TypeQueue* types = world->InitTypeQueue();
                 ForEachType(types->push_back(TypeHash(Types)));
 
-                Internal::AnyQueue* system_components_queue = world.InitAnyQueue();
+                Internal::AnyQueue* system_components_queue = world->InitAnyQueue();
 
-                world.System(*types, *system_components_queue,
+                world->System(*types, *system_components_queue,
                     [callback](ECS_Entity entity, Internal::AnyQueue& components, bool* stop) {
                         components.InitPopBack();
                         callback((Types&)(*(Types*)(components.PopBack().value))...);
                     });
 
-                world.DoneWithAnyQueue(system_components_queue);
-                world.DoneWithTypeQueue(types);
+                world->DoneWithAnyQueue(system_components_queue);
+                world->DoneWithTypeQueue(types);
             }
 
             template <typename... Types, typename F> 
@@ -189,19 +196,19 @@ namespace Larry::ECS {
             {
                 RegisterTypes(Types);
 
-                Internal::TypeQueue* types = world.InitTypeQueue();
+                Internal::TypeQueue* types = world->InitTypeQueue();
                 ForEachType(types->push_back(TypeHash(Types)));
 
-                Internal::AnyQueue* system_components_queue = world.InitAnyQueue();
+                Internal::AnyQueue* system_components_queue = world->InitAnyQueue();
 
-                world.System(*types, *system_components_queue,
+                world->System(*types, *system_components_queue,
                     [callback](ECS_Entity entity, Internal::AnyQueue& components, bool* stop) {
                         components.InitPopBack();
                         callback((Entity)entity, stop, (Types&)(*(Types*)(components.PopBack().value))...);
                     });
 
-                world.DoneWithAnyQueue(system_components_queue);
-                world.DoneWithTypeQueue(types);
+                world->DoneWithAnyQueue(system_components_queue);
+                world->DoneWithTypeQueue(types);
             }
     };
 }
