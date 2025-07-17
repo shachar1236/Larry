@@ -98,7 +98,6 @@ set(LarrySharedLibraries
 set(LarryLuaScripts
     ${CMAKE_CURRENT_SOURCE_DIR}/Larry/src/Scripts/lua/LarryApi.lua
     ${CMAKE_CURRENT_SOURCE_DIR}/Larry/src/Scripts/lua/CDef.lua
-    ${CMAKE_CURRENT_SOURCE_DIR}/Larry/src/Scripts/lua/inspect.lua
 )
 
 if(OPENGL_FOUND)
@@ -140,6 +139,11 @@ if(OPENGL_FOUND)
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 ${LarryLuaScripts}
                 ${CMAKE_CURRENT_BINARY_DIR}
+    )
+    add_custom_target(copyLuaLib ALL
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+                ${CMAKE_CURRENT_SOURCE_DIR}/Larry/src/Scripts/lua/lib
+                ${CMAKE_CURRENT_BINARY_DIR}/lib
     )
     # add_dependencies(copyLuaScripts)
 else()

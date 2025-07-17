@@ -1,8 +1,7 @@
 local ffi = require("ffi")
 local cdef = require("CDef")
-local inspect = require("inspect")
-
--- TODO: make lua scripts being able to load textures
+local inspect = require("lib.inspect")
+local dbg = require("lib.debugger")
 
 ffi.cdef(cdef)
 
@@ -30,43 +29,33 @@ end
 currentSystemCallback = nil
 currentSystemComponents = {}
 function SystemCallback(entity_as_ptr, components_queue, stop_as_voidptr)
-    print("In SystemCallback")
     local entity = ffi.cast("int64_t", entity_as_ptr);
     local stop = ffi.cast("bool*", stop_as_voidptr)
     local component_table = {}
     for i, comp_name in ipairs(currentSystemComponents) do
-        print("Extracting component ", comp_name)
         local any_type = ffi.C.ECS_PopFromAnyQueue(components_queue)
         local comp = ffi.cast("struct " .. comp_name .. "*", any_type.value)
         table.insert(component_table, comp)
     end
-    print(inspect(component_table))
-    print("Calling currentSystemCallback")
     currentSystemCallback(entity, stop, unpack(component_table))
 end
 
 function System(world, components, callback)
-    print("Hiiiiiiii")
     local type_quaue = ffi.C.ECS_InitTypeQueue(world);
     local any_queue = ffi.C.ECS_InitAnyQueue(world);
-    print("Hiiiiiiii2")
     
     for i, comp in ipairs(components) do
-        print(comp)
         local hash = ComponentNamesToHash[comp]
         if not hash then
-            print("Didnt found hash")
             goto done
         end
         ffi.C.ECS_PushToTypeQueue(type_quaue, hash)
-        print("Hiiiiiiii3")
     end
 
     currentSystemComponents = components
     currentSystemCallback = callback
 
     print(ffi.C.LuaECSSystem)
-    print("Before calling ecs system")
     ffi.C.ECS_System(world, type_quaue, any_queue, ffi.C.LuaECSSystem)
     
     ::done::

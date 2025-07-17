@@ -10,3 +10,6 @@
 [submodule "Project/libraries/luajit"]
 	path = Project/libraries/luajit
 	url = https://luajit.org/git/luajit.git
+[submodule "Project/libraries/debugger.lua"]
+	path = Project/libraries/debugger.lua
+	url = https://github.com/slembcke/debugger.lua.git
