@@ -95,6 +95,12 @@ set(LarrySharedLibraries
     LarryApi
 )
 
+set(LarryLuaScripts
+    ${CMAKE_CURRENT_SOURCE_DIR}/Larry/src/Scripts/lua/LarryApi.lua
+    ${CMAKE_CURRENT_SOURCE_DIR}/Larry/src/Scripts/lua/CDef.lua
+    ${CMAKE_CURRENT_SOURCE_DIR}/Larry/src/Scripts/lua/inspect.lua
+)
+
 if(OPENGL_FOUND)
     include_directories(${OPENGL_INCLUDE_DIRS}) # OpenGL
     include_directories(${GLFW_INCLUDE_DIR}) # Add GLFW include directory
@@ -124,6 +130,18 @@ if(OPENGL_FOUND)
 
     target_link_libraries(LarryEngine ${LarrySharedLibraries} ${OPENGL_LIBRARIES} ${LUAJIT_LIBRARY} GameScripts glfw yaml-cpp)
     # target_link_libraries(LarryEngine ${LarrySharedLibraries} ${OPENGL_LIBRARIES} glfw)
+
+    # copy lua scripts
+    # execute_process(COMMAND "python Larry/src/Scripts/lua/GenerateLuaCdef.py")
+
+
+    # file(COPY ${LarryLuaScripts} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+    add_custom_target(copyLuaScripts ALL
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                ${LarryLuaScripts}
+                ${CMAKE_CURRENT_BINARY_DIR}
+    )
+    # add_dependencies(copyLuaScripts)
 else()
     message(FATAL_ERROR "OpenGL not found")
 endif()

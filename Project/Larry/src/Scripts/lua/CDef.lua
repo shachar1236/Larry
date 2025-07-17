@@ -103,6 +103,8 @@ enum TextureWrappingOptions {
 
     void* LuaLoadTexture(void* world, const char* path, TextureConfig config);
 
+    void LuaECSSystem(ECS_Entity entity, ECS_AnyQueue components, bool* stop);
+
 
 typedef struct Background {
     Vec4 color;

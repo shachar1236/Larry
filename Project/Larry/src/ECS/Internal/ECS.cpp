@@ -56,18 +56,18 @@ extern "C" {
     }
 
     void ECS_PushToAnyQueue(ECS_AnyQueue queue_, ECS_Any any) {
-        AnyQueue* queue = (AnyQueue*)queue;
+        AnyQueue* queue = (AnyQueue*)queue_;
         queue->elements.push_back(any);
     }
 
     ECS_Any ECS_PopFromAnyQueue(ECS_AnyQueue queue_) {
-        AnyQueue* queue = (AnyQueue*)queue;
+        AnyQueue* queue = (AnyQueue*)queue_;
         return queue->Pop();
     }
 
     void ECS_DoneWithAnyQueue(ECS_World world_, ECS_AnyQueue queue_) {
         World* world = (World*)world_;
-        AnyQueue* queue = (AnyQueue*)queue;
+        AnyQueue* queue = (AnyQueue*)queue_;
         world->DoneWithAnyQueue(queue);
     }
 
@@ -89,7 +89,7 @@ extern "C" {
 
     bool ECS_InsertComponents(ECS_World world_, ECS_Entity entity, ECS_TypeQueue types_, ECS_AnyQueue resultQueue_) {
         World* world = (World*)world_;
-        TypeQueue* types = (TypeQueue*)types;
+        TypeQueue* types = (TypeQueue*)types_;
         AnyQueue* resultQueue = (AnyQueue*)resultQueue_;
 
         return world->InsertComponents(entity, *types, *resultQueue);
@@ -97,7 +97,7 @@ extern "C" {
 
     void ECS_SetComponents(ECS_World world_, ECS_Entity entity, ECS_TypeQueue types_, ECS_AnyQueue resultQueue_) {
         World* world = (World*)world_;
-        TypeQueue* types = (TypeQueue*)types;
+        TypeQueue* types = (TypeQueue*)types_;
         AnyQueue* resultQueue = (AnyQueue*)resultQueue_;
         
         world->SetComponents(entity, *types, *resultQueue);

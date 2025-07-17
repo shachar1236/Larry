@@ -5,19 +5,31 @@
 #include <lauxlib.h>
 #include "ECS_C.h"
 #include "LarryMemory.h"
-#include "World.hpp"
+#include "ECS/CPPApi/World.hpp"
 #include <string>
 
 namespace Larry::Scripts {
     class LuaScripts {
         private:
             lua_State *L;
-        public:
+
+            static LuaScripts* instance;
+
             LuaScripts(const Ref<ECS::World>&);
+        public:
+            static void InitLuaScripts(const Ref<ECS::World>& world) {
+                instance = new LuaScripts(world);
+            }
+
+            static LuaScripts* GetInstance() {
+                return LuaScripts::instance;
+            }
             ~LuaScripts();
 
             void test(ECS::Internal::World*);
             
             void RegisterComponent(const std::string& name, ECS_TypeHashCode hash_code);
+
+            void LuaSystemCallback(ECS_Entity entity, ECS_AnyQueue components, bool* stop);
     };
 }

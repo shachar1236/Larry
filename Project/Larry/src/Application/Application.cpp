@@ -120,8 +120,8 @@ namespace Larry {
 
         Scripts::RegisterScripts(ecs_world, layerStack);
 
-        lua_scripts = ecs_world->GetSingelton<Scripts::LuaScripts>();
-        new (lua_scripts) Scripts::LuaScripts(ecs_world);
+        Scripts::LuaScripts::InitLuaScripts(ecs_world);
+        lua_scripts = Scripts::LuaScripts::GetInstance();
 
         RegisterComponentOnLuaScripts(Background);
         RegisterComponentOnLuaScripts(Button);

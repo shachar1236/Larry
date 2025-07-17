@@ -1,5 +1,6 @@
 #include "LarryApiFunctions.h"
 #include "Log.h"
+#include "LuaScripts.h"
 #include "World.hpp"
 #include "ECS/CPPApi/World.hpp"
 #include "TextureLoader.h"
@@ -12,7 +13,14 @@ extern "C" {
 
         ECS::World world(iworld);
 
-        TextureLoader* loader = world.GetSingelton<TextureLoader>();
+    TextureLoader* loader = world.GetSingelton<TextureLoader>();
         return loader->LoadTexture(path, config);
+    }
+
+    void LuaECSSystem(ECS_Entity entity, ECS_AnyQueue components, bool* stop) {
+        LA_CORE_TRACE("In LuaECSSystem");
+        Scripts::LuaScripts* lua_scripts = Scripts::LuaScripts::GetInstance();
+
+        lua_scripts->LuaSystemCallback(entity, components, stop);
     }
 }

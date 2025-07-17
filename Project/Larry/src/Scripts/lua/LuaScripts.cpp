@@ -13,6 +13,8 @@
 
 namespace Larry::Scripts {
 
+    LuaScripts* LuaScripts::instance;
+
     LuaScripts::LuaScripts(const Ref<ECS::World>&) {
         L = luaL_newstate();
         if (!L) {
@@ -52,9 +54,22 @@ namespace Larry::Scripts {
         lua_pushstring(L, name.c_str());
         lua_pushlightuserdata(L, reinterpret_cast<void*>(static_cast<uintptr_t>(hash_code)));
 
-
         if (lua_pcall(L, 2, 0, 0) != LUA_OK) {
             LA_CORE_ERROR("Cant register component {} in lua!", name);
+            return;
+        }
+    }
+
+    void LuaScripts::LuaSystemCallback(ECS_Entity entity, ECS_AnyQueue components, bool* stop) {
+        LA_CORE_TRACE("In LuaSystemCallback");
+        lua_getglobal(L, "SystemCallback");
+
+        lua_pushlightuserdata(L, reinterpret_cast<void*>(static_cast<uintptr_t>(entity)));
+        lua_pushlightuserdata(L, components);
+        lua_pushlightuserdata(L, stop);
+
+        if (lua_pcall(L, 3, 0, 0) != LUA_OK) {
+            LA_CORE_ERROR("Cant call system callback in lua!");
             return;
         }
     }
