@@ -165,6 +165,8 @@ namespace Larry {
 
             layerStack.UpdateLayers(deltaTime);
 
+            lua_scripts->UpdateScripts(ecs_world->GetInternalWorld(), deltaTime);
+
             renderer->UpdateFrame();
         }
     }
@@ -221,6 +223,8 @@ namespace Larry {
 
         iworld->DoneWithAnyQueue(any_queue);
         iworld->DoneWithTypeQueue(type_queue);
+        
+        // TODO: save lua scripts
 
         config["world"] = world;
 
@@ -262,6 +266,12 @@ namespace Larry {
                         YAML::Node scripts = entity_componenets["Scripts"];
                         for (int i = 0; i < scripts.size(); i++) {
                             Scripts::AddScriptToEntity(ecs_entity, scripts[i].as<std::string>(), ecs_world);
+                        }
+                    }
+                    if (entity_componenets["LuaScripts"]) {
+                        YAML::Node scripts = entity_componenets["LuaScripts"];
+                        for (int i = 0; i < scripts.size(); i++) {
+                            lua_scripts->AddScriptToEntity(scripts[i].as<std::string>(), ecs_world, ecs_entity);
                         }
                     }
                 }

@@ -4,6 +4,8 @@
 #include "World.hpp"
 #include "ECS/CPPApi/World.hpp"
 #include "TextureLoader.h"
+#include <functional>
+#include <string>
 
 using namespace Larry;
 
@@ -18,7 +20,6 @@ extern "C" {
     }
 
     void LuaECSSystem(ECS_Entity entity, ECS_AnyQueue components, bool* stop) {
-        LA_CORE_TRACE("In LuaECSSystem");
         Scripts::LuaScripts* lua_scripts = Scripts::LuaScripts::GetInstance();
 
         lua_scripts->LuaSystemCallback(entity, components, stop);

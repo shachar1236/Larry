@@ -98,6 +98,7 @@ set(LarrySharedLibraries
 set(LarryLuaScripts
     ${CMAKE_CURRENT_SOURCE_DIR}/Larry/src/Scripts/lua/LarryApi.lua
     ${CMAKE_CURRENT_SOURCE_DIR}/Larry/src/Scripts/lua/CDef.lua
+    ${CMAKE_CURRENT_SOURCE_DIR}/Larry/src/Scripts/lua/TestLuaScript.lua
 )
 
 if(OPENGL_FOUND)

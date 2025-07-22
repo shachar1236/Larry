@@ -99,6 +99,41 @@ function LoadTexture(world, path, config)
     return t
 end
 
+-- scripts --
+Script = {}
+
+function Script:New(o)
+    o.parent = self
+    return o
+end
+
+function Script:OnCreate(world, entity)
+    print("Script has been created")
+end
+
+function Script:OnUpdate(deltaTime)
+    print("Script has been updated")
+end
+
+function Script:OnDelete()
+    print("Script has been deleted")
+end
+
+function CallScriptOnCreate(script, world, entity_as_ptr)
+    local entity = ffi.cast("int64_t", entity_as_ptr);
+    script:OnCreate(entity, world, entity)
+end
+
+function CallScriptOnUpdate(script, deltaTime)
+    -- print(script.name)
+    script:OnUpdate(deltaTime)
+end
+
+function CallScriptOnDelete(script)
+    script:OnDelete()
+end
+-- test --
+
 function Test(world, entity_as_ptr)
     local entity = ffi.cast("int64_t", entity_as_ptr);
 
@@ -118,4 +153,6 @@ function Test(world, entity_as_ptr)
         transform.rotation_size = 1
         quad_ref.color.y = 0;
     end)
+
+    print("Type of script: ", type(Script:New({})))
 end

@@ -24,7 +24,7 @@ namespace Larry::Scripts {
         luaL_openlibs(L); /* Open standard libraries */
 
         if (luaL_dofile(L, "LarryApi.lua") != LUA_OK) {
-            LA_CORE_ERROR("Errot loading lua script: {}", lua_tostring(L, -1));
+            LA_CORE_ERROR("Error loading lua script: {}", lua_tostring(L, -1));
             return;
         }
     }
@@ -32,6 +32,89 @@ namespace Larry::Scripts {
     LuaScripts::~LuaScripts() {
         lua_settop(L, 0); /* (4) */
         lua_close(L);
+    }
+
+    void LuaScripts::AddScriptToEntity(const std::string& script_name, const Ref<ECS::World>& world, ECS_Entity entity) {
+        ECS::Internal::World* iworld = world->GetInternalWorld();
+        ECS_TypeHashCode script_hash = std::hash<std::string>()(script_name);
+        script_types.insert(script_hash);
+        ECS_RegisterType(iworld, script_hash, sizeof(int), [](const void* x){ 
+                int r = *static_cast<const int*>(x);
+                lua_State* L = LuaScripts::GetInstance()->GetState();
+
+                lua_getglobal(L, "CallScriptOnDelete");
+                lua_rawgeti(L, LUA_REGISTRYINDEX, r);
+                if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
+                    LA_CORE_WARN("Cant call lua script OnDelete, error: {}", lua_tostring(L, -1));
+                }
+
+                luaL_unref(L, LUA_REGISTRYINDEX, r);
+            });
+
+        if (luaL_dofile(L, script_name.c_str()) != LUA_OK) {
+            LA_CORE_ERROR("Error loading lua script: {}", lua_tostring(L, -1));
+            return;
+        }
+
+        int r = luaL_ref(L, LUA_REGISTRYINDEX);
+        // adding to ECS
+        ECS::Internal::AnyQueue* resultQueue = iworld->InitAnyQueue();
+        ECS::Internal::TypeQueue* types = iworld->InitTypeQueue();
+
+        types->push_back(script_hash);
+        bool success = iworld->InsertComponents(entity, *types, *resultQueue);
+
+        if (!success) {
+            luaL_unref(L, LUA_REGISTRYINDEX, r);
+
+            iworld->DoneWithAnyQueue(resultQueue);
+            iworld->DoneWithTypeQueue(types);
+            return;
+        }
+
+        resultQueue->InitPopBack();
+        int* p = (int*)resultQueue->PopBack().value;
+        *p = r;
+
+        iworld->DoneWithAnyQueue(resultQueue);
+        iworld->DoneWithTypeQueue(types);
+        // call script on create
+        lua_getglobal(L, "CallScriptOnCreate");
+
+        lua_rawgeti(L, LUA_REGISTRYINDEX, r);
+        lua_pushlightuserdata(L, iworld);
+        lua_pushlightuserdata(L, reinterpret_cast<void*>(static_cast<uintptr_t>(entity)));
+
+        if (lua_pcall(L, 3, 0, 0) != LUA_OK) {
+            LA_CORE_WARN("Cant call {}::OnCreate, error: {}", script_name, lua_tostring(L, -1));
+            return;
+        }
+    }
+
+    void LuaScripts::UpdateScripts(ECS::Internal::World* world, double deltaTime) {
+        for (auto&& script_hash : script_types) {
+
+            ECS::Internal::AnyQueue* system_components_queue = world->InitAnyQueue();
+            ECS::Internal::TypeQueue* types = world->InitTypeQueue();
+
+            types->push_back(script_hash);
+
+            world->System(*types, *system_components_queue,
+                [this, deltaTime](ECS_Entity entity, ECS::Internal::AnyQueue& components, bool* stop) {
+                    components.InitPopBack();
+                    int r = *(int*)components.PopBack().value;
+
+                    lua_getglobal(L, "CallScriptOnUpdate");
+
+                    lua_rawgeti(L, LUA_REGISTRYINDEX, r);
+                    lua_pushnumber(L, deltaTime);
+
+                    if (lua_pcall(L, 2, 0, 0) != LUA_OK) {
+                        LA_CORE_WARN("Cant call lua script OnUpdate, error: {}", lua_tostring(L, -1));
+                        return;
+                    }
+                });
+        }
     }
 
     void LuaScripts::test(ECS::Internal::World* iworld) {

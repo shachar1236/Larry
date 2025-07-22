@@ -7,11 +7,13 @@
 #include "LarryMemory.h"
 #include "ECS/CPPApi/World.hpp"
 #include <string>
+#include <unordered_set>
 
 namespace Larry::Scripts {
     class LuaScripts {
         private:
             lua_State *L;
+            std::unordered_set<ECS_TypeHashCode> script_types;
 
             static LuaScripts* instance;
 
@@ -25,6 +27,12 @@ namespace Larry::Scripts {
                 return LuaScripts::instance;
             }
             ~LuaScripts();
+
+            lua_State* GetState() { return L; }
+
+            void AddScriptToEntity(const std::string& script_name, const Ref<ECS::World>& world, ECS_Entity entity);
+
+            void UpdateScripts(ECS::Internal::World* world, double deltaTime);
 
             void test(ECS::Internal::World*);
             
