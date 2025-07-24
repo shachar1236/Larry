@@ -1,6 +1,7 @@
 #include "Components/Background.h"
 #include "Components/Button.h"
 #include "ECS/CPPApi/ECS.h"
+#include "ECS_C.h"
 #include "ECS_pch.h"
 #include "Application/Application.h"
 #include "Components/Camera.h"
@@ -221,10 +222,26 @@ namespace Larry {
             });
         }
 
-        iworld->DoneWithAnyQueue(any_queue);
-        iworld->DoneWithTypeQueue(type_queue);
         
         // TODO: save lua scripts
+        any_queue->Clear();
+        type_queue->Clear();
+
+        std::unordered_map<std::string, ECS_TypeHashCode> lua_script_types = lua_scripts->GetScriptTypes();
+        for (auto&& s : lua_script_types) {
+            any_queue->Clear();
+            type_queue->Clear();
+
+            type_queue->push_back(s.second);
+
+            iworld->System(*type_queue, *any_queue, [this, &world, &s](ECS_Entity entity, ECS::Internal::AnyQueue& components, bool* stop){
+                std::string name = ecs_world->GetEntityName(entity).value();
+                world[name]["LuaScripts"].push_back(s.first);
+            });
+        }
+
+        iworld->DoneWithAnyQueue(any_queue);
+        iworld->DoneWithTypeQueue(type_queue);
 
         config["world"] = world;
 

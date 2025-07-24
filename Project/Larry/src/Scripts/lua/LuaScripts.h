@@ -13,7 +13,7 @@ namespace Larry::Scripts {
     class LuaScripts {
         private:
             lua_State *L;
-            std::unordered_set<ECS_TypeHashCode> script_types;
+            std::unordered_map<std::string, ECS_TypeHashCode> script_types;
 
             static LuaScripts* instance;
 
@@ -29,6 +29,7 @@ namespace Larry::Scripts {
             ~LuaScripts();
 
             lua_State* GetState() { return L; }
+            std::unordered_map<std::string, ECS_TypeHashCode> GetScriptTypes() { return  script_types; }
 
             void AddScriptToEntity(const std::string& script_name, const Ref<ECS::World>& world, ECS_Entity entity);
 

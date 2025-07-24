@@ -37,19 +37,20 @@ namespace Larry::Scripts {
     void LuaScripts::AddScriptToEntity(const std::string& script_name, const Ref<ECS::World>& world, ECS_Entity entity) {
         ECS::Internal::World* iworld = world->GetInternalWorld();
         ECS_TypeHashCode script_hash = std::hash<std::string>()(script_name);
-        script_types.insert(script_hash);
+        script_types[script_name] = script_hash;
+
         ECS_RegisterType(iworld, script_hash, sizeof(int), [](const void* x){ 
-                int r = *static_cast<const int*>(x);
-                lua_State* L = LuaScripts::GetInstance()->GetState();
+            int r = *static_cast<const int*>(x);
+            lua_State* L = LuaScripts::GetInstance()->GetState();
 
-                lua_getglobal(L, "CallScriptOnDelete");
-                lua_rawgeti(L, LUA_REGISTRYINDEX, r);
-                if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
-                    LA_CORE_WARN("Cant call lua script OnDelete, error: {}", lua_tostring(L, -1));
-                }
+            lua_getglobal(L, "CallScriptOnDelete");
+            lua_rawgeti(L, LUA_REGISTRYINDEX, r);
+            if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
+                LA_CORE_WARN("Cant call lua script OnDelete, error: {}", lua_tostring(L, -1));
+            }
 
-                luaL_unref(L, LUA_REGISTRYINDEX, r);
-            });
+            luaL_unref(L, LUA_REGISTRYINDEX, r);
+        });
 
         if (luaL_dofile(L, script_name.c_str()) != LUA_OK) {
             LA_CORE_ERROR("Error loading lua script: {}", lua_tostring(L, -1));
@@ -92,12 +93,12 @@ namespace Larry::Scripts {
     }
 
     void LuaScripts::UpdateScripts(ECS::Internal::World* world, double deltaTime) {
-        for (auto&& script_hash : script_types) {
+        for (auto&& s : script_types) {
 
             ECS::Internal::AnyQueue* system_components_queue = world->InitAnyQueue();
             ECS::Internal::TypeQueue* types = world->InitTypeQueue();
 
-            types->push_back(script_hash);
+            types->push_back(s.second);
 
             world->System(*types, *system_components_queue,
                 [this, deltaTime](ECS_Entity entity, ECS::Internal::AnyQueue& components, bool* stop) {
