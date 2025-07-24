@@ -99,6 +99,22 @@ function LoadTexture(world, path, config)
     return t
 end
 
+-- Input --
+function KeyPressed(key)
+    return ffi.C.LuaKeyPressed(key)
+end
+
+function MouseX()
+    return ffi.C.LuaGetMouseX()
+end
+
+function MouseY()
+    return ffi.C.LuaGetMouseY()
+end
+
+function Mouse()
+    return ffi.new("Vec2", { MouseX(), MouseY() })
+end
 -- scripts --
 Script = {}
 
@@ -121,7 +137,7 @@ end
 
 function CallScriptOnCreate(script, world, entity_as_ptr)
     local entity = ffi.cast("int64_t", entity_as_ptr);
-    script:OnCreate(entity, world, entity)
+    script:OnCreate(world, entity)
 end
 
 function CallScriptOnUpdate(script, deltaTime)

@@ -38,8 +38,8 @@
 // Components
 // Utils
 // TextureLoading
-// Events
 // Input
+// Events
 namespace Larry::Scripts {
     class Script {
         protected:

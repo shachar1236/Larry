@@ -105,6 +105,10 @@ enum TextureWrappingOptions {
 
     void LuaECSSystem(ECS_Entity entity, ECS_AnyQueue components, bool* stop);
 
+    bool LuaKeyPressed(int key);
+    int LuaGetMouseX();
+    int LuaGetMouseY();
+
 
 typedef struct Background {
     Vec4 color;

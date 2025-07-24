@@ -7,7 +7,6 @@
 #include "LarryMemory.h"
 #include "ECS/CPPApi/World.hpp"
 #include <string>
-#include <unordered_set>
 
 namespace Larry::Scripts {
     class LuaScripts {

@@ -43,6 +43,7 @@ namespace Larry {
 
     void TestScript::OnUpdate(const ECS::Entity& entity, double deltaTime) {
         /* LA_INFO("TestScript OnUpdate, entity: {}", entity.GetId()); */
+        return;
         Math::Vec3 direction(0);
         /* LA_INFO("Delta time: {}", deltaTime); */
         if (Input::KeyPressed(KEY_W)) {

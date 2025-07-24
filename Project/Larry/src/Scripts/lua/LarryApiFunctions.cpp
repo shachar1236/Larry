@@ -1,4 +1,5 @@
 #include "LarryApiFunctions.h"
+#include "Input.h"
 #include "Log.h"
 #include "LuaScripts.h"
 #include "World.hpp"
@@ -23,5 +24,17 @@ extern "C" {
         Scripts::LuaScripts* lua_scripts = Scripts::LuaScripts::GetInstance();
 
         lua_scripts->LuaSystemCallback(entity, components, stop);
+    }
+
+    bool LuaKeyPressed(int key) {
+        return Input::KeyPressed(key);
+    }
+
+    int LuaGetMouseX() {
+        return Input::MouseX();
+    }
+
+    int LuaGetMouseY() {
+        return Input::MouseY();
     }
 }
