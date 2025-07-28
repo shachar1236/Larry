@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Event.h"
+#include "EventSystem/Event.h"
 #include "Renderer.h"
 #include "Systems/System.h"
-#include "World.hpp"
+#include "ECS/CPPApi/World.hpp"
 
 namespace Larry {
     class RenderQuad : public ISystem {

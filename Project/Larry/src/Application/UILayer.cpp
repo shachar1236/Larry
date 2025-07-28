@@ -1,10 +1,9 @@
+#include "LarryApi.h"
 #include "ECS_pch.h"
 #include "common.h"
 #include "UILayer.h"
 #include "Components/Button.h"
 #include "Components/Transform.h"
-#include "Layer.h"
-#include "Math.h"
 #include "Renderer.h"
 
 namespace Larry {

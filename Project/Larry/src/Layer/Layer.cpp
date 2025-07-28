@@ -1,13 +1,9 @@
+#include "LarryApi.h"
 #include "ECS_pch.h"
 #include "common.h"
 #include "Application/Components/Projection.h"
 #include "Application/Components/Camera.h"
 #include "ECS.h"
-#include "Entity.hpp"
-#include "Event.h"
-#include "ILayer.h"
-#include "LarryMemory.h"
-#include "Log.h"
 #include "Layer.h"
 
 namespace Larry {

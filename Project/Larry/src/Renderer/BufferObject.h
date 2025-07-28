@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Log.h"
-#include <span>
 #include "gl.h"
+#include <span>
+#include "LarryApi.h"
 
 namespace Larry {
     enum DrawType {

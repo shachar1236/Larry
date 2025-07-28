@@ -1,6 +1,4 @@
 #include "LuaScripts.h"
-#include "Components/Quad.h"
-#include "Components/Transform.h"
 #include "ECS_C.h"
 #include "LarryApiFunctions.h"
 #include "Log.h"

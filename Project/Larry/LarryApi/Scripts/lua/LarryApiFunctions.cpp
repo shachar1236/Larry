@@ -16,7 +16,7 @@ extern "C" {
 
         ECS::World world(iworld);
 
-    TextureLoader* loader = world.GetSingelton<TextureLoader>();
+        TextureLoader* loader = world.GetSingelton<TextureLoader>();
         return loader->LoadTexture(path, config);
     }
 

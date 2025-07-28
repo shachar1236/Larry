@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include "gl.h"
+#include "LarryApi.h"
 #include <unordered_map>
 
 namespace Larry {

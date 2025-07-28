@@ -1,9 +1,6 @@
 #include "common.h"
+#include "LarryApi.h"
 #include "Shader.h"
-#include "ErrorEvents.h"
-#include "EventSystem.h"
-#include "LarryMemory.h"
-#include "Log.h"
 #include <cstdio>
 #include <fstream>
 #include <regex>

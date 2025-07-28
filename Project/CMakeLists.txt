@@ -44,7 +44,6 @@ set(SOURCE_FILES
     libraries/glad/src/glad.c
 
     Larry/src/main.cpp
-    Larry/src/Layers/Layer/Layer.cpp
     Larry/src/Application/Application.cpp
     Larry/src/Application/BackgroundLayer.cpp
     Larry/src/Application/GameLayer.cpp
@@ -57,38 +56,22 @@ set(SOURCE_FILES
     Larry/src/Renderer/ShaderProgram.cpp
     Larry/src/Renderer/VertexArrayObject.cpp
 
-    Larry/src/Input/Input.cpp
-
-    Larry/src/Math/Math.cpp
-
-    Larry/src/EventSystem/EventSystem.cpp
-
     Larry/src/Application/Systems/RenderQuad.cpp
     Larry/src/Application/Systems/ButtonSystem.cpp
     Larry/src/Application/Systems/ScriptsSystem.cpp
     Larry/src/Application/Systems/RelationsSystem.cpp
 
-    Larry/src/Scripts/ScriptsManager.cpp
+    Larry/src/Layer/Layer.cpp
 
-    Larry/src/Scripts/lua/LuaScripts.cpp
+    Larry/src/Scripts/ScriptsManager.cpp
     # Larry/src/Scripts/Scripts.cpp
 )
 set(HEADER_DIRECTORIES
     Larry/src
-    Larry/src/ECS
-    Larry/src/ECS/CPPApi
-    Larry/src/ECS/Internal
     Larry/src/Application
-    Larry/src/Utils
-    Larry/src/Input
-    Larry/src/Math
     Larry/src/Renderer
-    Larry/src/TextureLoader
-    Larry/src/EventSystem
-    Larry/src/Layers/Layer
-    Larry/src/Layers
     Larry/src/Scripts
-    Larry/src/Scripts/lua
+    Larry/src/Layer
 )
 
 set(LarrySharedLibraries
@@ -96,10 +79,10 @@ set(LarrySharedLibraries
 )
 
 set(LarryLuaScripts
-    ${CMAKE_CURRENT_SOURCE_DIR}/Larry/src/Scripts/lua/LarryApi.lua
-    ${CMAKE_CURRENT_SOURCE_DIR}/Larry/src/Scripts/lua/CDef.lua
-    ${CMAKE_CURRENT_SOURCE_DIR}/Larry/src/Scripts/lua/LarryKeyCodes.lua
-    ${CMAKE_CURRENT_SOURCE_DIR}/Larry/src/Scripts/lua/TestLuaScript.lua
+    ${CMAKE_CURRENT_SOURCE_DIR}/Larry/LarryApi/Scripts/lua/LarryApi.lua
+    ${CMAKE_CURRENT_SOURCE_DIR}/Larry/LarryApi/Scripts/lua/CDef.lua
+    ${CMAKE_CURRENT_SOURCE_DIR}/Larry/LarryApi/Scripts/lua/LarryKeyCodes.lua
+    ${CMAKE_CURRENT_SOURCE_DIR}/Larry/LarryApi/Scripts/lua/TestLuaScript.lua
 )
 
 if(OPENGL_FOUND)
@@ -111,6 +94,7 @@ if(OPENGL_FOUND)
     include_directories(libraries/luajit/src)
     include_directories(libraries)
 
+    include_directories(Larry/LarryApi/include)
     include_directories(${HEADER_DIRECTORIES}) # My Headers
     add_executable(LarryEngine ${SOURCE_FILES})  # My executables
 
@@ -132,10 +116,6 @@ if(OPENGL_FOUND)
     target_link_libraries(LarryEngine ${LarrySharedLibraries} ${OPENGL_LIBRARIES} ${LUAJIT_LIBRARY} GameScripts glfw yaml-cpp)
     # target_link_libraries(LarryEngine ${LarrySharedLibraries} ${OPENGL_LIBRARIES} glfw)
 
-    # copy lua scripts
-    # execute_process(COMMAND "python Larry/src/Scripts/lua/GenerateLuaCdef.py")
-
-
     # file(COPY ${LarryLuaScripts} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
     add_custom_target(copyLuaScripts ALL
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -144,7 +124,7 @@ if(OPENGL_FOUND)
     )
     add_custom_target(copyLuaLib ALL
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-                ${CMAKE_CURRENT_SOURCE_DIR}/Larry/src/Scripts/lua/lib
+        ${CMAKE_CURRENT_SOURCE_DIR}/Larry/LarryApi/Scripts/lua/lib
                 ${CMAKE_CURRENT_BINARY_DIR}/lib
     )
     # add_dependencies(copyLuaScripts)

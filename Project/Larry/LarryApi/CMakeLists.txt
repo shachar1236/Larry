@@ -2,20 +2,28 @@
 cmake_minimum_required(VERSION 3.26)
 project(LarryApi)
 
-# ---------- Larry Utils -------------
 add_library(LarryApi SHARED
-            ${CMAKE_CURRENT_SOURCE_DIR}/../src/Layers/LayerStack.cpp
-            ${CMAKE_CURRENT_SOURCE_DIR}/../src/Utils/Log.cpp
-            ${CMAKE_CURRENT_SOURCE_DIR}/../src/ECS/Internal/ECS.cpp
-            ${CMAKE_CURRENT_SOURCE_DIR}/../src/ECS/Internal/TypesBitmap.cpp
-            ${CMAKE_CURRENT_SOURCE_DIR}/../src/ECS/CPPApi/ECS.cpp
-            ${CMAKE_CURRENT_SOURCE_DIR}/../src/ECS/CPPApi/ecs_test.cpp
-            ${CMAKE_CURRENT_SOURCE_DIR}/../src/Math/Math.cpp
-            ${CMAKE_CURRENT_SOURCE_DIR}/../src/TextureLoader/TextureObject.cpp
-            ${CMAKE_CURRENT_SOURCE_DIR}/../src/TextureLoader/TextureLoader.cpp
-            ${CMAKE_CURRENT_SOURCE_DIR}/../src/Input/Input.cpp
-            ${CMAKE_CURRENT_SOURCE_DIR}/../src/Scripts/lua/LarryApiFunctions.cpp
-            )
+        Layers/LayerStack.cpp
+
+        Utils/Log.cpp
+
+        ECS/Internal/ECS.cpp
+        ECS/Internal/TypesBitmap.cpp
+        ECS/CPPApi/ECS.cpp
+        ECS/CPPApi/ecs_test.cpp
+
+        Math/Math.cpp
+
+        TextureLoader/TextureObject.cpp
+        TextureLoader/TextureLoader.cpp
+
+        Input/Input.cpp
+
+        Scripts/lua/LuaScripts.cpp
+        Scripts/lua/LarryApiFunctions.cpp
+
+        EventSystem/EventSystem.cpp
+    )
 
 target_include_directories(LarryApi PRIVATE 
     ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/spdlog/include
@@ -24,21 +32,23 @@ target_include_directories(LarryApi PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/glad/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/stb_image
     ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/luajit/src
-    )
+)
 
 target_include_directories(LarryApi
-               PUBLIC
-               ${CMAKE_CURRENT_SOURCE_DIR}/../src/
-               ${CMAKE_CURRENT_SOURCE_DIR}/../src/Utils/
-               ${CMAKE_CURRENT_SOURCE_DIR}/../src/ECS/
-               ${CMAKE_CURRENT_SOURCE_DIR}/../src/ECS/Internal/
-               ${CMAKE_CURRENT_SOURCE_DIR}/../src/ECS/CPPApi/
-               ${CMAKE_CURRENT_SOURCE_DIR}/../src/Math/
-               ${CMAKE_CURRENT_SOURCE_DIR}/../src/TextureLoader/
-               ${CMAKE_CURRENT_SOURCE_DIR}/../src/Input/
-               ${CMAKE_CURRENT_SOURCE_DIR}/../src/Layers/
-               ${CMAKE_CURRENT_SOURCE_DIR}/../src/Scripts/lua
-               )
+       PUBLIC
+       
+       ./
+       include/
+       include/Utils/
+       include/ECS/
+       include/ECS/Internal/
+       include/ECS/CPPApi/
+       include/Math/
+       include/TextureLoader/
+       include/Input/
+       include/Layers/
+       include/Scripts/lua
+   )
 
 # target_precompile_headers(LarryApi PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../src/LarryApi.h)
 # target_precompile_headers(LarryApi PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../src/common.h)

@@ -1,10 +1,10 @@
 #include "ECS_pch.h"
-#include "Math.h"
+#include "Math/Math.h"
 #include "common.h"
 #include "RenderQuad.h"
 #include "Components/Quad.h"
 #include "Components/Transform.h"
-#include "Log.h"
+#include "Utils/Log.h"
 #include "Renderer.h"
 
 namespace Larry {

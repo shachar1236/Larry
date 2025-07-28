@@ -1,6 +1,8 @@
 #pragma once
 
-#include "GLFW/glfw3.h"
+// #include "GLFW/glfw3.h"
+#include "gl.h"
+#include "LarryApi.h"
 #include <string>
 #include <yaml-cpp/yaml.h>
 

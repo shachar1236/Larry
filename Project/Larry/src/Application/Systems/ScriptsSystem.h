@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Event.h"
+#include "EventSystem/Event.h"
 #include "Renderer.h"
 #include "Systems/System.h"
 #include "ECS/CPPApi/World.hpp"
-#include "World.hpp"
+#include "ECS/Internal/World.hpp"
 #include <vector>
 
 namespace Larry {

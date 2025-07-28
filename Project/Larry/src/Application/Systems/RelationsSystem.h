@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Components/Transform.h"
-#include "Event.h"
+#include "EventSystem/Event.h"
 #include "Systems/System.h"
-#include "World.hpp"
+#include "ECS/CPPApi/World.hpp"
 
 namespace Larry {
     class RelationSystem : public ISystem {

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Layer.h"
-#include "Math.h"
+#include "Layer/Layer.h"
+#include "Math/Math.h"
 #include "Renderer.h"
-#include "World.hpp"
+#include "ECS/Internal/World.hpp"
 
 namespace Larry {
     class BackgroundLayer : public Layer {

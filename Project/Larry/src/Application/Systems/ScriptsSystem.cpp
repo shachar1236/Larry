@@ -1,10 +1,10 @@
 #include "ECS_pch.h"
-#include "SystemEvents.h"
+#include "EventSystem/SystemEvents.h"
 #include "common.h"
 #include "Application/Systems/ScriptsSystem.h"
 #include "Entity.hpp"
-#include "EventSystem.h"
-#include "InputEvents.h"
+#include "EventSystem/EventSystem.h"
+#include "EventSystem/InputEvents.h"
 #include "Utils/Log.h"
 #include "Scripts/Scripts.h"
 

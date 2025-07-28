@@ -1,5 +1,7 @@
 #pragma once
 
+#include "gl.h"
+
 #include "Utils/Log.h"
 #include "Utils/LarryMemory.h"
 
@@ -7,6 +9,7 @@
 #include "TextureLoader/TextureLoader.h"
 
 #include "Scripts/Scripts.h"
+#include "Scripts/ScriptsManager.h"
 
 #include "Math/Math.h"
 
@@ -16,17 +19,15 @@
 #include "Input/KeyCodes.h"
 #include "Input/Input.h"
 
+#include "EventSystem/EventSystem.h"
 #include "EventSystem/Event.h"
 #include "EventSystem/ErrorEvents.h"
 #include "EventSystem/InputEvents.h"
 #include "EventSystem/WindowEvents.h"
+#include "EventSystem/SystemEvents.h"
 
 #include "ECS/ECS_C.h"
 #include "ECS/CPPApi/ECS.h"
 #include "ECS/CPPApi/World.hpp"
 
-#include "Components/Button.h"
-#include "Components/Camera.h"
-#include "Components/Projection.h"
-#include "Components/Quad.h"
-#include "Components/Transform.h"
+#include "ECS/Internal/World.hpp"

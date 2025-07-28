@@ -2,13 +2,10 @@
 #include "gl.h"
 #include "LarryApi.h"
 #include "BufferObject.h"
-#include "LarryMemory.h"
 #include <vector>
 #include "RendererConfig.h"
 #include "ShaderProgram.h"
-#include "TextureLoader/TextureObject.h"
 #include "VertexArrayObject.h"
-#include "Math.h"
 #include "LarryWindow.h"
 
 namespace Larry {

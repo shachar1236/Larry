@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Layer.h"
+#include "LarryApi.h"
+#include "Layer/Layer.h"
 #include "Renderer.h"
 
 namespace Larry {

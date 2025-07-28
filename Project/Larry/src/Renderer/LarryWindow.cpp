@@ -1,11 +1,8 @@
+#include "gl.h"
 #include "common.h"
 #include "LarryWindow.h"
-#include "ErrorEvents.h"
-#include "GLFW/glfw3.h"
-#include "LarryMemory.h"
-#include "EventSystem.h"
-#include "Log.h"
-#include "WindowEvents.h"
+// #include "GLFW/glfw3.h"
+#include "LarryApi.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {

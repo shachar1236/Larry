@@ -1,8 +1,9 @@
 #pragma once
 
-#include "Entity.hpp"
-#include "Layer.h"
-#include "Math.h"
+#include "gl.h"
+#include "Layer/Layer.h"
+#include "ECS/Internal/Entity.hpp"
+#include "LarryApi.h"
 #include "Renderer.h"
 
 namespace Larry {

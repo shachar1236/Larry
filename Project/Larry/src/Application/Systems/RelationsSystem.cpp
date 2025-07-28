@@ -1,7 +1,7 @@
 #include "Application/Systems/RelationsSystem.h"
 #include "Components/Transform.h"
 #include "Components/Relationship.h"
-#include "ECS.h"
+#include "ECS/CPPApi/ECS.h"
 #include "Math.h"
 #include <optional>
 

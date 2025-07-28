@@ -1,9 +1,9 @@
 #pragma once
+#include "LarryApi.h"
 #include "Shader.h"
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include "Math.h"
 
 namespace Larry {
     class ShaderProgram {

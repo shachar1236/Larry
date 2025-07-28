@@ -2,13 +2,13 @@
 #include "common.h"
 #include "BackgroundLayer.h"
 #include "Components/Background.h"
-#include "Event.h"
-#include "EventSystem.h"
-#include "Layer.h"
-#include "Log.h"
-#include "Math.h"
+#include "EventSystem/Event.h"
+#include "EventSystem/EventSystem.h"
+#include "Layer/Layer.h"
+#include "Utils/Log.h"
+#include "Math/Math.h"
 #include "Renderer.h"
-#include "WindowEvents.h"
+#include "EventSystem/WindowEvents.h"
 
 namespace Larry {
 

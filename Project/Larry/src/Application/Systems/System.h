@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Event.h"
+#include "EventSystem/Event.h"
 #include "ECS/CPPApi/World.hpp"
-#include "LarryMemory.h"
+#include "Utils/LarryMemory.h"
 
 namespace Larry {
     class ISystem {

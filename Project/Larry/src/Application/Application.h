@@ -1,12 +1,11 @@
 #pragma once
-#include "LuaScripts.h"
+#include "Scripts/lua/LuaScripts.h"
 #include "Renderer/Renderer.h"
 #include "EventSystem/Event.h"
 #include "LarryWindow.h"
 #include "LayerStack.h"
-#include "Log.h"
-#include "LarryMemory.h"
-#include "World.hpp"
+#include "Utils/LarryMemory.h"
+#include "ECS/CPPApi/World.hpp"
 #include <string>
 
 namespace Larry {

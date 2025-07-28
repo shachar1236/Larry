@@ -1,14 +1,8 @@
-#include "ECS_pch.h"
+#include "LarryApi.h"
 #include "common.h"
 #include "GameLayer.h"
 #include "Components/Quad.h"
 #include "Components/Transform.h"
-#include "EventSystem.h"
-#include "InputEvents.h"
-#include "KeyCodes.h"
-#include "Layer.h"
-#include "Log.h"
-#include "Math.h"
 #include "Renderer.h"
 
 namespace Larry {

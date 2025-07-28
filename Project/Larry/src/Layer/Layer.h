@@ -1,5 +1,6 @@
 #pragma once
 
+#include "gl.h"
 #include "EventSystem/Event.h"
 #include "Utils/LarryMemory.h"
 #include "Application/Systems/System.h"
