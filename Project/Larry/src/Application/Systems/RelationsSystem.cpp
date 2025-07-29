@@ -1,4 +1,5 @@
 #include "Application/Systems/RelationsSystem.h"
+#include "ComponentPtr.hpp"
 #include "Components/Transform.h"
 #include "Components/Relationship.h"
 #include "ECS/CPPApi/ECS.h"
@@ -13,10 +14,8 @@ namespace Larry {
         }
         currTransform._realTranslationTimestemp = counter;
 
-        std::optional<Child*> childOpt = world->GetComponent<Child>(currEntity);
-        if (childOpt.has_value()) {
-            Child* childComp = childOpt.value();
-
+        ECS::ComponentPtr<Child> childComp = world->GetComponent<Child>(currEntity);
+        if (childComp.has_value()) {
             world->SetComponents<Transform>(childComp->parent, [this, &currTransform, &childComp](Transform& parentTransform){
                 currTransform._realTranslation = currTransform.translation + GetParentTransform(childComp->parent, parentTransform);
             });

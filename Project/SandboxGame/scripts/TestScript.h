@@ -1,6 +1,7 @@
 #pragma once
 
 #include "LarryApi.h"
+#include "Components/Transform.h"
 
 namespace Larry {
     class TestScript : public Scripts::Script {
@@ -9,6 +10,8 @@ namespace Larry {
             TextureObject* face_texture;
             float vel = 400;
             int gameLayerId;
+
+            ECS::ComponentPtr<Transform> transform;
         public:
             TestScript(ECS::World* world_);
             ~TestScript();

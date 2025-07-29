@@ -1,4 +1,5 @@
 #pragma once
+#include "ComponentPtr.hpp"
 #include "ECS/CPPApi/ECS.h"
 #include "ECS/ECS_C.h"
 #include "ECS/Internal/Queues.h"
@@ -38,6 +39,9 @@ namespace Larry::ECS {
             Internal::World _world;
             Internal::World* world;
 
+            // a value that represents the state of the world, it will change every time the world has been changed
+            int world_state;
+
         public:
             World() {
                 world = &_world;
@@ -53,11 +57,17 @@ namespace Larry::ECS {
                 return world;
             }
 
-            Entity CreateEntity(const std::string& name) { return world->CreateEntity(name); }
+            Entity CreateEntity(const std::string& name) { 
+                world_state++;
+                return world->CreateEntity(name);
+            }
 
             bool IsEntityAlive(Entity entity) { return world->IsEntityAlive(entity); }
 
-            void KillEntity(Entity entity) { world->KillEntity(entity); }
+            void KillEntity(Entity entity) { 
+                world_state++;
+                world->KillEntity(entity); 
+            }
 
             std::optional<std::string> GetEntityName(Entity entity) {
                 return world->GetEntityName(entity);
@@ -66,6 +76,8 @@ namespace Larry::ECS {
             template <typename... Types, typename F> 
             bool InsertComponent(Entity entity, const F& set_callback)
             {
+                world_state++;
+
                 RegisterTypes(Types);
 
                 Internal::AnyQueue* resultQueue = world->InitAnyQueue();
@@ -87,15 +99,11 @@ namespace Larry::ECS {
             }
 
             template<typename T>
-            std::optional<T*> GetComponent(Entity entity)
+            ComponentPtr<T> GetComponent(Entity entity)
             {
                 ECS_RegisterType(world, TypeHash(T), sizeof(T), DESTRUCTOR_LAMBDA(T));
 
-                std::optional<ECS_Any> res = world->GetComponent(entity, TypeHash(T));
-                if (res.has_value()) {
-                    return (T*)res->value;
-                }
-                return std::nullopt;
+                return ComponentPtr<T>(entity, world, &world_state);
             }
 
             template <typename... Types, typename F>
@@ -122,6 +130,7 @@ namespace Larry::ECS {
             template <typename T>
             void DeleteComponent(Entity entity)
             {
+                world_state++;
                 ECS_RegisterType(world, TypeHash(T), sizeof(T), DESTRUCTOR_LAMBDA(T));
 
                 world->DeleteComponent(entity, TypeHash(T));
@@ -129,11 +138,12 @@ namespace Larry::ECS {
 
             template<typename T, typename F>
             inline bool InsertOrSetComponent(Entity entity, const F& callback) {
+                world_state++;
                 ECS_RegisterType(world, TypeHash(T), sizeof(T), DESTRUCTOR_LAMBDA(T));
                 
-                std::optional<T*> res = GetComponent<T>(entity);
+                ComponentPtr<T> res = GetComponent<T>(entity);
                 if (res.has_value()) {
-                    callback(*res.value());
+                    callback(*res);
                     return true;
                 } else {
                     return InsertComponent<T>(entity, callback);
@@ -143,6 +153,7 @@ namespace Larry::ECS {
             template <typename T> 
             T* GetSingelton()
             {
+                world_state++;
                 ECS_RegisterType(world, TypeHash(T), sizeof(T), DESTRUCTOR_LAMBDA(T));
 
                 std::optional<void*> res = world->GetSingelton(TypeHash(T));
@@ -159,6 +170,7 @@ namespace Larry::ECS {
             template <typename T, typename F> 
             void SetSingelton(const F& set_callback)
             {
+                world_state++;
                 ECS_RegisterType(world, TypeHash(T), sizeof(T), DESTRUCTOR_LAMBDA(T));
 
                 std::optional<void*> res = world->GetSingelton(TypeHash(T));

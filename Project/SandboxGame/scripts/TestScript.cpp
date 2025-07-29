@@ -42,11 +42,12 @@ namespace Larry {
         bg->color.a = 1.0;
         
         bg->color = Math::Vec4(1.0f);
+
+        transform = world->GetComponent<Transform>(entity);
     }
 
     void TestScript::OnUpdate(const ECS::Entity& entity, double deltaTime) {
         /* LA_INFO("TestScript OnUpdate, entity: {}", entity.GetId()); */
-        return;
         Math::Vec3 direction(0);
         /* LA_INFO("Delta time: {}", deltaTime); */
         if (Input::KeyPressed(KEY_W)) {
@@ -61,10 +62,9 @@ namespace Larry {
         if (Input::KeyPressed(KEY_A)) {
             direction.x -= vel;
         } 
-        world->SetComponents<Transform>(entity, [direction, deltaTime](Transform& transform){
-            /* LA_INFO("Setting transform!"); */
-            transform.translation = transform.translation + (direction * (float)deltaTime);
-        });
+
+        // LA_INFO("Setting transform!");
+        transform->translation = transform->translation + (direction * (float)deltaTime);
     }
 
     void TestScript::HandleEvent(const ECS::Entity& entity, Event* event) {

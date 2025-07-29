@@ -122,7 +122,7 @@ namespace Larry {
 
         Scripts::Script::Init(ecs_world);
 
-        lua_scripts->test(ecs_world->GetInternalWorld());
+        // lua_scripts->test(ecs_world->GetInternalWorld());
 
         ecs_world->SetComponents<Transform, Quad>(3, [](Transform& transform, Quad& quad){
             LA_CORE_INFO("Entity transform translation ({}, {}, {})", transform.translation.x, transform.translation.y, transform.translation.z);

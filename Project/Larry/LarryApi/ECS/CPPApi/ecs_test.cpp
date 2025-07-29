@@ -65,18 +65,18 @@ namespace Larry::ECS {
         auto vel = world.GetComponent<_Velocity>(entity);
         assert(pos.has_value());
         assert(vel.has_value());
-        LA_CORE_DEBUG("Pos values ({},{})", pos.value()->x, pos.value()->y);
-        LA_CORE_DEBUG("Vel values ({},{})", vel.value()->x, vel.value()->y);
-        assert(pos.value()->x == 1 && pos.value()->y == 8);
-        assert(vel.value()->x == 2 && vel.value()->y == 9);
+        LA_CORE_DEBUG("Pos values ({},{})", pos->x, pos->y);
+        LA_CORE_DEBUG("Vel values ({},{})", vel->x, vel->y);
+        assert(pos->x == 1 && pos->y == 8);
+        assert(vel->x == 2 && vel->y == 9);
 
         world.SetComponents<_Position>(entity, [](_Position& position) { position.x = 0; });
         pos = world.GetComponent<_Position>(entity);
         assert(pos.has_value());
-        assert(pos.value()->x == 0 && pos.value()->y == 8);
+        assert(pos->x == 0 && pos->y == 8);
         vel = world.GetComponent<_Velocity>(entity);
         assert(vel.has_value());
-        assert(vel.value()->x == 2 && vel.value()->y == 9);
+        assert(vel->x == 2 && vel->y == 9);
 
         world.SetComponents<_Position, _Velocity>(entity, [](_Position& position, _Velocity& velocity) {
             position.x = 5;
@@ -84,23 +84,23 @@ namespace Larry::ECS {
         });
         pos = world.GetComponent<_Position>(entity);
         assert(pos.has_value());
-        assert(pos.value()->x == 5 && pos.value()->y == 8);
+        assert(pos->x == 5 && pos->y == 8);
         vel = world.GetComponent<_Velocity>(entity);
         assert(vel.has_value());
-        assert(vel.value()->x == 2 && vel.value()->y == 3);
+        assert(vel->x == 2 && vel->y == 3);
 
         world.InsertComponent<_Transform>(entity, [](_Transform& trans){
             trans = { 1, 8, 6 };
         });
         pos = world.GetComponent<_Position>(entity);
         assert(pos.has_value());
-        assert(pos.value()->x == 5 && pos.value()->y == 8);
+        assert(pos->x == 5 && pos->y == 8);
         vel = world.GetComponent<_Velocity>(entity);
         assert(vel.has_value());
-        assert(vel.value()->x == 2 && vel.value()->y == 3);
+        assert(vel->x == 2 && vel->y == 3);
         auto trans = world.GetComponent<_Transform>(entity);
         assert(trans.has_value());
-        assert(trans.value()->x == 1 && trans.value()->y == 8 && trans.value()->z == 6);
+        assert(trans->x == 1 && trans->y == 8 && trans->z == 6);
 
         LA_CORE_DEBUG("ECS: InsertAndSetTest passed");
     }
@@ -209,7 +209,7 @@ namespace Larry::ECS {
 
         auto pos = world.GetComponent<_Position>(my_entity3);
         assert(pos.has_value());
-        assert(pos.value()->x == 77 && pos.value()->y == 77);
+        assert(pos->x == 77 && pos->y == 77);
 
         LA_CORE_DEBUG("ECS: CreateAndDelete passed");
     }

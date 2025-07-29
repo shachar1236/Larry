@@ -1,6 +1,9 @@
-#include "ECS/CPPApi/ECS.h"
+#pragma  once
+
+#include "ECS/CPPApi/World.hpp"
 #include "Utils/LarryMemory.h"
 #include "Math/Math.h"
+#include "Components/Relationship.h"
 #include "World.hpp"
 #include <optional>
 
@@ -61,7 +64,7 @@ namespace Larry {
                         auto currChildOpt = world->GetComponent<Child>(currChild.value());
                         if (currChildOpt.has_value()) {
                             if (currChild.value() == child) {
-                                Child* currChildComp = currChildOpt.value();
+                                Child* currChildComp = &(*currChildOpt);
                                 lastChild->nextChild = currChildComp->nextChild;
 
                                 world->DeleteComponent<Child>(currChild.value());
@@ -69,7 +72,7 @@ namespace Larry {
 
                                 running = false;
                             } else {
-                                lastChild = currChildOpt.value();
+                                lastChild = &(*currChildOpt);
                             }
                         } else {
                             running = false;
