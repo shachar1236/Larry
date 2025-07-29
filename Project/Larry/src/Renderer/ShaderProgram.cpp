@@ -1,3 +1,4 @@
+#include "gl.h"
 #include "common.h"
 #include "LarryApi.h"
 #include "ShaderProgram.h"

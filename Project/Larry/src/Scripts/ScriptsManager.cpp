@@ -1,3 +1,4 @@
+#include "gl.h"
 #include "LarryApi.h"
 #include "Scripts/ScriptsManager.h"
 #include "Layer/Layer.h"

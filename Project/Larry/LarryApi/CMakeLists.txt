@@ -48,6 +48,7 @@ target_include_directories(LarryApi
        include/Input/
        include/Layers/
        include/Scripts/lua
+       include/Components
    )
 
 if(NOT (CMAKE_BUILD_TYPE STREQUAL "Release"))

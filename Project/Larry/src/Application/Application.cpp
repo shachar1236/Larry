@@ -1,5 +1,6 @@
 #include "gl.h"
 #include "LarryApi.h"
+#include "Scripts/ScriptsManager.h"
 #include "Components/Background.h"
 #include "Components/Button.h"
 #include "Application/Application.h"

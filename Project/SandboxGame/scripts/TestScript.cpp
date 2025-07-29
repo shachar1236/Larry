@@ -1,5 +1,8 @@
+#include "Components/Projection.h"
 #include "LarryApi.h"
 #include "Components/Background.h"
+#include "Components/Quad.h"
+#include "Components/Transform.h"
 #include "Math/Math.h"
 #include "TestScript.h"
 
@@ -7,7 +10,7 @@ namespace Larry {
 
     DEFINE_SCRIPT(TestScript, "GameLayer");
 
-    TestScript::TestScript(const Ref<ECS::World>& world_) : Scripts::Script(world_) {
+    TestScript::TestScript(ECS::World* world_) : Scripts::Script(world_) {
         
     }
 
@@ -64,11 +67,10 @@ namespace Larry {
         });
     }
 
-    void TestScript::HandleEvent(const ECS::Entity& entity, const Ref<Event>& event) {
+    void TestScript::HandleEvent(const ECS::Entity& entity, Event* event) {
         LA_INFO("TestScript HandleEvent");
-        DispatchEvent<Events::WindowResizedEvent>(event, [this](const Ref<Event>& e){
+        DispatchEvent<Events::WindowResizedEvent>(event, [this](Events::WindowResizedEvent* window_event){
             LA_INFO("TestScript HandleEvent2");
-            Events::WindowResizedEvent* window_event = (Events::WindowResizedEvent*)e.get();
             world->System<Projection>([window_event](Projection& proj){
                 proj.projection = Math::ortho(0, window_event->GetWidth(), 0, window_event->GetHeight(), 0.1f, 100.0f);
             });

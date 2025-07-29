@@ -1,7 +1,7 @@
 #pragma once
 
-#include "EventSystem/InputEvents.h"
 #include "gl.h"
+#include "EventSystem/InputEvents.h"
 #include "Layer/Layer.h"
 #include "ECS/Internal/Entity.hpp"
 #include "LarryApi.h"

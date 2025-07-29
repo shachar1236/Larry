@@ -1,5 +1,6 @@
 #pragma once
 
+#include "gl.h"
 #include "LarryApi.h"
 #include "Layer/Layer.h"
 #include "ECS/Internal/Entity.hpp"

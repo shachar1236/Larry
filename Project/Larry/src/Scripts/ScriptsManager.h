@@ -1,5 +1,6 @@
 #pragma once
 
+#include "gl.h"
 #include "ECS/CPPApi/ECS.h"
 #include "ECS/CPPApi/World.hpp"
 #include "Utils/LarryMemory.h"

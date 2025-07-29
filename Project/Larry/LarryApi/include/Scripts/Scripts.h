@@ -10,7 +10,7 @@
 // #define SCRIPT_LAYER(name) static char* GetScriptLayer() { return #name; }
 
 #define DEFINE_SCRIPT(T, layer) \
-    void CreateScript##T(void* ptr, const Ref<Larry::ECS::World>& world) \
+    void CreateScript##T(void* ptr, Larry::ECS::World* world) \
     { \
         T* a = (T*)ptr; \
         new (a) T(world); \

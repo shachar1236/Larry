@@ -1,8 +1,9 @@
+#include "gl.h"
 #include "LarryApi.h"
 #include "ECS_pch.h"
 #include "common.h"
-#include "Application/Components/Projection.h"
-#include "Application/Components/Camera.h"
+#include "Components/Projection.h"
+#include "Components/Camera.h"
 #include "ECS.h"
 #include "Layer.h"
 
