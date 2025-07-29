@@ -22,8 +22,8 @@ namespace Larry {
             // void UpdateLayers() - run OnUpdate() on every layer from start to finish
             void UpdateLayers(const double& deltaTime);
             // void PassEventToLayers() - pass Event to every layer from finish to start until someone handels it 
-            void PassEventToLayers(const Ref<Event>& event);
+            void PassEventToLayers(Event* event);
             // void PassEventToLayers() - pass Event to every layer from start to finish until someone handels it 
-            void PassEventToLayersFromStartToFinish(const Ref<Event>& event);
+            void PassEventToLayersFromStartToFinish(Event* event);
     };
 }

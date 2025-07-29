@@ -55,13 +55,13 @@ namespace Larry {
         }
     }
 
-    void LayerStack::PassEventToLayers(const Ref<Event>& event) {
+    void LayerStack::PassEventToLayers(Event* event) {
         for (int i = layers.size() - 1; i > -1 && !event->Handeled; i--) {
             layers[i]->HandleEvent(event);
         }
     }
 
-    void LayerStack::PassEventToLayersFromStartToFinish(const Ref<Event>& event) {
+    void LayerStack::PassEventToLayersFromStartToFinish(Event* event) {
         for (int i = 0; i < layers.size() && !event->Handeled; i++) {
             layers[i]->HandleEvent(event);
         }

@@ -19,7 +19,7 @@ namespace Larry {
             RendererConfig rendererConfig;
             Renderer* renderer;
             LayerStack layerStack;
-            Ref<ECS::World> ecs_world;
+            ECS::World* ecs_world;
             Scripts::LuaScripts* lua_scripts;
 
             static Application* application;
@@ -34,11 +34,11 @@ namespace Larry {
             void SaveScene();
             void GenerateScene(const std::string& scene_file_path);
 
-            static void HandleEvent(const Ref<Event>&);
-            void handleEvent(const Ref<Event>&);
-            void handleErrorEvent(const Ref<Event>&);
-            void HandleWindowEvent(const Ref<Event>&);
-            void HandleInputEvent(const Ref<Event>&);
+            static void HandleEvent(Event*);
+            void handleEvent(Event*);
+            void handleErrorEvent(Event*);
+            void HandleWindowEvent(Event*);
+            void HandleInputEvent(Event*);
     };
 
 }

@@ -1,7 +1,7 @@
+#include "gl.h"
 #include "ECS_pch.h"
 #include "Application.h"
 #include "Log.h"
-#include "gl.h"
 #ifdef LARRY_ENABLE_TESTING
 #include "ECS/CPPApi/ecs_test.h"
 #endif

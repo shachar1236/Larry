@@ -14,16 +14,16 @@ namespace Larry {
     class Layer : public ILayer {
         protected:
             std::vector<Ref<ISystem>> systems;
-            Ref<ECS::World> world;
+            ECS::World* world;
             Renderer* renderer;
         public:
-            Layer(const std::string& name_, const Ref<ECS::World>& world_);
+            Layer(const std::string& name_, ECS::World* world_);
             virtual ~Layer() {};
 
             virtual void OnAttach();
             virtual void OnUpdate(const double& deltaTime);
             virtual void OnDetach();
-            virtual void HandleEvent(const Ref<Event>& event);
+            virtual void HandleEvent(Event* event);
 
             void AddSystem(const Ref<ISystem>& system);
             std::string GetName() { return name; }

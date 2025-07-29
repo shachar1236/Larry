@@ -46,7 +46,7 @@ namespace Larry {
             if(!success)
             {
                 glGetShaderInfoLog(shader, 512, NULL, infoLog);
-                Ref<Events::ShaderCompilationFailedErrorEvent> err = CreateRef<Events::ShaderCompilationFailedErrorEvent>(infoLog, shader_text);
+                Events::ShaderCompilationFailedErrorEvent* err = new Events::ShaderCompilationFailedErrorEvent(infoLog, shader_text);
                 EventSystem::HandleEvent(err);
             } else {
                 LA_CORE_INFO("Compiled shader {}", shader);

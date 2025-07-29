@@ -16,9 +16,9 @@ namespace Larry::Scripts {
 
             static LuaScripts* instance;
 
-            LuaScripts(const Ref<ECS::World>&);
+            LuaScripts(ECS::World*);
         public:
-            static void InitLuaScripts(const Ref<ECS::World>& world) {
+            static void InitLuaScripts(ECS::World* world) {
                 instance = new LuaScripts(world);
             }
 
@@ -30,7 +30,7 @@ namespace Larry::Scripts {
             lua_State* GetState() { return L; }
             std::unordered_map<std::string, ECS_TypeHashCode> GetScriptTypes() { return  script_types; }
 
-            void AddScriptToEntity(const std::string& script_name, const Ref<ECS::World>& world, ECS_Entity entity);
+            void AddScriptToEntity(const std::string& script_name, ECS::World* world, ECS_Entity entity);
 
             void UpdateScripts(ECS::Internal::World* world, double deltaTime);
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "gl.h"
 #include "LarryApi.h"
 #include "Layer/Layer.h"
 #include "Renderer.h"
@@ -9,12 +10,12 @@ namespace Larry {
         private:
             Renderer* renderer;
         public:
-            GUILayer(const Ref<ECS::World>& world_);
+            GUILayer(ECS::World* world_);
             virtual ~GUILayer();
 
             virtual void OnAttach();
             virtual void OnUpdate(const double& deltaTime);
             virtual void OnDetach();
-            virtual void HandleEvent(const Ref<Event>& event);
+            virtual void HandleEvent(Event* event);
     };
 }

@@ -7,7 +7,7 @@
 
 namespace Larry {
 
-    GameLayer::GameLayer(const Ref<ECS::World>& world_) : Layer("GameLayer", world_) {
+    GameLayer::GameLayer(ECS::World* world_) : Layer("GameLayer", world_) {
     }
 
     GameLayer::~GameLayer() {
@@ -28,32 +28,30 @@ namespace Larry {
         Layer::OnDetach();
     }
 
-    void GameLayer::HandleEvent(const Ref<Event>& event) {
+    void GameLayer::HandleEvent(Event* event) {
         Layer::HandleEvent(event);
 
-        DispatchEvent<Events::KeyPressedEvent>(event, BIND_EVENT_FN(HandleKeyPressed));
-        DispatchEvent<Events::KeyReleasedEvent>(event, BIND_EVENT_FN(HandleKeyReleased));
+        DispatchEvent<Events::KeyPressedEvent>(event, [&](Events::KeyPressedEvent *e) { this->HandleKeyPressed(e); });
+        DispatchEvent<Events::KeyReleasedEvent>(event, [&](Events::KeyReleasedEvent *e) { this->HandleKeyReleased(e); });
 
-        DispatchEvent<Events::MousePressedEvent>(event, BIND_EVENT_FN(HandleMousePressed));
-        DispatchEvent<Events::MouseReleasedEvent>(event, BIND_EVENT_FN(HandleMouseReleased));
-        DispatchEvent<Events::MouseMovedEvent>(event, BIND_EVENT_FN(HandleMouseMoved));
+        DispatchEvent<Events::MousePressedEvent>(event, [&](Events::MousePressedEvent *e) { this->HandleMousePressed(e); });
+        DispatchEvent<Events::MouseReleasedEvent>(event, [&](Events::MouseReleasedEvent *e) { this->HandleMouseReleased(e); });
+        DispatchEvent<Events::MouseMovedEvent>(event, [&](Events::MouseMovedEvent *e) { this->HandleMouseMoved(e); });
     }
 
-    void GameLayer::HandleKeyPressed(const Ref<Event>& event) {
-        Events::KeyPressedEvent* keyEvent = (Events::KeyPressedEvent*)event.get();
+    void GameLayer::HandleKeyPressed(Events::KeyPressedEvent* keyEvent) {
 
     }
 
-    void GameLayer::HandleKeyReleased(const Ref<Event>& event) {
-        Events::KeyReleasedEvent* keyEvent = (Events::KeyReleasedEvent*)event.get();
+    void GameLayer::HandleKeyReleased(Events::KeyReleasedEvent* keyEvent) {
     }
 
-    void GameLayer::HandleMouseMoved(const Ref<Event>& event) {
+    void GameLayer::HandleMouseMoved(Events::MouseMovedEvent* event) {
     }
 
-    void GameLayer::HandleMousePressed(const Ref<Event>& event) {
+    void GameLayer::HandleMousePressed(Events::MousePressedEvent* event) {
     }
 
-    void GameLayer::HandleMouseReleased(const Ref<Event>& event) {
+    void GameLayer::HandleMouseReleased(Events::MouseReleasedEvent* event) {
     }
 }

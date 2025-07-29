@@ -43,10 +43,10 @@
 namespace Larry::Scripts {
     class Script {
         protected:
-            Ref<ECS::World> world;
+            ECS::World* world;
 
         public:
-            Script(const Ref<ECS::World> world_)
+            Script(ECS::World* world_)
                 : world(world_) { };
             virtual ~Script() { };
 
@@ -59,12 +59,12 @@ namespace Larry::Scripts {
             virtual void MouseJustPressed(const ECS::Entity&, Events::MousePressedEvent*) { }; // Called when one of the mouse first  buttons was pressed
             virtual void MouseScrolled(const ECS::Entity&, Events::MouseScrolledEvent*) { }; // Called when one of the mouse was scrolled
 
-            virtual void HandleEvent(const ECS::Entity& entity, const Ref<Event>&) = 0;
+            virtual void HandleEvent(const ECS::Entity& entity, Event*) = 0;
 
             // static ECS_TypeHashCode GetType() { return 0; };
             // static char* GetScriptLayer() { return nullptr; };
 
-            using CreateScriptFunction = void(*)(void*, const Ref<ECS::World>&);
+            using CreateScriptFunction = void(*)(void*, ECS::World*);
             using DestructorScriptFunction = void(*)(const void*);
 
             struct scriptDetails {
@@ -76,6 +76,6 @@ namespace Larry::Scripts {
             };
             static std::unordered_map<std::string, scriptDetails> scriptName_to_detailes;
 
-            static void Init(const Ref<ECS::World>& world);
+            static void Init(ECS::World* world);
         };
 }

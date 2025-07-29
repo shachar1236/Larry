@@ -45,6 +45,6 @@ namespace Larry {
 
     }
 
-    void RelationSystem::HandleEvent(const Ref<Event>& event) {
+    void RelationSystem::HandleEvent(Event* event) {
     }
 }

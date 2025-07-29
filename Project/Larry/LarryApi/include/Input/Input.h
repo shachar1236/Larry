@@ -9,7 +9,7 @@ namespace Larry {
         private:
             static void* void_window;
         public:
-            static void HandleEvent(const Ref<Event>& event);
+            static void HandleEvent(Event* event);
 
             static void Init(void* window_);
             Input() {};

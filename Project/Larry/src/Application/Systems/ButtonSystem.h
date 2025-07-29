@@ -1,6 +1,5 @@
 #pragma once
 
-#include "gl.h"
 #include "LarryApi.h"
 #include "Renderer.h"
 #include "Systems/System.h"
@@ -12,13 +11,13 @@ namespace Larry {
             Renderer* renderer;
             int mouseX, mouseY;
         public:
-            ButtonSystem(const Ref<ECS::World>& world_) : ISystem(world_) {}
+            ButtonSystem(ECS::World* world_) : ISystem(world_) {}
             ~ButtonSystem() {}
 
             virtual void OnCreate();
             virtual void OnUpdate(double deltaTime);
             virtual void OnDelete();
-            void HandleMousePressedEvent(const Ref<Event>& event);
-            virtual void HandleEvent(const Ref<Event>& event);
+            void HandleMousePressedEvent(Events::MousePressedEvent* event);
+            virtual void HandleEvent(Event* event);
     };
 }

@@ -11,12 +11,12 @@ namespace Larry {
             Math::Vec4 color;
             double width, height;
         public:
-            BackgroundLayer(const Ref<ECS::World>& world_);
+            BackgroundLayer(ECS::World* world_);
             virtual ~BackgroundLayer();
 
             virtual void OnAttach();
             virtual void OnUpdate(const double& deltaTime);
             virtual void OnDetach();
-            virtual void HandleEvent(const Ref<Event>& event);
+            virtual void HandleEvent(Event* event);
     };
 }

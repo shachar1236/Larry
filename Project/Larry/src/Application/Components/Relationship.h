@@ -17,7 +17,7 @@ namespace Larry {
     };
     
     // adds a child to parent
-    inline void AddChild(const Ref<ECS::World>& world, ECS::Entity parent, ECS::Entity child) {
+    inline void AddChild(ECS::World* world, ECS::Entity parent, ECS::Entity child) {
         world->InsertOrSetComponent<Parent>(parent, [&parent, &child, &world](Parent& parentComp){
             if (parentComp.numberOfChilderns > 0) {
                 world->InsertOrSetComponent<Child>(child, [&parent, &parentComp](Child& childComp){
@@ -39,7 +39,7 @@ namespace Larry {
     }
 
     // separate child from parent
-    inline void DetachFromParent(const Ref<ECS::World>& world, ECS::Entity child) {
+    inline void DetachFromParent(ECS::World* world, ECS::Entity child) {
         world->SetComponents<Child>(child, [child, &world](Child& childComp){
             world->SetComponents<Parent>(childComp.parent, [child, &world](Parent& parentComp){
                 Child* lastChild = nullptr;

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "gl.h"
-
 #include "Utils/Log.h"
 #include "Utils/LarryMemory.h"
 
@@ -9,7 +7,6 @@
 #include "TextureLoader/TextureLoader.h"
 
 #include "Scripts/Scripts.h"
-#include "Scripts/ScriptsManager.h"
 
 #include "Math/Math.h"
 

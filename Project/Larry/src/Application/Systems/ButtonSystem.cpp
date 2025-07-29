@@ -1,3 +1,5 @@
+#include "gl.h"
+#include "EventSystem/InputEvents.h"
 #include "LarryApi.h"
 #include "ECS_pch.h"
 #include "common.h"
@@ -27,8 +29,7 @@ namespace Larry {
 
     }
 
-    void ButtonSystem::HandleMousePressedEvent(const Ref<Event>& event) {
-        Events::MousePressedEvent* mouse_event = (Events::MousePressedEvent*)(event.get());
+    void ButtonSystem::HandleMousePressedEvent(Events::MousePressedEvent* mouse_event) {
         world->System<Transform, Button>([this, mouse_event](Transform& transform, Button& button){
             if (!mouse_event->Handeled) {
                 int realX = transform.translation.x - button.dimentions.x / 2;
@@ -44,10 +45,9 @@ namespace Larry {
         });
     }
 
-    void ButtonSystem::HandleEvent(const Ref<Event>& event) {
-        DispatchEvent<Events::MousePressedEvent>(event, [this](const Ref<Event>& e){ HandleMousePressedEvent(e); });
-        DispatchEvent<Events::MouseMovedEvent>(event, [this](const Ref<Event>& e){
-            Events::MouseMovedEvent* mouse_event = (Events::MouseMovedEvent*)(e.get());
+    void ButtonSystem::HandleEvent(Event* event) {
+        DispatchEvent<Events::MousePressedEvent>(event, [this](Events::MousePressedEvent* e){ HandleMousePressedEvent(e); });
+        DispatchEvent<Events::MouseMovedEvent>(event, [this](Events::MouseMovedEvent* mouse_event){
             mouseX = mouse_event->GetX();
             mouseY = mouse_event->GetY();
         });

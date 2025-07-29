@@ -8,7 +8,7 @@
 
 namespace Larry::Scripts {
 
-    void RegisterScripts(const Ref<ECS::World>& world, LayerStack& layerStack);
-    void AddScriptToEntity(ECS::Entity entity, const std::string& scriptName, const Ref<ECS::World>& world);
+    void RegisterScripts(ECS::World* world, LayerStack& layerStack);
+    void AddScriptToEntity(ECS::Entity entity, const std::string& scriptName, ECS::World* world);
 
 }

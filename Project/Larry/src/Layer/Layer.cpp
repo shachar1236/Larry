@@ -7,7 +7,7 @@
 #include "Layer.h"
 
 namespace Larry {
-    Layer::Layer(const std::string& name_, const Ref<ECS::World>& world_) : ILayer(name_), world(world_) {
+    Layer::Layer(const std::string& name_, ECS::World* world_) : ILayer(name_), world(world_) {
         renderer = Renderer::GetRenderer();
     }
 
@@ -43,7 +43,7 @@ namespace Larry {
         }
     }
 
-    void Layer::HandleEvent(const Ref<Event>& event) {
+    void Layer::HandleEvent(Event* event) {
         for (int i = 0; i < systems.size() && !event->Handeled; i++) {
             systems[i]->HandleEvent(event);
         }

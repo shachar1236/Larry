@@ -35,9 +35,9 @@ namespace Larry {
     };
 
     template<typename T, typename F>
-    bool DispatchEvent(const Ref<Event>& event, const F& func) {
+    bool DispatchEvent(Event* event, const F& func) {
         if (event->GetEventType() == T::GetStaticType()) {
-            func(event);
+            func((T*)event);
             return true;
         }
         return false;

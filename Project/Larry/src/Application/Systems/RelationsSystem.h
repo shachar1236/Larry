@@ -10,7 +10,7 @@ namespace Larry {
         private:
             int counter = 0;
         public:
-            RelationSystem(const Ref<ECS::World>& world_) : ISystem(world_) {}
+            RelationSystem(ECS::World* world_) : ISystem(world_) {}
             ~RelationSystem() {}
 
             virtual void OnCreate();
@@ -19,6 +19,6 @@ namespace Larry {
 
             Math::Vec3 GetParentTransform(ECS::Entity currEntity, Transform& currTransform);
 
-            virtual void HandleEvent(const Ref<Event>& event);
+            virtual void HandleEvent(Event* event);
     };
 }

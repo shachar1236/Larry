@@ -1,3 +1,4 @@
+#include "gl.h"
 #include "LarryApi.h"
 #include "ECS_pch.h"
 #include "common.h"
@@ -6,7 +7,7 @@
 
 namespace Larry {
 
-    GUILayer::GUILayer(const Ref<ECS::World>& world_) : Layer("GUILayer", world_) {
+    GUILayer::GUILayer(ECS::World* world_) : Layer("GUILayer", world_) {
     }
 
     GUILayer::~GUILayer() {
@@ -26,7 +27,7 @@ namespace Larry {
         Layer::OnDetach();
     }
 
-    void GUILayer::HandleEvent(const Ref<Event>& event) {
+    void GUILayer::HandleEvent(Event* event) {
         Layer::HandleEvent(event);
     }
 }

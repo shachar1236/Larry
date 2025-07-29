@@ -32,7 +32,7 @@ namespace Larry {
 
     }
 
-    void RenderQuad::HandleEvent(const Ref<Event>& event) {
+    void RenderQuad::HandleEvent(Event* event) {
 
     }
 }

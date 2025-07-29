@@ -43,11 +43,11 @@ namespace Larry {
 
     }
 
-    void ScriptsSystem::HandleEvent(const Ref<Event>& event) {
+    void ScriptsSystem::HandleEvent(Event* event) {
         ECS::Internal::AnyQueue* any_queue = iworld->InitAnyQueue();
         ECS::Internal::TypeQueue* type_queue = iworld->InitTypeQueue();
 
-        DispatchEvent<Events::SystemInitEvent>(event, [this, &any_queue, &type_queue](const Ref<Event>& e){
+        DispatchEvent<Events::SystemInitEvent>(event, [this, &any_queue, &type_queue](Events::SystemInitEvent* e){
             for (auto&& hash_code : scripts_types) {
                 any_queue->Clear();
                 type_queue->Clear();
@@ -76,17 +76,17 @@ namespace Larry {
                     ECS_Any res = components.Pop();
                     Script* script_ptr = (Script*)res.value;
 
-                    DispatchEvent<Events::KeyPressedEvent>(event, [entity, script_ptr](const Ref<Event>& e){
-                        script_ptr->ButtonJustPressed(entity, (Events::KeyPressedEvent*)e.get());
+                    DispatchEvent<Events::KeyPressedEvent>(event, [entity, script_ptr](Events::KeyPressedEvent* e){
+                        script_ptr->ButtonJustPressed(entity, e);
                     });
-                    DispatchEvent<Events::KeyReleasedEvent>(event, [entity, script_ptr](const Ref<Event>& e){
-                        script_ptr->ButtonReleased(entity, (Events::KeyReleasedEvent*)e.get());
+                    DispatchEvent<Events::KeyReleasedEvent>(event, [entity, script_ptr](Events::KeyReleasedEvent* e){
+                        script_ptr->ButtonReleased(entity, e);
                     });
-                    DispatchEvent<Events::MousePressedEvent>(event, [entity, script_ptr](const Ref<Event>& e){
-                        script_ptr->MouseJustPressed(entity, (Events::MousePressedEvent*)e.get());
+                    DispatchEvent<Events::MousePressedEvent>(event, [entity, script_ptr](Events::MousePressedEvent* e){
+                        script_ptr->MouseJustPressed(entity, e);
                     });
-                    DispatchEvent<Events::MouseScrolledEvent>(event, [entity, script_ptr](const Ref<Event>& e){
-                        script_ptr->MouseScrolled(entity, (Events::MouseScrolledEvent*)e.get());
+                    DispatchEvent<Events::MouseScrolledEvent>(event, [entity, script_ptr](Events::MouseScrolledEvent* e){
+                        script_ptr->MouseScrolled(entity, e);
                     });
                     if (!event->Handeled) {
                         script_ptr->HandleEvent(entity, event);

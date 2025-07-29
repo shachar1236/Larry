@@ -10,12 +10,12 @@ namespace Larry {
         private:
             ECS::Entity button;
         public:
-            UILayer(const Ref<ECS::World>& world_);
+            UILayer(ECS::World* world_);
             virtual ~UILayer();
 
             virtual void OnAttach();
             virtual void OnUpdate(const double& deltaTime);
             virtual void OnDetach();
-            virtual void HandleEvent(const Ref<Event>& event);
+            virtual void HandleEvent(Event* event);
     };
 }

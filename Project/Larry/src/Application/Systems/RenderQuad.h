@@ -10,13 +10,13 @@ namespace Larry {
         private:
             Renderer* renderer;
         public:
-            RenderQuad(const Ref<ECS::World>& world_) : ISystem(world_) {}
+            RenderQuad(ECS::World* world_) : ISystem(world_) {}
             ~RenderQuad() {}
 
             virtual void OnCreate();
             virtual void OnUpdate(double deltaTime);
             virtual void OnDelete();
 
-            virtual void HandleEvent(const Ref<Event>& event);
+            virtual void HandleEvent(Event* event);
     };
 }

@@ -21,13 +21,13 @@ namespace Larry {
         switch (action) {
             case GLFW_PRESS:
                 {
-                    Ref<Events::KeyPressedEvent> event = CreateRef<Events::KeyPressedEvent>(window, key);
+                    Events::KeyPressedEvent* event = new Events::KeyPressedEvent(window, key);
                     EventSystem::HandleEvent(event);
                 }
                 break;
             case GLFW_RELEASE:
                 {
-                    Ref<Events::KeyReleasedEvent> event = CreateRef<Events::KeyReleasedEvent>(window, key);
+                    Events::KeyReleasedEvent* event = new Events::KeyReleasedEvent(window, key);
                     EventSystem::HandleEvent(event);
                 }
                 break;
@@ -38,7 +38,7 @@ namespace Larry {
 
     void character_callback(GLFWwindow* window, unsigned int codepoint)
     {
-        Ref<Events::KeyTypedEvent> event = CreateRef<Events::KeyTypedEvent>(window, codepoint);
+        Events::KeyTypedEvent* event = new Events::KeyTypedEvent(window, codepoint);
         EventSystem::HandleEvent(event);
     }
 
@@ -49,7 +49,7 @@ namespace Larry {
         mousePos.x = xpos;
         mousePos.y = height - ypos;
 
-        Ref<Events::MouseMovedEvent> event = CreateRef<Events::MouseMovedEvent>(window, xpos, height - ypos);
+        Events::MouseMovedEvent* event = new Events::MouseMovedEvent(window, xpos, height - ypos);
         EventSystem::HandleEvent(event);
     }
 
@@ -58,13 +58,13 @@ namespace Larry {
         switch (action) {
             case GLFW_PRESS:
                 {
-                    Ref<Events::MousePressedEvent> event = CreateRef<Events::MousePressedEvent>(window, button);
+                    Events::MousePressedEvent* event = new Events::MousePressedEvent(window, button);
                     EventSystem::HandleEvent(event);
                 }
                 break;
             case GLFW_RELEASE:
                 {
-                    Ref<Events::MouseReleasedEvent> event = CreateRef<Events::MouseReleasedEvent>(window, button);
+                    Events::MouseReleasedEvent* event = new Events::MouseReleasedEvent(window, button);
                     EventSystem::HandleEvent(event);
                 }
                 break;
@@ -75,7 +75,7 @@ namespace Larry {
 
     void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
     {
-        Ref<Events::MouseScrolledEvent> event = CreateRef<Events::MouseScrolledEvent>(window, xoffset, yoffset);
+        Events::MouseScrolledEvent* event = new Events::MouseScrolledEvent(window, xoffset, yoffset);
         EventSystem::HandleEvent(event);
     }
 
@@ -93,9 +93,8 @@ namespace Larry {
         EventSystem::AddCallbackFunction(HandleEvent);
     };
 
-    void Input::HandleEvent(const Ref<Event>& event) {
-        DispatchEvent<Events::WindowResizedEvent>(event, [&](const Ref<Event>& e){
-            Events::WindowResizedEvent* window_event = (Events::WindowResizedEvent*)e.get();
+    void Input::HandleEvent(Event* event) {
+        DispatchEvent<Events::WindowResizedEvent>(event, [&](Events::WindowResizedEvent* window_event){
             std::lock_guard guard(width_height_mtx);
             width = window_event->GetWidth();
             height = window_event->GetHeight();

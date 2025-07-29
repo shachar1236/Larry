@@ -7,7 +7,7 @@
 
 namespace Larry::Scripts {
 
-    void RegisterScripts(const Ref<ECS::World>& world, LayerStack& layerStack) {
+    void RegisterScripts(ECS::World* world, LayerStack& layerStack) {
         LA_CORE_INFO("Registering c++ scripts...");
         ECS::Internal::World* iworld = world->GetInternalWorld();
 
@@ -36,7 +36,7 @@ namespace Larry::Scripts {
         LA_CORE_INFO("Done Registering c++ scripts!");
     }
 
-    void AddScriptToEntity(ECS::Entity entity, const std::string& scriptName, const Ref<ECS::World>& world) {
+    void AddScriptToEntity(ECS::Entity entity, const std::string& scriptName, ECS::World* world) {
         LA_CORE_INFO("Adding script {} to entity {}", scriptName, entity);
 
         ECS::Internal::World* iworld = world->GetInternalWorld();

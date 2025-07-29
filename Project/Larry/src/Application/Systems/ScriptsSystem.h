@@ -15,7 +15,7 @@ namespace Larry {
             std::vector<ECS_TypeHashCode> scripts_types;
         public:
 
-            ScriptsSystem(const Ref<ECS::World>& world_) : ISystem(world_) {
+            ScriptsSystem(ECS::World* world_) : ISystem(world_) {
                 iworld = world_->GetInternalWorld();
             }
             ~ScriptsSystem() {}
@@ -28,6 +28,6 @@ namespace Larry {
             virtual void OnUpdate(double deltaTime);
             virtual void OnDelete();
 
-            virtual void HandleEvent(const Ref<Event>& event);
+            virtual void HandleEvent(Event* event);
     };
 }

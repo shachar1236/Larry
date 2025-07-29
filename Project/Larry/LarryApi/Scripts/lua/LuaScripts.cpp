@@ -13,7 +13,7 @@ namespace Larry::Scripts {
 
     LuaScripts* LuaScripts::instance;
 
-    LuaScripts::LuaScripts(const Ref<ECS::World>&) {
+    LuaScripts::LuaScripts(ECS::World*) {
         L = luaL_newstate();
         if (!L) {
             LA_CORE_ERROR("Could not create new lua state");
@@ -32,7 +32,7 @@ namespace Larry::Scripts {
         lua_close(L);
     }
 
-    void LuaScripts::AddScriptToEntity(const std::string& script_name, const Ref<ECS::World>& world, ECS_Entity entity) {
+    void LuaScripts::AddScriptToEntity(const std::string& script_name, ECS::World* world, ECS_Entity entity) {
         ECS::Internal::World* iworld = world->GetInternalWorld();
         ECS_TypeHashCode script_hash = std::hash<std::string>()(script_name);
         script_types[script_name] = script_hash;

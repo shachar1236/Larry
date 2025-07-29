@@ -6,19 +6,19 @@
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-    Larry::Ref<Larry::Events::WindowResizedEvent> event = Larry::CreateRef<Larry::Events::WindowResizedEvent>(width, height, window);
+    Larry::Event* event = new Larry::Events::WindowResizedEvent(width, height, window);
     Larry::EventSystem::HandleEvent(event);
 }
 
 void window_close_callback(GLFWwindow* window)
 {
-    Larry::Ref<Larry::Events::WindowCloseEvent> event = Larry::CreateRef<Larry::Events::WindowCloseEvent>(window);
+    Larry::Event* event = new Larry::Events::WindowCloseEvent(window);
     Larry::EventSystem::HandleEvent(event);
 }
 
 void window_pos_callback(GLFWwindow* window, int xpos, int ypos)
 {
-    Larry::Ref<Larry::Events::WindowMoveEvent> event = Larry::CreateRef<Larry::Events::WindowMoveEvent>(window, xpos, ypos);
+    Larry::Event* event = new Larry::Events::WindowMoveEvent(window, xpos, ypos);
     Larry::EventSystem::HandleEvent(event);
 }
 
@@ -26,12 +26,12 @@ void window_focus_callback(GLFWwindow* window, int focused)
 {
     if (focused)
     {
-        Larry::Ref<Larry::Events::WindowFocusEvent> event = Larry::CreateRef<Larry::Events::WindowFocusEvent>(window);
+        Larry::Event* event = new Larry::Events::WindowFocusEvent(window);
         Larry::EventSystem::HandleEvent(event);
     }
     else
     {
-        Larry::Ref<Larry::Events::WindowLostFocusEvent> event = Larry::CreateRef<Larry::Events::WindowLostFocusEvent>(window);
+        Larry::Event* event = new Larry::Events::WindowLostFocusEvent(window);
         Larry::EventSystem::HandleEvent(event);
     }
 }
@@ -54,14 +54,14 @@ namespace Larry {
 
         if (window == NULL)
         {
-            Ref<Events::ErrorEvent> event = CreateRef<Events::ErrorEvent>("Failed to create GLFW window", true);
+            Larry::Event* event = new Events::ErrorEvent("Failed to create GLFW window", true);
             EventSystem::HandleEvent(event);
             glfwTerminate();
         }
 
         glfwMakeContextCurrent(window);
 
-        Ref<Larry::Events::WindowResizedEvent> event = Larry::CreateRef<Larry::Events::WindowResizedEvent>(config.window_width , config.window_height, window);
+        Larry::Event* event = new Larry::Events::WindowResizedEvent(config.window_width , config.window_height, window);
         EventSystem::HandleEvent(event);
 
         // set callbacks

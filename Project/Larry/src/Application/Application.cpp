@@ -42,7 +42,7 @@
 
 void gflw_error_callback(int code, const char* description)
 {
-    Larry::Ref<Larry::Events::GlfwErrorEvent> event = Larry::CreateRef<Larry::Events::GlfwErrorEvent>(description, code);
+    Larry::Events::GlfwErrorEvent* event = new Larry::Events::GlfwErrorEvent(description, code);
     Larry::EventSystem::HandleEvent(event);
 }
 
@@ -67,7 +67,7 @@ namespace Larry {
 
     }
 
-    void Application::HandleEvent(const Ref<Event>& event) {
+    void Application::HandleEvent(Event* event) {
         Application::GetApplication()->handleEvent(event);
     }
 
@@ -76,7 +76,7 @@ namespace Larry {
         // setting error callback
         glfwSetErrorCallback(gflw_error_callback);
 
-        ecs_world = CreateRef<ECS::World>();
+        ecs_world = new ECS::World();
 
         window = CreateRef<LarryWindow>(windowConfig);
         renderer = Renderer::InitRenderer(rendererConfig, window);
@@ -131,7 +131,7 @@ namespace Larry {
             LA_CORE_INFO("Entity texture {}", (void*)quad.texture);
         });
 
-        EventSystem::HandleEvent(CreateRef<Events::SystemInitEvent>());
+        EventSystem::HandleEvent(new Events::SystemInitEvent());
         // SaveScene();
     }
 
@@ -296,7 +296,7 @@ namespace Larry {
         }
     }
 
-    void Application::handleEvent(const Ref<Event>& event) {
+    void Application::handleEvent(Event* event) {
         switch (event->GetEventCategory()) {
             case EventCategory::Error:
                 handleErrorEvent(event);
@@ -317,16 +317,15 @@ namespace Larry {
         }
     }
 
-    void Application::handleErrorEvent(const Ref<Event>& event) {
+    void Application::handleErrorEvent(Event* event) {
         bool dispatched = DispatchEvent<Events::ShaderCompilationFailedErrorEvent>(event, 
-            [](const Ref<Event>& event){
-                Events::ShaderCompilationFailedErrorEvent* e = (Events::ShaderCompilationFailedErrorEvent*)event.get();
+            [](Events::ShaderCompilationFailedErrorEvent* e){
                 LA_CORE_ERROR("Shader compilation failed, error: {}", e->GetInfoLog());
                 LA_CORE_INFO("Shader code:\n{}", e->GetShaderCode());
            });
 
         if (!dispatched) {
-            Events::ErrorEvent* err = (Events::ErrorEvent*)event.get();
+            Events::ErrorEvent* err = (Events::ErrorEvent*)event;
             LA_CORE_ERROR("Got an error: {}.", err->GetErrorMessage());
             if (err->IsFatal()) {
                 event->Handeled = true;
@@ -336,19 +335,17 @@ namespace Larry {
         }
     }
 
-    void Application::HandleInputEvent(const Ref<Event>& event) {
+    void Application::HandleInputEvent(Event* event) {
         LA_CORE_INFO("Got input event! type {}", event->GetEventType());
     }
 
-    void Application::HandleWindowEvent(const Ref<Event>& event) {
-        bool dispatched = DispatchEvent<Events::WindowResizedEvent>(event, [this](const Ref<Event>& event){
-            Events::WindowResizedEvent* window_event = (Events::WindowResizedEvent*)event.get();
+    void Application::HandleWindowEvent(Event* event) {
+        bool dispatched = DispatchEvent<Events::WindowResizedEvent>(event, [this](Events::WindowResizedEvent* window_event){
             LA_CORE_INFO("Windows resized to: ({}, {})", window_event->GetWidth(), window_event->GetHeight());
             renderer->SetViewPort(0, 0, window_event->GetWidth(), window_event->GetHeight());
         });
 
-        dispatched = dispatched || DispatchEvent<Events::WindowCloseEvent>(event, [this](const Ref<Event>& event){
-            Events::WindowCloseEvent* window_event = (Events::WindowCloseEvent*)event.get();
+        dispatched = dispatched || DispatchEvent<Events::WindowCloseEvent>(event, [this](Events::WindowCloseEvent* window_event){
             LA_CORE_INFO("User pressed close button!");
             running = false;
         });

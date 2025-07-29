@@ -12,7 +12,7 @@
 
 namespace Larry {
 
-    BackgroundLayer::BackgroundLayer(const Ref<ECS::World>& world_) : Layer("BackgroundLayer", world_) {
+    BackgroundLayer::BackgroundLayer(ECS::World* world_) : Layer("BackgroundLayer", world_) {
     }
 
     BackgroundLayer::~BackgroundLayer() {
@@ -41,10 +41,9 @@ namespace Larry {
         Layer::OnDetach();
     }
 
-    void BackgroundLayer::HandleEvent(const Ref<Event>& event) {
+    void BackgroundLayer::HandleEvent(Event* event) {
         Layer::HandleEvent(event);
-         DispatchEvent<Events::WindowResizedEvent>(event, [this](const Ref<Event> event){
-            Events::WindowResizedEvent* window_event = (Events::WindowResizedEvent*)event.get();
+         DispatchEvent<Events::WindowResizedEvent>(event, [this](Events::WindowResizedEvent* window_event){
             width = window_event->GetWidth();
             height = window_event->GetHeight();
             LA_CORE_INFO("Background layer got window resized event!, {} {}", width, height);

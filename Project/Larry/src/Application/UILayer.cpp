@@ -8,7 +8,7 @@
 
 namespace Larry {
 
-    UILayer::UILayer(const Ref<ECS::World>& world_) : Layer("UILayer", world_) {
+    UILayer::UILayer(ECS::World* world_) : Layer("UILayer", world_) {
     }
 
     UILayer::~UILayer() {
@@ -29,7 +29,7 @@ namespace Larry {
         Layer::OnDetach();
     }
 
-    void UILayer::HandleEvent(const Ref<Event>& event) {
+    void UILayer::HandleEvent(Event* event) {
         Layer::HandleEvent(event);
     }
 }

@@ -90,6 +90,7 @@ namespace Larry::ECS {
             std::optional<T*> GetComponent(Entity entity)
             {
                 ECS_RegisterType(world, TypeHash(T), sizeof(T), DESTRUCTOR_LAMBDA(T));
+
                 std::optional<ECS_Any> res = world->GetComponent(entity, TypeHash(T));
                 if (res.has_value()) {
                     return (T*)res->value;
