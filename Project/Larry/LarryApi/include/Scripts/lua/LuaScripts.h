@@ -7,11 +7,15 @@
 #include "LarryMemory.h"
 #include "ECS/CPPApi/World.hpp"
 #include <string>
+#define SOL_ALL_SAFETIES_ON 1
+#include <sol/sol.hpp>
 
 namespace Larry::Scripts {
     class LuaScripts {
         private:
             lua_State *L;
+            sol::state_view lua;
+
             std::unordered_map<std::string, ECS_TypeHashCode> script_types;
 
             static LuaScripts* instance;

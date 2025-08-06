@@ -92,6 +92,7 @@ if(OPENGL_FOUND)
     include_directories(libraries/yaml-cpp/include)
     include_directories(libraries/stb_image)
     include_directories(libraries/luajit/src)
+    include_directories(libraries/sol2/include)
     include_directories(libraries)
 
     include_directories(Larry/LarryApi/include)

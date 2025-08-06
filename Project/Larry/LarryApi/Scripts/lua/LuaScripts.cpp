@@ -13,8 +13,8 @@ namespace Larry::Scripts {
 
     LuaScripts* LuaScripts::instance;
 
-    LuaScripts::LuaScripts(ECS::World*) {
-        L = luaL_newstate();
+    LuaScripts::LuaScripts(ECS::World*) : L(luaL_newstate()), lua(L)
+    {
         if (!L) {
             LA_CORE_ERROR("Could not create new lua state");
             return;
@@ -131,7 +131,7 @@ namespace Larry::Scripts {
     }
 
     void LuaScripts::RegisterComponent(const std::string& name, ECS_TypeHashCode hash_code) {
-        lua_getglobal(L, "AddComponentHash");
+        /* lua_getglobal(L, "AddComponentHash");
 
         lua_pushstring(L, name.c_str());
         lua_pushlightuserdata(L, reinterpret_cast<void*>(static_cast<uintptr_t>(hash_code)));
@@ -139,7 +139,10 @@ namespace Larry::Scripts {
         if (lua_pcall(L, 2, 0, 0) != LUA_OK) {
             LA_CORE_ERROR("Cant register component {} in lua!", name);
             return;
-        }
+        } */
+        lua["ComponentNamesToHash"][name] = lua.create_table_with(
+            "hash", hash_code
+        );
     }
 
     void LuaScripts::LuaSystemCallback(ECS_Entity entity, ECS_AnyQueue components, bool* stop) {

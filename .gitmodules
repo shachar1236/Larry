@@ -13,3 +13,9 @@
 [submodule "Project/libraries/debugger.lua"]
 	path = Project/libraries/debugger.lua
 	url = https://github.com/slembcke/debugger.lua.git
+[submodule "Project/Sol2-User-Type-Generator"]
+	path = Project/Sol2-User-Type-Generator
+	url = https://github.com/shachar1236/Sol2-User-Type-Generator.git
+[submodule "Project/libraries/sol2"]
+	path = Project/libraries/sol2
+	url = https://github.com/ThePhD/sol2.git

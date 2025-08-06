@@ -32,6 +32,7 @@ target_include_directories(LarryApi PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/glad/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/stb_image
     ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/luajit/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../libraries/sol2/include
 )
 
 target_include_directories(LarryApi

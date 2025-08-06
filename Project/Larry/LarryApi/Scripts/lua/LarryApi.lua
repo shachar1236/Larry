@@ -6,13 +6,11 @@ local dbg = require("lib.debugger")
 ffi.cdef(cdef)
 
 ComponentNamesToHash = {}
-ComponentHashToNames = {}
-function AddComponentHash(name, component_type_hash_as_ptr)
+-- function AddComponentHash(name, component_type_hash_as_ptr)
     -- Cast the incoming void* back to ECS_TypeHashCode (unsigned long)
-    local component_type_hash = ffi.cast("ECS_TypeHashCode", component_type_hash_as_ptr)
-    ComponentNamesToHash[name] = component_type_hash;
-    ComponentHashToNames[component_type_hash] = name
-end
+    -- local component_type_hash = ffi.cast("ECS_TypeHashCode", component_type_hash_as_ptr)
+    -- ComponentNamesToHash[name] = component_type_hash;
+-- end
 
 function GetComponent(world, entity, componentName)
     -- Cast the incoming void* back to ECS_TypeHashCode (unsigned long)
