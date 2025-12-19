@@ -1,13 +1,36 @@
 import sys
 import re
+import cxxheaderparser
 import argparse
 from colorama import Fore
 from cpp_types import *
 from cpp_code_generator import *
+from lua_code_generator import *
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument("files", nargs="+")
+parser.add_argument("-o", action="store", nargs=2, help="The output files, the first is the cpp file and the second is the lua file.")
+parser.add_argument("--ignore-classes", "-ic", action="store", nargs="+", help="Dont parse classes with the provided names.")
+parser.add_argument("--exists", "-e", action="store", nargs="+", help="Act as if the provided classes already exists and dont throw an error when when refrencing them.")
+parser.add_argument("-I", action="store", nargs="+", help="Directories where the header file are.")
+
+args = parser.parse_args()
+
+args_exists = None
+if args.exists != None:
+    args_exists = args.exists[:]
+    for arg in args.exists:
+        args_exists.append("const " + arg)
+        args_exists.append("const " + arg + "*")
+        args_exists.append("const " + arg + "**")
+        args_exists.append(arg + "*")
+        args_exists.append(arg + "**")
 
 def iswhitespace(char):
     return char == " " or char == "\t" or char == "\n" or char.isspace()
 
+BASE_TYPES = ["int", "float", "double", "char", "bool", "short", "long", "void"]
 OPERATORS = ["=", ";", ",", ".", "{", "}", "(", ")"]
 
 class Lexer():
@@ -58,9 +81,8 @@ class Lexer():
 
 def parse_type(lexer : Lexer):
     t = lexer.next()
-    if t == "const":
+    if t in ["const", "unsigned", "enum"]:
         t2 = lexer.next()
-        # TODO: check if type is in allowed types
         return f"{t} {t2}"
     return t
         
@@ -116,38 +138,77 @@ def parse_if_variable(line, state):
                 return CppClassVariable(var_type, var_name, state, default_value)
     return None
 
-def CreateFunctionsTable(cpp_class : CppClass) -> str:
-    code = f"sol::table create_{cpp_class.name}_functions_table(sol::state_view& lua)" + "\n{\n"
-    code += "\tsol::table table = lua.create_table_with(\n"
-    for i, func in enumerate(cpp_class.functions):
-        code += f'\t\t"{func.name}", &{cpp_class.name}::{func.name}'
-        if i != len(cpp_class.functions) - 1:
-          code += ","
-        code += "\n"
-    code += "\t);\n"
-    code += "\treturn table;\n}"
-    return code
+def get_clean_type(t, namespaces : set[str], parent_namespace=""):
+    if "::" in t:
+        i = t.find("::")
+        namespace = t[:i]
+        if parent_namespace != "":
+            namespace = parent_namespace + "::" + namespace
+        namespaces.add(namespace)
+        return get_clean_type(t[i+2:], namespaces, parent_namespace=namespace)
+    return t
 
-def validate_cpp(parsed_objects):
+
+def enumerate_on_variables_types_in_object(obj : CppClass, func):
+    for constructor in obj.constructors:
+        for i, arg in enumerate(constructor.arguments):
+            constructor.arguments[i].var_type = func(arg.var_type)
+    for function in obj.functions:
+        for i, arg in enumerate(function.args):
+            function.args[i].var_type = func(arg.var_type)
+        function.return_value = func(function.return_value)
+    for i, var in enumerate(obj.variables):
+        obj.variables[i].var_type = func(var.var_type)
+
+def enumerate_on_variables_types_in_function(obj : CppFunction, func):
+    obj.return_value = func(obj.return_value)
+    for i, arg in enumerate(obj.args):
+        obj.args[i].var_type = func(arg.var_type)
+    obj.return_value = func(obj.return_value)
+
+
+def preprocess_and_count_variable(var_type : str, classes, known_types):
+    if var_type in classes.keys():
+        classes[var_type]["count"] += 1
+        return var_type
+    elif not(var_type in known_types):
+        if var_type[-1] == "*":
+            return "void" + "*" * var_type.count("*")
+        elif args_exists == None or not(var_type in args_exists):
+            print(Fore.RED, f"ERROR: used unknown type: {var_type}")
+            raise SystemError(f"ERROR: used unknown type: {var_type}")
+
+def preprocess_cpp(parsed_objects, namespaces):
+    known_types = set()
+    for t in BASE_TYPES:
+        known_types.add(t)
+        known_types.add("unsigned " + t)
+        known_types.add("signed " + t)
+        known_types.add("const " + t)
+        known_types.add(t + "*")
+        known_types.add(t + "**")
+    for obj in parsed_objects:
+        if isinstance(obj, CppClass):
+            known_types.add(obj.name)
+            known_types.add(obj.name + "*")
+            known_types.add(obj.name + "**")
     # TODO: check if types exists
-    return True
+    classes = { obj.name : { "value" : obj, "count" : 0 } for obj in parsed_objects if isinstance(obj, CppClass)}
+    for obj in parsed_objects:
+        if isinstance(obj, CppClass):
+            enumerate_on_variables_types_in_object(obj, lambda var_type: get_clean_type(var_type, namespaces))
+            enumerate_on_variables_types_in_object(obj, lambda var: preprocess_and_count_variable(var, classes, known_types))
+        if isinstance(obj, CppFunction):
+            enumerate_on_variables_types_in_function(obj, lambda var_type: get_clean_type(var_type, namespaces))
+            enumerate_on_variables_types_in_function(obj, lambda var: preprocess_and_count_variable(var, classes, known_types))
+    new_parsed_objects = [o for o in parsed_objects if isinstance(o, CppClass)]
+    new_parsed_objects.sort(key=lambda obj: classes[obj.name]["count"], reverse=True)
+    new_parsed_objects += [o for o in parsed_objects if not isinstance(o, CppClass)]
+    return new_parsed_objects
 
             
 
-def create_lua_code(parsed_objects, out_file):
-    pass
-
 def main():
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument("files", nargs="+")
-    parser.add_argument("-o", action="store", nargs=2, help="The output files, the first is the cpp file and the second is the lua file.")
-    parser.add_argument("--ignore-classes", "-ic", action="store", nargs="+", help="Dont parse classes with the provided names.")
-    parser.add_argument("--exists", "-e", action="store", nargs="+", help="Act as if the provided classes already exists and dont throw an error when when refrencing them.")
-    parser.add_argument("-I", action="store", nargs="+", help="Directories where the header file are.")
-
-    args = parser.parse_args()
-
     files = args.files
     out_cpp_file = args.o[0]
     out_lua_file = args.o[1]
@@ -168,7 +229,7 @@ def main():
     class_name = ""
     class_brace_count = 0
     class_fields_state = "private"
-    namespaces = []
+    namespaces : set[str] = set()
 
     code_lines = input_code.splitlines()
 
@@ -212,7 +273,7 @@ def main():
         while (token := lexer.next()) != "":
             match token:
                 case "namespace":
-                    namespaces.append(lexer.next())
+                    namespaces.add(lexer.next())
                 case "struct" | "class":
                     class_name = lexer.next()
                     if class_name in ignore_classes:
@@ -228,15 +289,20 @@ def main():
                         in_class = True
                         curr_class = CppClass(class_name)
                         print(f"{Fore.GREEN}Found {token} {class_name}")
-                        if token == "struct":
+                        if token.strip() == "struct":
                             class_fields_state = "public"
                         else:
                             class_fields_state = "private"
+                        print(f"{Fore.CYAN}Class fields stated changed to {class_fields_state}")
 
-    print(Fore.RESET,parsed_objects)
+    print(Fore.RESET, "BEFORE PREPROCESSING:\n", parsed_objects)
 
-    if validate_cpp(parsed_objects):
-        create_cpp_code(files, args.I, namespaces, parsed_objects, out_cpp_file)
+    parsed_objects = preprocess_cpp(parsed_objects, namespaces)
+
+    print()
+    print(Fore.RESET, "AFTER PREPROCESSING:\n", parsed_objects)
+    create_cpp_code(files, args.I, namespaces, parsed_objects, out_cpp_file)
+    create_lua_code(parsed_objects, out_lua_file)
 
 # need to set lua object, setmetatable(o, {__index = {functions}})
 

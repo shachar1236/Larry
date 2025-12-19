@@ -23,8 +23,8 @@ class CppClassVariable():
 
 class CppClassConstructor():
 
-    def __init__(self, arguments : CppVariable) -> None:
-        self.arguments : CppVariable = arguments
+    def __init__(self, arguments : list[CppVariable]) -> None:
+        self.arguments : list[CppVariable] = arguments
     
     def __repr__(self) -> str:
         return f"Constructor({self.arguments})"

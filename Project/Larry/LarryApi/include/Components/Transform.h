@@ -19,6 +19,17 @@ namespace Larry {
             rotation_size = 0;
         }
 
+        ~Transform() {
+
+        }
+
+        void Reset() {
+            translation = Math::Vec3(0.0f);
+            scale = Math::Vec3(1.0f);
+            rotation_axis = Math::Vec3(0.0f, 0.0f, 1.0f);
+            rotation_size = 0;
+        }
+
         YAML::Node EncodeYAML() {
             YAML::Node node;
             node["translation"] = translation;
