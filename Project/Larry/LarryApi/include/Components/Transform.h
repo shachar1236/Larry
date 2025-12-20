@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Log.h"
 #include "Math/Math.h"
 
 namespace Larry {
@@ -23,7 +24,8 @@ namespace Larry {
 
         }
 
-        void Reset() {
+        void Reset(int test) {
+            LA_CORE_INFO("Reset debug test num: ", test);
             translation = Math::Vec3(0.0f);
             scale = Math::Vec3(1.0f);
             rotation_axis = Math::Vec3(0.0f, 0.0f, 1.0f);

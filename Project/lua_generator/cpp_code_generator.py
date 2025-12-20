@@ -18,7 +18,7 @@ def generate_destractor(class_name, tab_count):
     tab_count -= 1
     return code + f"{TAB * tab_count}" + "}\n\n"
 
-def generate_function(class_name, function : CppClassFunction, tab_count):
+def generate_method(class_name, function : CppClassFunction, tab_count):
     code = f"{TAB * tab_count}{function.return_value} _{class_name}_{function.name}({class_name}* __obj";
     if len(function.args) > 0:
         code += ", "
@@ -27,6 +27,19 @@ def generate_function(class_name, function : CppClassFunction, tab_count):
     code += TAB * tab_count + "{\n";
     tab_count += 1
     code += f"{TAB * tab_count}return __obj->{function.name}({','.join(map(lambda a: a.var_name, function.args))});\n";
+    tab_count -= 1
+    return code + f"{TAB * tab_count}" + "}\n\n"
+
+def generate_function(function : CppFunction, tab_count):
+    args = ", ".join([f"{arg.var_type} {arg.var_name}" for arg in function.args])
+    args_names = ", ".join([f"{arg.var_name}" for arg in function.args])
+    code = f"{TAB * tab_count}{function.return_value} _lua_{function.name}({args})\n"
+    code += TAB * tab_count + "{\n";
+    tab_count += 1
+    code += TAB * tab_count
+    if function.return_value != "void":
+        code += "return "
+    code += f"{function.name}({args_names});\n"
     tab_count -= 1
     return code + f"{TAB * tab_count}" + "}\n\n"
 
@@ -53,11 +66,13 @@ extern "C" {
 """
     tab_count = 1
     for obj in parsed_objects:
+        if isinstance(obj, CppFunction):
+            code += generate_function(obj, tab_count)
         if isinstance(obj, CppClass):
             for constructor in obj.constructors:
                 code += generate_constructor(obj.name, constructor, tab_count)
             for function in obj.functions:
-                code += generate_function(obj.name, function, tab_count)
+                code += generate_method(obj.name, function, tab_count)
             if obj.destructor:
                 code += generate_destractor(obj.name, tab_count)
     tab_count -= 1

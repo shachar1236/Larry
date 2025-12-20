@@ -56,6 +56,7 @@ class CppClass():
         self.destructor = None
         self.variables : list[CppClassVariable] = []
         self.functions : list[CppClassFunction] = [] 
+        self._valid = True
 
     def __repr__(self) -> str:
         return f"Class({self.name}, {self.constructors}, {self.destructor}, {self.variables}, {self.functions})"
@@ -66,6 +67,7 @@ class CppFunction():
         self.name = name
         self.return_value = return_value
         self.args = args
+        self._valid = True
 
     def __repr__(self) -> str:
         return f"Function({self.return_value} {self.name}({self.args}))"

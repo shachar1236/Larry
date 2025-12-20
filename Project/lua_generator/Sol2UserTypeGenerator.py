@@ -1,6 +1,7 @@
 import sys
 import re
-import cxxheaderparser
+from cxxheaderparser.simple import parse_string
+from cxxheaderparser.parser import *
 import argparse
 from colorama import Fore
 from cpp_types import *
@@ -14,6 +15,8 @@ parser.add_argument("-o", action="store", nargs=2, help="The output files, the f
 parser.add_argument("--ignore-classes", "-ic", action="store", nargs="+", help="Dont parse classes with the provided names.")
 parser.add_argument("--exists", "-e", action="store", nargs="+", help="Act as if the provided classes already exists and dont throw an error when when refrencing them.")
 parser.add_argument("-I", action="store", nargs="+", help="Directories where the header file are.")
+parser.add_argument("--skip-errors", "-se", action="store_true", help="If there is an error parsing the file it will just skip it.")
+parser.add_argument("--custom-ffi-cdef", action="store", nargs=1, help="Lua script name that returns a cdef to add to the lua ffi.")
 
 args = parser.parse_args()
 
@@ -33,111 +36,6 @@ def iswhitespace(char):
 BASE_TYPES = ["int", "float", "double", "char", "bool", "short", "long", "void"]
 OPERATORS = ["=", ";", ",", ".", "{", "}", "(", ")"]
 
-class Lexer():
-
-    def __init__(self, code):
-        self.code = code
-
-    def _peek(self):
-        found_start = False
-        start_index = 0
-        end_index = 0
-        for i, char in enumerate(self.code):
-            if iswhitespace(char):
-                if found_start:
-                    end_index = i
-                    break
-            elif char in OPERATORS:
-                if found_start:
-                    end_index = i
-                    break
-                else:
-                    found_start = True
-                    start_index = i
-                    end_index = i+1
-                    break
-            elif not found_start:
-                start_index = i
-                found_start = True
-        
-        if not found_start:
-            return "", 0, 0
-
-        if end_index == 0:
-            end_index = len(self.code)
-
-        token = self.code[start_index:end_index]
-        return token, start_index, end_index
-
-    def peek(self):
-        token, _, _ = self._peek()
-        return token
-
-    def next(self):
-        token, start_index, end_index = self._peek()
-        if token != "":
-            self.code = self.code[end_index:]
-        return token
-
-def parse_type(lexer : Lexer):
-    t = lexer.next()
-    if t in ["const", "unsigned", "enum"]:
-        t2 = lexer.next()
-        return f"{t} {t2}"
-    return t
-        
-def parse_function_after_type(lexer : Lexer, line : str) -> tuple[str, list[CppVariable]]:
-    function_name = lexer.next()
-    pare = lexer.next()
-    if pare == "(" and ")" in line:
-        args : list[CppVariable] = []
-        while lexer.peek() != ")":
-            if lexer.peek() == ",":
-                lexer.next()
-            args.append(CppVariable(parse_type(lexer), lexer.next()))
-
-        return function_name, args
-                
-    return "", []
-
-def parse_if_class_function(line, state):
-    lexer = Lexer(line)
-    return_type = parse_type(lexer)
-    function_name, args_types = parse_function_after_type(lexer, line)
-    if function_name != "":
-        return CppClassFunction(function_name, state, return_type, args_types)
-    
-    return None
-
-def parse_if_constructor(line, curr_class_name):
-    function_name, args_types = parse_function_after_type(Lexer(line), line)
-    if function_name != "" and function_name == curr_class_name:
-        return CppClassConstructor(args_types)
-    return None
-
-def parse_if_destractor(line, curr_class_name):
-    lexer = Lexer(line)
-    class_name = lexer.next()
-    if class_name != "" and class_name[0] == "~" and class_name[1:] == curr_class_name:
-        return CppClassDestractor()
-    return None
-
-def parse_if_variable(line, state):
-    lexer = Lexer(line)
-    var_type = parse_type(lexer)
-    var_name = lexer.next()
-    last_token = lexer.next()
-    if var_type != "" and var_name != "":
-        if last_token == ";":
-            return CppClassVariable(var_type, var_name, state)
-
-        if last_token == "=":
-            default_value = lexer.next()
-            semi_colon = lexer.next();
-            if default_value != "" and semi_colon == ";":
-                return CppClassVariable(var_type, var_name, state, default_value)
-    return None
-
 def get_clean_type(t, namespaces : set[str], parent_namespace=""):
     if "::" in t:
         i = t.find("::")
@@ -150,21 +48,49 @@ def get_clean_type(t, namespaces : set[str], parent_namespace=""):
 
 
 def enumerate_on_variables_types_in_object(obj : CppClass, func):
+    constructors = []
     for constructor in obj.constructors:
-        for i, arg in enumerate(constructor.arguments):
-            constructor.arguments[i].var_type = func(arg.var_type)
+        try:
+            for i, arg in enumerate(constructor.arguments):
+                constructor.arguments[i].var_type = func(arg.var_type)
+            constructors.append(constructor)
+        except Exception as e:
+            if not args.skip_errors:
+                raise e
+    obj.constructors = constructors
+
+    functions = []
     for function in obj.functions:
-        for i, arg in enumerate(function.args):
-            function.args[i].var_type = func(arg.var_type)
-        function.return_value = func(function.return_value)
-    for i, var in enumerate(obj.variables):
-        obj.variables[i].var_type = func(var.var_type)
+        try:
+            for i, arg in enumerate(function.args):
+                function.args[i].var_type = func(arg.var_type)
+            function.return_value = func(function.return_value)
+            functions.append(function)
+        except Exception as e:
+            if not args.skip_errors:
+                raise e
+    obj.functions = functions
+
+    for i, arg in enumerate(obj.variables):
+        try:
+            obj.variables[i].var_type = func(arg.var_type)
+        except Exception as e:
+            if not args.skip_errors:
+                raise e
+            else:
+                obj._valid = False
 
 def enumerate_on_variables_types_in_function(obj : CppFunction, func):
-    obj.return_value = func(obj.return_value)
-    for i, arg in enumerate(obj.args):
-        obj.args[i].var_type = func(arg.var_type)
-    obj.return_value = func(obj.return_value)
+    try:
+        obj.return_value = func(obj.return_value)
+        for i, arg in enumerate(obj.args):
+            obj.args[i].var_type = func(arg.var_type)
+        obj.return_value = func(obj.return_value)
+    except Exception as e:
+        if not args.skip_errors:
+            raise e
+        else:
+            obj._valid = False
 
 
 def preprocess_and_count_variable(var_type : str, classes, known_types):
@@ -174,9 +100,14 @@ def preprocess_and_count_variable(var_type : str, classes, known_types):
     elif not(var_type in known_types):
         if var_type[-1] == "*":
             return "void" + "*" * var_type.count("*")
-        elif args_exists == None or not(var_type in args_exists):
+        elif args_exists != None and var_type in args_exists:
+            return var_type
+        else:
             print(Fore.RED, f"ERROR: used unknown type: {var_type}")
             raise SystemError(f"ERROR: used unknown type: {var_type}")
+    else:
+        return var_type
+
 
 def preprocess_cpp(parsed_objects, namespaces):
     known_types = set()
@@ -196,44 +127,145 @@ def preprocess_cpp(parsed_objects, namespaces):
     classes = { obj.name : { "value" : obj, "count" : 0 } for obj in parsed_objects if isinstance(obj, CppClass)}
     for obj in parsed_objects:
         if isinstance(obj, CppClass):
-            enumerate_on_variables_types_in_object(obj, lambda var_type: get_clean_type(var_type, namespaces))
+            # enumerate_on_variables_types_in_object(obj, lambda var_type: get_clean_type(var_type, namespaces))
             enumerate_on_variables_types_in_object(obj, lambda var: preprocess_and_count_variable(var, classes, known_types))
         if isinstance(obj, CppFunction):
-            enumerate_on_variables_types_in_function(obj, lambda var_type: get_clean_type(var_type, namespaces))
+            # enumerate_on_variables_types_in_function(obj, lambda var_type: get_clean_type(var_type, namespaces))
             enumerate_on_variables_types_in_function(obj, lambda var: preprocess_and_count_variable(var, classes, known_types))
-    new_parsed_objects = [o for o in parsed_objects if isinstance(o, CppClass)]
+    new_parsed_objects = [o for o in parsed_objects if isinstance(o, CppClass) and o._valid]
     new_parsed_objects.sort(key=lambda obj: classes[obj.name]["count"], reverse=True)
-    new_parsed_objects += [o for o in parsed_objects if not isinstance(o, CppClass)]
+    new_parsed_objects += [o for o in parsed_objects if isinstance(o, CppFunction) and o._valid]
     return new_parsed_objects
 
+namespaces : set[str] = set()
+parsed_classes = {}
+parsed_functions = []
+parsed_objects = []
+
+def resolve_name(type_):
+    segments = []
+    is_ptr = False
+    if isinstance(type_, Pointer):
+        segments = type_.ptr_to.typename.segments
+        is_ptr = True
+    elif isinstance(type_, Type) or isinstance(type_, ClassDecl):
+        segments = type_.typename.segments
+    else:
+        print(Fore.RED, f"ERROR: not supporting type: {type(type_)}")
+        raise SystemError(f"ERROR: not supporting type: {type(type_)}")
+    if len(segments) > 1:
+        namespace = "::".join(map(lambda x: x.name , segments[:-1]))
+        namespaces.add(namespace)
+
+    if is_ptr:
+        return segments[-1].name + "*"
+    return segments[-1].name
+
+ignore_classes = []
+if args.ignore_classes:
+    ignore_classes = args.ignore_classes
+
+
+class MyVisitor(CxxVisitor):
+    def on_namespace_end(self, state):
+        for name in state.namespace.names:
+            namespaces.add(name)
+
+    def on_class_start(self, state):
+        try:
+            cpp_class = CppClass(resolve_name(state.class_decl))
+            if cpp_class in ignore_classes:
+                return
+            print(f"{Fore.BLUE}Found a class {cpp_class.name}")
+            parsed_classes[cpp_class.name] = cpp_class
+        except Exception as e:
+            if not args.skip_errors:
+                raise e
+
+    def on_class_field(self, state: ClassBlockState, f: Field) -> None:
+        try:
+            class_name = resolve_name(state.class_decl)
+            if class_name in ignore_classes:
+                return
+            field_name = f.name
+            field_type = resolve_name(f.type)
+            field_state = f.access
+            field_value = None
+            if f.value:
+                field_value = f.value.format()
+            print(f"{Fore.BLUE}Found a {field_state} {field_type} {field_name}")
+            parsed_classes[class_name].variables.append(CppClassVariable(field_type, field_name, field_state, field_value))
+        except Exception as e:
+            if not args.skip_errors:
+                raise e
+
+    def on_class_method(self, state: ClassBlockState, method: Method) -> None:
+        try:
+            class_name = resolve_name(state.class_decl)
+            if class_name in ignore_classes:
+                return
+            method_name = method.name.segments[-1].name
+            method_return_type = None
+            if method.return_type:
+                method_return_type = resolve_name(method.return_type)
             
+            method_parameters = []
+            for par in method.parameters:
+                parameter = CppVariable(resolve_name(par.type), par.name)
+                method_parameters.append(parameter)
+
+            if method.constructor:
+                c = CppClassConstructor(method_parameters)
+                print(f"{Fore.BLUE}Found a {c}")
+                parsed_classes[class_name].constructors.append(c)
+            elif method.destructor:
+                d = CppClassDestractor()
+                print(f"{Fore.BLUE}Found a destructor for {class_name}")
+                parsed_classes[class_name].destructor = d
+            else:
+                f = CppClassFunction(method_name, method.access, method_return_type, method_parameters)
+                print(f"{Fore.BLUE}Found a {method.access} {f}")
+                parsed_classes[class_name].functions.append(f)
+        except Exception as e:
+            if not args.skip_errors:
+                raise e
+    
+    def on_function(self, state: NonClassBlockState, fn: Function) -> None:
+        try:
+            function_name = resolve_name(fn.name)
+            fn_return_type = None
+            if fn.return_type:
+                fn_return_type = resolve_name(fn.return_type)
+            
+            fn_parameters = []
+            for par in fn.parameters:
+                parameter = CppVariable(resolve_name(par.type), par.name)
+                fn_parameters.append(parameter)
+
+            f = CppFunction(function_name, fn_return_type, fn_parameters)
+            print(f"{Fore.BLUE}Found a {f}")
+            parsed_functions.append(f)
+        except Exception as e:
+            if not args.skip_errors:
+                raise e
 
 def main():
     files = args.files
     out_cpp_file = args.o[0]
     out_lua_file = args.o[1]
-    ignore_classes = []
-    if args.ignore_classes:
-        ignore_classes = args.ignore_classes
-
     input_code = ""
     for file in files:
         with open(file, "r") as f:
             print(f"{Fore.MAGENTA}Reading file ", file)
             input_code += f.read() + "\n"
 
-    parsed_objects = []
+    visitor = MyVisitor()
+    parser = CxxParser("", input_code, visitor)
+    parser.parse()
 
-    in_class = False
-    curr_class : CppClass = None
-    class_name = ""
-    class_brace_count = 0
-    class_fields_state = "private"
-    namespaces : set[str] = set()
 
-    code_lines = input_code.splitlines()
 
-    for line in code_lines:
+    """for line in code_lines:
         lexer = Lexer(line)
 
         if in_class:
@@ -294,6 +326,9 @@ def main():
                         else:
                             class_fields_state = "private"
                         print(f"{Fore.CYAN}Class fields stated changed to {class_fields_state}")
+    """
+
+    parsed_objects = [v for v in parsed_classes.values()] + parsed_functions
 
     print(Fore.RESET, "BEFORE PREPROCESSING:\n", parsed_objects)
 
@@ -302,7 +337,7 @@ def main():
     print()
     print(Fore.RESET, "AFTER PREPROCESSING:\n", parsed_objects)
     create_cpp_code(files, args.I, namespaces, parsed_objects, out_cpp_file)
-    create_lua_code(parsed_objects, out_lua_file)
+    create_lua_code(parsed_objects, out_lua_file, args.custom_ffi_cdef)
 
 # need to set lua object, setmetatable(o, {__index = {functions}})
 
