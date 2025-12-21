@@ -40,6 +40,7 @@ ffi.cdef(cdef)
 function CameraSetPos(Camera, pos)
     return ffi.C._Camera_SetPos(Camera, pos)
 end
+
 local _obj_Transform
 local _obj_Transform_mt = {
     __index = {
@@ -47,5 +48,6 @@ local _obj_Transform_mt = {
     }
 }
 
-_obj_Transform = ffi.metatype("Transform*", _obj_Transform_mt)
+_obj_Transform = ffi.metatype("Transform", _obj_Transform_mt)
 
+return ffi

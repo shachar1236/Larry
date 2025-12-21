@@ -25,7 +25,7 @@ namespace Larry {
         }
 
         void Reset(int test) {
-            LA_CORE_INFO("Reset debug test num: ", test);
+            LA_CORE_INFO("Reset debug test num1: ", test);
             translation = Math::Vec3(0.0f);
             scale = Math::Vec3(1.0f);
             rotation_axis = Math::Vec3(0.0f, 0.0f, 1.0f);

@@ -79,6 +79,7 @@ set(LarrySharedLibraries
 )
 
 set(LarryLuaScripts
+    ${CMAKE_CURRENT_SOURCE_DIR}/Larry/LarryApi/Scripts/lua/LarryApiBase.lua
     ${CMAKE_CURRENT_SOURCE_DIR}/Larry/LarryApi/Scripts/lua/LarryApi.lua
     ${CMAKE_CURRENT_SOURCE_DIR}/Larry/LarryApi/Scripts/lua/CDef.lua
     ${CMAKE_CURRENT_SOURCE_DIR}/Larry/LarryApi/Scripts/lua/LarryKeyCodes.lua

@@ -6,8 +6,8 @@ file(GLOB_RECURSE COMPONENT_HEADERS
     "include/Components/**.h"
 )
 
-set(OUT_HPP "${CMAKE_CURRENT_SOURCE_DIR}/Scripts/lua/LarryApiComponents.hpp")
-set(OUT_LUA "${CMAKE_CURRENT_SOURCE_DIR}/Scripts/lua/LarryApiComponents.lua")
+set(OUT_HPP "${CMAKE_CURRENT_SOURCE_DIR}/Scripts/lua/LarryApiBase.hpp")
+set(OUT_LUA "${CMAKE_CURRENT_SOURCE_DIR}/include/Scripts/lua/LarryApiBase.lua")
 
 # 3. The custom command now uses the list of files
 add_custom_command(
@@ -20,6 +20,7 @@ add_custom_command(
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             --ignore-classes \"convert<Larry::TextureLoader>\" 
             --exists Vec1 Vec2 Vec3 Vec4 Entity ECS_Entity
+            --namespaces Larry Larry::Math Larry::ECS
             --skip-errors 
             --custom-ffi-cdef CDef
     DEPENDS ${COMPONENT_HEADERS}

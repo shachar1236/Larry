@@ -1,6 +1,7 @@
 #include "LuaScripts.h"
 #include "ECS_C.h"
 #include "LarryApiFunctions.h"
+#include "LarryApiBase.hpp"
 #include "Log.h"
 #include "TextureLoader.h"
 #include "World.hpp"
@@ -33,6 +34,7 @@ namespace Larry::Scripts {
     }
 
     void LuaScripts::AddScriptToEntity(const std::string& script_name, ECS::World* world, ECS_Entity entity) {
+        LA_CORE_INFO("Registering lua script {} to entity {}", script_name, entity);
         ECS::Internal::World* iworld = world->GetInternalWorld();
         ECS_TypeHashCode script_hash = std::hash<std::string>()(script_name);
         script_types[script_name] = script_hash;
@@ -131,7 +133,7 @@ namespace Larry::Scripts {
     }
 
     void LuaScripts::RegisterComponent(const std::string& name, ECS_TypeHashCode hash_code) {
-        /* lua_getglobal(L, "AddComponentHash");
+        lua_getglobal(L, "AddComponentHash");
 
         lua_pushstring(L, name.c_str());
         lua_pushlightuserdata(L, reinterpret_cast<void*>(static_cast<uintptr_t>(hash_code)));
@@ -139,10 +141,10 @@ namespace Larry::Scripts {
         if (lua_pcall(L, 2, 0, 0) != LUA_OK) {
             LA_CORE_ERROR("Cant register component {} in lua!", name);
             return;
-        } */
-        lua["ComponentNamesToHash"][name] = lua.create_table_with(
-            "hash", hash_code
-        );
+        }
+        // lua["ComponentNamesToHash"][name] = lua.create_table_with(
+            // "hash", hash_code
+        // );
     }
 
     void LuaScripts::LuaSystemCallback(ECS_Entity entity, ECS_AnyQueue components, bool* stop) {

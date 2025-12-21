@@ -17,6 +17,8 @@ world:
     Scripts:
       - TestScript
       - script2
+    LuaScripts:
+      - TestLuaScript.lua
     Childrens:
       - entity2
       - entity3

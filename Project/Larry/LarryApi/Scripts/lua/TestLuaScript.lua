@@ -23,6 +23,9 @@ function TestLuaScript:OnUpdate(deltaTime)
         direction = direction - self.vel
     end
     local transform = GetComponent(self.world, self.entity, "Transform")
+    if KeyPressed(keys["KEY_M"]) then
+        transform:Reset(8)
+    end
     transform.translation.y = transform.translation.y + direction * deltaTime
 end
 

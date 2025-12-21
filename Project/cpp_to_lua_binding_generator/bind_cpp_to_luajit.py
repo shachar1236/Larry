@@ -17,6 +17,7 @@ parser.add_argument("--exists", "-e", action="store", nargs="+", help="Act as if
 parser.add_argument("-I", action="store", nargs="+", help="Directories where the header file are.")
 parser.add_argument("--skip-errors", "-se", action="store_true", help="If there is an error parsing the file it will just skip it.")
 parser.add_argument("--custom-ffi-cdef", action="store", nargs=1, help="Lua script name that returns a cdef to add to the lua ffi.")
+parser.add_argument("--namespaces", action="store", nargs="+", help="Namespaces that are mentions in the code.")
 
 args = parser.parse_args()
 
@@ -156,7 +157,7 @@ def resolve_name(type_):
         raise SystemError(f"ERROR: not supporting type: {type(type_)}")
     if len(segments) > 1:
         namespace = "::".join(map(lambda x: x.name , segments[:-1]))
-        namespaces.add(namespace)
+        # namespaces.add(namespace)
 
     if is_ptr:
         return segments[-1].name + "*"
@@ -268,11 +269,14 @@ def main():
 
     # print(Fore.RESET, parsed_objects)
     # TODO: parse cpp function and bind them to lua
+    for n in args.namespaces:
+        namespaces.add(n)
 
     parsed_objects, unvalid_classes = preprocess_cpp(parsed_objects, namespaces)
 
     print()
     print(Fore.RESET, parsed_objects)
+
     create_cpp_code(files, args.I, namespaces, parsed_objects, unvalid_classes, out_cpp_file)
     create_lua_code(parsed_objects, unvalid_classes, out_lua_file, args.custom_ffi_cdef)
 

@@ -64,7 +64,7 @@ namespace Larry {
         } 
 
         // LA_INFO("Setting transform!");
-        transform->translation = transform->translation + (direction * (float)deltaTime);
+        // transform->translation = transform->translation + (direction * (float)deltaTime);
     }
 
     void TestScript::HandleEvent(const ECS::Entity& entity, Event* event) {

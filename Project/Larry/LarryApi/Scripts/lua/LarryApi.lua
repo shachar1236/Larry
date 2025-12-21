@@ -1,16 +1,16 @@
-local ffi = require("ffi")
-local cdef = require("CDef")
+local ffi = require("LarryApiBase")
+-- local cdef = require("CDef")
 local inspect = require("lib.inspect")
 local dbg = require("lib.debugger")
 
-ffi.cdef(cdef)
+-- ffi.cdef(cdef)
 
 ComponentNamesToHash = {}
--- function AddComponentHash(name, component_type_hash_as_ptr)
+function AddComponentHash(name, component_type_hash_as_ptr)
     -- Cast the incoming void* back to ECS_TypeHashCode (unsigned long)
-    -- local component_type_hash = ffi.cast("ECS_TypeHashCode", component_type_hash_as_ptr)
-    -- ComponentNamesToHash[name] = component_type_hash;
--- end
+    local component_type_hash = ffi.cast("ECS_TypeHashCode", component_type_hash_as_ptr)
+    ComponentNamesToHash[name] = component_type_hash;
+end
 
 function GetComponent(world, entity, componentName)
     -- Cast the incoming void* back to ECS_TypeHashCode (unsigned long)
@@ -18,7 +18,7 @@ function GetComponent(world, entity, componentName)
 
     if ComponentNamesToHash[componentName] then
         local res = ffi.C.ECS_GetComponent(world, entity, ComponentNamesToHash[componentName])
-        local comp = ffi.cast("struct " .. componentName .. "*", res.value)
+        local comp = ffi.cast(componentName .. "*", res.value)
         return comp
         -- print("Lua: ECS_GetComponent returned. Value:", res.value, "Type:", res.type)
     end
@@ -32,7 +32,7 @@ function SystemCallback(entity_as_ptr, components_queue, stop_as_voidptr)
     local component_table = {}
     for i, comp_name in ipairs(currentSystemComponents) do
         local any_type = ffi.C.ECS_PopFromAnyQueue(components_queue)
-        local comp = ffi.cast("struct " .. comp_name .. "*", any_type.value)
+        local comp = ffi.cast(comp_name .. "*", any_type.value)
         table.insert(component_table, comp)
     end
     currentSystemCallback(entity, stop, unpack(component_table))

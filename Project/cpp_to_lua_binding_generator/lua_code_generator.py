@@ -34,7 +34,7 @@ def create_ctype_metamethods(obj : CppClass):
             args += ', '.join([f"{arg.var_name}" for arg in function.args])
         res += TAB * 2 + f"{function.name} = function(obj{args}) return ffi.C._{obj.name}_{function.name}(obj{args}) end,\n"
     res += TAB + "}\n}\n\n"
-    res += f'_obj_{obj.name} = ffi.metatype("{obj.name}*", _obj_{obj.name}_mt)\n\n'
+    res += f'_obj_{obj.name} = ffi.metatype("{obj.name}", _obj_{obj.name}_mt)\n\n'
     return res
 
 def create_unvalid_class_methods(obj : CppClass):
@@ -83,8 +83,10 @@ def create_lua_code(parsed_objects, unvalid_classes : list[CppClass], out_file, 
     code += "]]\n\n"
     code += "ffi.cdef(cdef)\n\n"
 
-    for cpp_class in unvalid_classes:
-        code += create_unvalid_class_methods(cpp_class)
+    for obj in unvalid_classes:
+        code += create_unvalid_class_methods(obj)
+        # if len(obj.functions) > 0:
+            # code += create_ctype_metamethods(obj)
     
     for obj in parsed_objects:
         if isinstance(obj, CppFunction):
@@ -92,6 +94,8 @@ def create_lua_code(parsed_objects, unvalid_classes : list[CppClass], out_file, 
         if isinstance(obj, CppClass):
             if len(obj.functions) > 0:
                 code += create_ctype_metamethods(obj)
+
+    code += "return ffi"
 
     with open(out_file, "w") as f:
         print(Fore.GREEN, "Writing code to ", out_file)
