@@ -1,4 +1,5 @@
 from cpp_types import *
+from colorama import Fore
 
 TAB = " " * 4
 
@@ -53,7 +54,7 @@ def create_cpp_code(input_files, include_directories, namespaces, parsed_objects
         for I in include_directories:
             if I in f:
                 index = f.find(I)
-                f_name = f[index+len(I):]
+                f_name = f[index+len(I)+1:]
                 code += f"#include <{f_name}>\n"
                 break
 
@@ -79,4 +80,5 @@ extern "C" {
     code += "}"
     
     with open(out_file, "w") as f:
+        print(Fore.GREEN, "Writing code to ", out_file)
         f.write(code)

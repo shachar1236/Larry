@@ -1,4 +1,5 @@
 from cpp_types import *
+from colorama import Fore
 
 TAB = " " * 4
 
@@ -74,6 +75,7 @@ def create_lua_code(parsed_objects, out_file, custom_ffi_cdef):
                 code += create_ctype_metamethods(obj)
 
     with open(out_file, "w") as f:
+        print(Fore.GREEN, "Writing code to ", out_file)
         f.write(code)
 
 

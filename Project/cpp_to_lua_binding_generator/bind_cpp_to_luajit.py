@@ -263,83 +263,16 @@ def main():
     parser = CxxParser("", input_code, visitor)
     parser.parse()
 
-
-
-    """for line in code_lines:
-        lexer = Lexer(line)
-
-        if in_class:
-            token = lexer.next()
-
-            match token:
-                case "{":
-                    class_brace_count += 1
-                case "}":
-                    class_brace_count -= 1
-                    if class_brace_count == 0:
-                        in_class = False
-                        parsed_objects.append(curr_class)
-                        curr_class = None
-                case "public:" | "private:":
-                    class_fields_state = token[:-1]
-                    print(f"{Fore.CYAN}Class fields stated changed to {token[:-1]}")
-                case _:
-                    not_in_function = class_brace_count == 1
-                    if not_in_function:
-                        v = parse_if_variable(line, class_fields_state)
-                        if v != None:
-                            print(f"{Fore.BLUE}Found a {class_fields_state} {v}")
-                            curr_class.variables.append(v)
-                        elif (d := parse_if_destractor(line, class_name)) != None:
-                            print(f"{Fore.BLUE}Found a {d}")
-                            curr_class.destructor = d
-                        elif class_fields_state == "public":
-                            if (c := parse_if_constructor(line, class_name)) != None:
-                                print(f"{Fore.BLUE}Found a {c}")
-                                curr_class.constructors.append(c)
-                            elif (f := parse_if_class_function(line, class_fields_state)) != None:
-                                print(f"{Fore.BLUE}Found a {class_fields_state} {f}")
-                                curr_class.functions.append(f)
-
-
-        while (token := lexer.next()) != "":
-            match token:
-                case "namespace":
-                    namespaces.add(lexer.next())
-                case "struct" | "class":
-                    class_name = lexer.next()
-                    if class_name in ignore_classes:
-                        continue
-                    end = lexer.next()
-                    match end:
-                        case "{":
-                            class_brace_count += 1
-                        case "}":
-                            class_brace_count -= 1
-
-                    if end != ";":
-                        in_class = True
-                        curr_class = CppClass(class_name)
-                        print(f"{Fore.GREEN}Found {token} {class_name}")
-                        if token.strip() == "struct":
-                            class_fields_state = "public"
-                        else:
-                            class_fields_state = "private"
-                        print(f"{Fore.CYAN}Class fields stated changed to {class_fields_state}")
-    """
-
     parsed_objects = [v for v in parsed_classes.values()] + parsed_functions
 
-    print(Fore.RESET, "BEFORE PREPROCESSING:\n", parsed_objects)
+    # TODO: parse cpp function and bind them to lua
 
     parsed_objects = preprocess_cpp(parsed_objects, namespaces)
 
     print()
-    print(Fore.RESET, "AFTER PREPROCESSING:\n", parsed_objects)
+    print(Fore.RESET, parsed_objects)
     create_cpp_code(files, args.I, namespaces, parsed_objects, out_cpp_file)
     create_lua_code(parsed_objects, out_lua_file, args.custom_ffi_cdef)
-
-# need to set lua object, setmetatable(o, {__index = {functions}})
 
 if __name__ == "__main__":
     main()

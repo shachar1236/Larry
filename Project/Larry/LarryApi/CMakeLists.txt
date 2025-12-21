@@ -2,6 +2,35 @@
 cmake_minimum_required(VERSION 3.26)
 project(LarryApi)
 
+file(GLOB_RECURSE COMPONENT_HEADERS 
+    "include/Components/**.h"
+)
+
+set(OUT_HPP "${CMAKE_CURRENT_SOURCE_DIR}/Scripts/lua/LarryApiComponents.hpp")
+set(OUT_LUA "${CMAKE_CURRENT_SOURCE_DIR}/Scripts/lua/LarryApiComponents.lua")
+
+# 3. The custom command now uses the list of files
+add_custom_command(
+    OUTPUT "${OUT_HPP}" "${OUT_LUA}"
+    # Use the variable ${COMPONENT_HEADERS} instead of the wildcard string
+    COMMAND python "${CMAKE_CURRENT_SOURCE_DIR}/../../cpp_to_lua_binding_generator/bind_cpp_to_luajit.py" 
+            ${COMPONENT_HEADERS} 
+            -o "${OUT_HPP}" "${OUT_LUA}"
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/"
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            --ignore-classes \"convert<Larry::TextureLoader>\" 
+            --exists Vec1 Vec2 Vec3 Vec4 Entity ECS_Entity
+            --skip-errors 
+            --custom-ffi-cdef CDef
+    DEPENDS ${COMPONENT_HEADERS}
+    COMMENT "Generating Lua bindings from headers..."
+    VERBATIM
+)
+
+add_custom_target(GenerateLuaBindings ALL
+    DEPENDS "${OUT_HPP}" "${OUT_LUA}"
+)
+
 add_library(LarryApi SHARED
         Layers/LayerStack.cpp
 
