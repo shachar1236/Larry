@@ -135,7 +135,8 @@ def preprocess_cpp(parsed_objects, namespaces):
     new_parsed_objects = [o for o in parsed_objects if isinstance(o, CppClass) and o._valid]
     new_parsed_objects.sort(key=lambda obj: classes[obj.name]["count"], reverse=True)
     new_parsed_objects += [o for o in parsed_objects if isinstance(o, CppFunction) and o._valid]
-    return new_parsed_objects
+    unvalid_classes = [o for o in parsed_objects if isinstance(o, CppClass) and not o._valid]
+    return new_parsed_objects, unvalid_classes
 
 namespaces : set[str] = set()
 parsed_classes = {}
@@ -265,14 +266,15 @@ def main():
 
     parsed_objects = [v for v in parsed_classes.values()] + parsed_functions
 
+    # print(Fore.RESET, parsed_objects)
     # TODO: parse cpp function and bind them to lua
 
-    parsed_objects = preprocess_cpp(parsed_objects, namespaces)
+    parsed_objects, unvalid_classes = preprocess_cpp(parsed_objects, namespaces)
 
     print()
     print(Fore.RESET, parsed_objects)
-    create_cpp_code(files, args.I, namespaces, parsed_objects, out_cpp_file)
-    create_lua_code(parsed_objects, out_lua_file, args.custom_ffi_cdef)
+    create_cpp_code(files, args.I, namespaces, parsed_objects, unvalid_classes, out_cpp_file)
+    create_lua_code(parsed_objects, unvalid_classes, out_lua_file, args.custom_ffi_cdef)
 
 if __name__ == "__main__":
     main()

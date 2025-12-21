@@ -37,13 +37,24 @@ def create_ctype_metamethods(obj : CppClass):
     res += f'_obj_{obj.name} = ffi.metatype("{obj.name}*", _obj_{obj.name}_mt)\n\n'
     return res
 
+def create_unvalid_class_methods(obj : CppClass):
+    res = ""
+    for function in obj.functions:
+        args = ""
+        if len(function.args) > 0:
+            args = ", "
+            args += ', '.join([f"{arg.var_name}" for arg in function.args])
+        res += f"function {obj.name}{function.name}({obj.name}{args})\n"
+        res += TAB + f"return ffi.C._{obj.name}_{function.name}({obj.name}{args})\nend\n\n"
+    return res
+
 def create_function_in_lua(obj : CppFunction):
     args_names = ", ".join([f"{arg.var_name}" for arg in obj.args])
     res = f"function {obj.name}({args_names})\n"
     res += TAB + f"return ffi.C.{obj.name}({args_names})\nend\n\n"
     return res
 
-def create_lua_code(parsed_objects, out_file, custom_ffi_cdef):
+def create_lua_code(parsed_objects, unvalid_classes : list[CppClass], out_file, custom_ffi_cdef):
     ffi = "ffi"
     code = 'local ffi = require("ffi")\n'
     if custom_ffi_cdef:
@@ -51,6 +62,11 @@ def create_lua_code(parsed_objects, out_file, custom_ffi_cdef):
         code += "local cdef = custom_cdef .. [[\n"
     else:
         code += "local cdef = [[\n"
+
+    for cpp_class in unvalid_classes:
+        code += f"typedef void {cpp_class.name};\n"
+
+    code += "\n"
 
     for obj in parsed_objects:
         if isinstance(obj, CppFunction):
@@ -66,6 +82,9 @@ def create_lua_code(parsed_objects, out_file, custom_ffi_cdef):
                 # code += generate_destractor(obj.name, tab_count)
     code += "]]\n\n"
     code += "ffi.cdef(cdef)\n\n"
+
+    for cpp_class in unvalid_classes:
+        code += create_unvalid_class_methods(cpp_class)
     
     for obj in parsed_objects:
         if isinstance(obj, CppFunction):

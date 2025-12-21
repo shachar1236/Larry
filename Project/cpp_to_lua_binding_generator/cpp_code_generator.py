@@ -19,15 +19,21 @@ def generate_destractor(class_name, tab_count):
     tab_count -= 1
     return code + f"{TAB * tab_count}" + "}\n\n"
 
-def generate_method(class_name, function : CppClassFunction, tab_count):
-    code = f"{TAB * tab_count}{function.return_value} _{class_name}_{function.name}({class_name}* __obj";
+def generate_method(class_name, function : CppClassFunction, tab_count, useVoidPtr=False):
+    code = f"{TAB * tab_count}{function.return_value} _{class_name}_{function.name}({'void' if useVoidPtr else class_name}* __obj";
     if len(function.args) > 0:
         code += ", "
 
     code += f"{', '.join(map(lambda a: a.to_cpp(), function.args))})\n";
     code += TAB * tab_count + "{\n";
+
     tab_count += 1
-    code += f"{TAB * tab_count}return __obj->{function.name}({','.join(map(lambda a: a.var_name, function.args))});\n";
+    obj_name = "__obj"
+    if useVoidPtr:
+        code += f"{TAB * tab_count}{class_name}* __casted_obj = static_cast<{class_name}*>(__obj);\n"
+        obj_name = "__casted_obj"
+
+    code += f"{TAB * tab_count}return {obj_name}->{function.name}({','.join(map(lambda a: a.var_name, function.args))});\n";
     tab_count -= 1
     return code + f"{TAB * tab_count}" + "}\n\n"
 
@@ -44,7 +50,7 @@ def generate_function(function : CppFunction, tab_count):
     tab_count -= 1
     return code + f"{TAB * tab_count}" + "}\n\n"
 
-def create_cpp_code(input_files, include_directories, namespaces, parsed_objects, out_file):
+def create_cpp_code(input_files, include_directories, namespaces, parsed_objects, unvalid_classes, out_file):
     code = """
 #include <lua.hpp>
 #include <lualib.h>
@@ -66,6 +72,11 @@ def create_cpp_code(input_files, include_directories, namespaces, parsed_objects
 extern "C" {
 """
     tab_count = 1
+
+    for obj in unvalid_classes:
+        for function in obj.functions:
+            code += generate_method(obj.name, function, tab_count, useVoidPtr=True)
+
     for obj in parsed_objects:
         if isinstance(obj, CppFunction):
             code += generate_function(obj, tab_count)

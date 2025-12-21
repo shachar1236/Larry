@@ -13,7 +13,7 @@ namespace Larry {
             view = Math::lookAt(Math::Vec3(0.0f, 0.0f, 3.0f), Math::Vec3(0.0f), Math::Vec3(0.0f, 1.0f, 0.0f));
         }
 
-        void SetPos(const Math::Vec3& pos) {
+        void SetPos(Math::Vec3 pos) {
             view = Math::lookAt(pos, Math::Vec3(pos.x, pos.y, 1.0f), Math::Vec3(0.0f, 1.0f, 0.0f));
         }
 

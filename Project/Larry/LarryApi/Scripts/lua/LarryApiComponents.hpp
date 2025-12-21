@@ -12,12 +12,18 @@
 
 using namespace std;
 using namespace Larry;
-using namespace ECS;
 using namespace Math;
 using namespace YAML;
+using namespace ECS;
 
 
 extern "C" {
+    void _Camera_SetPos(void* __obj, Vec3 pos)
+    {
+        Camera* __casted_obj = static_cast<Camera*>(__obj);
+        return __casted_obj->SetPos(pos);
+    }
+
     Background _create_Background()
     {
         return Background();

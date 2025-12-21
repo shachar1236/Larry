@@ -1,6 +1,11 @@
 local ffi = require("ffi")
 local custom_cdef = require("CDef")
 local cdef = custom_cdef .. [[
+typedef void Camera;
+typedef void Projection;
+typedef void Child;
+typedef void Parent;
+
 typedef struct {
     Vec4 color;
     void* texture;
@@ -32,6 +37,9 @@ void _Transform_Reset(Transform* __obj, int test);
 
 ffi.cdef(cdef)
 
+function CameraSetPos(Camera, pos)
+    return ffi.C._Camera_SetPos(Camera, pos)
+end
 local _obj_Transform
 local _obj_Transform_mt = {
     __index = {
