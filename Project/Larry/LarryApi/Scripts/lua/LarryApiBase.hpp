@@ -10,9 +10,9 @@
 #include <Components/Relationship.h>
 #include <Components/Transform.h>
 
-using namespace Larry::ECS;
 using namespace Larry::Math;
 using namespace Larry;
+using namespace Larry::ECS;
 
 
 extern "C" {

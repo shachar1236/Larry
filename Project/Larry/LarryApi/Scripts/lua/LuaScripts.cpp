@@ -10,6 +10,8 @@
 #include <lualib.h>
 #include <lauxlib.h>
 
+
+
 namespace Larry::Scripts {
 
     LuaScripts* LuaScripts::instance;
@@ -22,7 +24,45 @@ namespace Larry::Scripts {
         }
         luaL_openlibs(L); /* Open standard libraries */
 
-        if (luaL_dofile(L, "LarryApi.lua") != LUA_OK) {
+        const char debugger[] = {
+            #embed "lib/debugger.lua"
+            , '\0' // Add null terminator manually
+        };
+
+        const unsigned char inspect_raw[] = {
+            #embed "lib/inspect.lua"
+            , '\0' // Add null terminator manually
+        };
+
+        const char* inspect = reinterpret_cast<const char*>(inspect_raw);
+
+        const char larry_key_codes[] = {
+            #embed "LarryKeyCodes.lua"
+            , '\0' // Add null terminator manually
+        };
+
+        const char larry_api_base[] = {
+            #embed "LarryApiBase.lua"
+            , '\0' // Add null terminator manually
+        };
+        const char larry_api[] = {
+            #embed "LarryApi.lua"
+            , '\0' // Add null terminator manually
+        };
+        const char cdef[] = {
+            #embed "CDef.lua"
+            , '\0' // Add null terminator manually
+        };
+
+        lua.require_script("debugger", debugger);
+        lua.require_script("inspect", inspect);
+
+        lua.require_script("CDef", cdef);
+        lua.require_script("LarryApiBase", larry_api_base);
+        lua.require_script("LarryApi", larry_api);
+        lua.require_script("LarryKeyCodes", larry_key_codes);
+
+        if (luaL_dostring(L, larry_api) != LUA_OK) {
             LA_CORE_ERROR("Error loading lua script: {}", lua_tostring(L, -1));
             return;
         }

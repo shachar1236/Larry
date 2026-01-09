@@ -6,6 +6,7 @@
 #include "ECS_C.h"
 #include "LarryMemory.h"
 #include "ECS/CPPApi/World.hpp"
+#include <map>
 #include <string>
 #define SOL_ALL_SAFETIES_ON 1
 #include <sol/sol.hpp>

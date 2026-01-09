@@ -7,7 +7,7 @@ file(GLOB_RECURSE COMPONENT_HEADERS
 )
 
 set(OUT_HPP "${CMAKE_CURRENT_SOURCE_DIR}/Scripts/lua/LarryApiBase.hpp")
-set(OUT_LUA "${CMAKE_CURRENT_SOURCE_DIR}/include/Scripts/lua/LarryApiBase.lua")
+set(OUT_LUA "${CMAKE_CURRENT_SOURCE_DIR}/Scripts/lua/LarryApiBase.lua")
 
 # 3. The custom command now uses the list of files
 add_custom_command(

@@ -119,16 +119,16 @@ if(OPENGL_FOUND)
     # target_link_libraries(LarryEngine ${LarrySharedLibraries} ${OPENGL_LIBRARIES} glfw)
 
     # file(COPY ${LarryLuaScripts} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-    add_custom_target(copyLuaScripts ALL
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                ${LarryLuaScripts}
-                ${CMAKE_CURRENT_BINARY_DIR}
-    )
-    add_custom_target(copyLuaLib ALL
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_CURRENT_SOURCE_DIR}/Larry/LarryApi/Scripts/lua/lib
-                ${CMAKE_CURRENT_BINARY_DIR}/lib
-    )
+    # add_custom_target(copyLuaScripts ALL
+        # COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                # ${LarryLuaScripts}
+                # ${CMAKE_CURRENT_BINARY_DIR}
+    # )
+    # add_custom_target(copyLuaLib ALL
+        # COMMAND ${CMAKE_COMMAND} -E copy_directory
+        # ${CMAKE_CURRENT_SOURCE_DIR}/Larry/LarryApi/Scripts/lua/lib
+                # ${CMAKE_CURRENT_BINARY_DIR}/lib
+    # )
     # add_dependencies(copyLuaScripts)
 else()
     message(FATAL_ERROR "OpenGL not found")
